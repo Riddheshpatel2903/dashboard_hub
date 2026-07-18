@@ -1,0 +1,23 @@
+# Disable directory listings
+Options -Indexes
+
+# Protect .htaccess file
+<Files .htaccess>
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Redirect or deny direct access to core internal directories and SQL files
+RewriteEngine On
+RewriteBase /dashboard/
+
+# Prevent access to config, db, and includes directories
+RewriteRule ^(config|db|includes)(/|$) - [F,L]
+
+# Prevent access to schema.sql specifically if it was queried outside /db/
+RewriteRule ^schema\.sql$ - [F,L]
+
+# Force HTTPS in non-local environments
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/dashboard/$1 [R=301,L]
