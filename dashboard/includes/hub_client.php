@@ -205,6 +205,13 @@ function hubGetSystemHealth() {
 }
 
 /**
+ * Disconnects a platform connection on the Hub.
+ */
+function hubDisconnectConnection($clientId, $platform) {
+    return hubRequest($clientId, '/api/disconnect.php', 'POST', ['platform' => $platform]);
+}
+
+/**
  * Base Curl dispatcher.
  */
 function executeCurl($url, $method, array $data = [], array $headers = [], $jsonEncode = true) {

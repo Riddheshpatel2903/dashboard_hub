@@ -1,8 +1,5 @@
 <?php
-/**
- * Postings Calendar (Tailwind & Stitch Design System).
- */
-
+/** Postings Calendar (Tailwind & Stitch Design System). */
 require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require_once __DIR__ . '/../db/connection.php';
 
@@ -12,20 +9,22 @@ if ($client_id === null) {
 }
 
 // 1. Get Selected Month & Year (default to current month/year)
-$month = isset($_GET['month']) ? (int)$_GET['month'] : (int)date('m');
-$year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
+$month = isset($_GET['month']) ? (int) $_GET['month'] : (int) date('m');
+$year = isset($_GET['year']) ? (int) $_GET['year'] : (int) date('Y');
 
 // Clamp values
-if ($month < 1 || $month > 12) $month = (int)date('m');
-if ($year < 2000 || $year > 2100) $year = (int)date('Y');
+if ($month < 1 || $month > 12)
+    $month = (int) date('m');
+if ($year < 2000 || $year > 2100)
+    $year = (int) date('Y');
 
 // Calculate calendar date grid
 $firstDayOfMonth = mktime(0, 0, 0, $month, 1, $year);
 $daysInMonth = date('t', $firstDayOfMonth);
-$startDayOfWeek = date('w', $firstDayOfMonth); // 0 (Sunday) to 6 (Saturday)
+$startDayOfWeek = date('w', $firstDayOfMonth);  // 0 (Sunday) to 6 (Saturday)
 
 // Shift Sunday=0 to Monday=0 if desired, but let's keep Sunday as first column or Monday.
-// Stitch header had MON TUE WED THU FRI SAT SUN. 
+// Stitch header had MON TUE WED THU FRI SAT SUN.
 // So Monday is column 0, Sunday is column 6.
 // Let's adjust starting offset: Sunday (w=0) becomes 6, Monday (w=1) becomes 0, etc.
 $startOffset = ($startDayOfWeek === 0) ? 6 : $startDayOfWeek - 1;
@@ -39,7 +38,7 @@ if ($prevMonth < 1) {
     $prevMonth = 12;
     $prevYear--;
 }
-$daysInPrevMonth = date('t', mktime(0,0,0, $prevMonth, 1, $prevYear));
+$daysInPrevMonth = date('t', mktime(0, 0, 0, $prevMonth, 1, $prevYear));
 for ($i = $startOffset - 1; $i >= 0; $i--) {
     $d = $daysInPrevMonth - $i;
     $calendarDays[] = [
@@ -92,13 +91,13 @@ $stmt = $pdo->prepare("
       )
 ");
 $stmt->execute([
-    'client_id'   => $client_id,
+    'client_id' => $client_id,
     'start_sched' => $startDate,
-    'end_sched'   => $endDate,
-    'start_pub'   => $startDate,
-    'end_pub'     => $endDate,
-    'start_fail'  => $startDate,
-    'end_fail'    => $endDate
+    'end_sched' => $endDate,
+    'start_pub' => $startDate,
+    'end_pub' => $endDate,
+    'start_fail' => $startDate,
+    'end_fail' => $endDate
 ]);
 $postsList = $stmt->fetchAll();
 
@@ -113,14 +112,15 @@ foreach ($postsList as $post) {
     } else {
         $dateKey = date('Y-m-d', strtotime($post['created_at']));
     }
-    
+
     if (!empty($dateKey)) {
         $postsByDate[$dateKey][] = $post;
     }
 }
 
 // Format navigation links helper
-function getNavLink($m, $y) {
+function getNavLink($m, $y)
+{
     return DASHBOARD_BASE_URL . "/pages/calendar.php?month={$m}&year={$y}";
 }
 
@@ -206,7 +206,7 @@ $monthName = date('F Y', $firstDayOfMonth);
                         $dayPosts = $postsByDate[$dKey] ?? [];
                         $isCurrentMonth = $dayInfo['current_month'];
                         $isToday = ($dKey === date('Y-m-d'));
-                        
+
                         $cellClass = 'p-sm transition-colors hover:bg-surface-bright flex flex-col justify-between';
                         if (!$isCurrentMonth) {
                             $cellClass .= ' opacity-40 bg-surface-container-low';
@@ -214,7 +214,7 @@ $monthName = date('F Y', $firstDayOfMonth);
                         if ($isToday) {
                             $cellClass .= ' bg-primary/5';
                         }
-                    ?>
+                        ?>
                         <div class="<?php echo $cellClass; ?>">
                             <div class="flex justify-between items-start mb-sm">
                                 <span class="font-data-label text-data-label <?php echo $isToday ? 'text-primary font-bold' : 'text-on-surface'; ?>">
@@ -227,10 +227,10 @@ $monthName = date('F Y', $firstDayOfMonth);
                             
                             <!-- Post Pins inside Cell -->
                             <div class="space-y-xs overflow-hidden flex-grow flex flex-col justify-end">
-                                <?php 
+                                <?php
                                 $renderedCount = 0;
                                 foreach ($dayPosts as $post):
-                                    if ($renderedCount >= 3): // Max 3 pins, then overflow indicator
+                                    if ($renderedCount >= 3):  // Max 3 pins, then overflow indicator
                                         $overflowCount = count($dayPosts) - 3;
                                         ?>
                                         <div class="overflow-pin text-[10px] font-bold text-on-surface-variant px-sm py-[2px] bg-surface-container-high rounded text-center cursor-pointer hover:bg-outline-variant/30" 
@@ -240,11 +240,11 @@ $monthName = date('F Y', $firstDayOfMonth);
                                         <?php
                                         break;
                                     endif;
-                                    
+
                                     // Resolve Platform Specific colors and icons
                                     $platIcon = 'face';
                                     $platformColorClass = 'bg-surface-container text-on-surface-variant border border-outline-variant/30';
-                                    
+
                                     if ($post['platform'] === 'facebook') {
                                         $platIcon = 'public';
                                         $platformColorClass = 'bg-[#EFF6FF] text-[#1877F2] border border-[#DBEAFE]';
@@ -270,16 +270,16 @@ $monthName = date('F Y', $firstDayOfMonth);
                                     if ($post['status'] === 'failed') {
                                         $summary = '⚠️ ' . $summary;
                                     }
-                                ?>
+                                    ?>
                                     <div class="post-pin cursor-pointer flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none truncate hover:opacity-80 transition-opacity <?php echo $platformColorClass; ?>" 
                                          data-id="<?php echo $post['id']; ?>" 
                                          title="<?php echo htmlspecialchars($post['platform'] . ' (' . $post['status'] . '): ' . $post['content']); ?>">
                                         <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
                                         <span class="truncate"><?php echo $summary; ?></span>
                                     </div>
-                                <?php 
+                                <?php
                                     $renderedCount++;
-                                endforeach; 
+                                endforeach;
                                 ?>
                             </div>
                         </div>
@@ -293,7 +293,7 @@ $monthName = date('F Y', $firstDayOfMonth);
     <div id="post-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden" style="display: none;">
         <div class="bg-surface-container-lowest border border-surface-variant w-full max-w-[500px] rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div class="px-lg py-md border-b border-surface-variant flex justify-between items-center bg-surface-container-low">
-                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Post Inspector</h3>
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Today's Posts</h3>
                 <button class="text-on-surface-variant hover:text-on-surface text-2xl font-bold" id="modal-close-btn">&times;</button>
             </div>
             <div class="p-lg overflow-y-auto max-h-[75vh]" id="modal-body-content">

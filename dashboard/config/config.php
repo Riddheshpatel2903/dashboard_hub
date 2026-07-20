@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Asia/Kolkata');
+
 /**
  * Dashboard Central Configuration.
  * Decoupled from the Hub's database.
@@ -15,6 +17,7 @@ define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASH
 // Hub API Access Coordinates
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: 'http://localhost:8080/dashboard_hub/hub', '/'));
 define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
+define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 // Dynamically compute base URL path relative to the server document root
 $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
 $dashRoot = str_replace('\\', '/', realpath(__DIR__ . '/..'));

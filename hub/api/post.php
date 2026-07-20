@@ -107,7 +107,17 @@ foreach ($platformsInput as $platform) {
         // 2. Dispatch to specific Platform API Handler
         switch ($platform) {
             case 'facebook':
-                $res = FacebookHandler::publishPost($token, $externalAccountId, $content, $mediaPublicUrl);
+                $localPath = null;
+                if ($mediaTempPath) {
+                    $localPath = __DIR__ . '/../uploads/' . ltrim($mediaTempPath, '/');
+                    if (!file_exists($localPath)) {
+                        $localPath = __DIR__ . '/../storage/temp/' . basename($mediaTempPath);
+                        if (!file_exists($localPath) && $mediaTempPath && file_exists($mediaTempPath)) {
+                            $localPath = $mediaTempPath;
+                        }
+                    }
+                }
+                $res = FacebookHandler::publishPost($token, $externalAccountId, $content, $mediaPublicUrl, $localPath);
                 $externalPostId = $res['id'] ?? null;
                 $responseBody = json_encode($res);
                 $success = true;

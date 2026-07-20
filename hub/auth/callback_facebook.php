@@ -96,9 +96,9 @@ $longUserToken = $longTokenData['access_token'];
 $expiresIn = isset($longTokenData['expires_in']) ? (int)$longTokenData['expires_in'] : 0;
 $expiresAt = $expiresIn > 0 ? date('Y-m-d H:i:s', time() + $expiresIn) : null;
 
-// 3. Retrieve the list of pages managed by this account
+// 3. Retrieve the list of pages managed by this account, requesting the instagram_business_account field
 $accountsUrl = sprintf(
-    "https://graph.facebook.com/%s/me/accounts?access_token=%s",
+    "https://graph.facebook.com/%s/me/accounts?fields=id,name,access_token,instagram_business_account&access_token=%s",
     $fbConfig['graph_api_version'],
     urlencode($longUserToken)
 );
@@ -115,6 +115,12 @@ if ($httpCode !== 200 || !isset($accountsData['data'])) {
     echo "Error: Failed to retrieve Facebook pages.";
     exit();
 }
+
+log_message('info', "Facebook me/accounts response", [
+    'client_id' => $clientId,
+    'http_code' => $httpCode,
+    'response' => $response
+]);
 
 $pages = $accountsData['data'];
 
@@ -134,30 +140,36 @@ try {
         // Encrypt page token
         $encryptedToken = encrypt($pageAccessToken);
 
-        // A. Insert or update the Facebook page connection if target is facebook
+        // A. Insert or update the Facebook page connection if target is facebook (ensure only one connection per client per platform)
         if ($targetPlatform === 'facebook') {
             $stmt = $pdo->prepare("
-                INSERT INTO platform_connections (client_id, platform, external_account_id, status)
-                VALUES (:client_id, 'facebook', :external_id, 'connected')
-                ON DUPLICATE KEY UPDATE status = 'connected', connected_at = CURRENT_TIMESTAMP
+                SELECT id FROM platform_connections 
+                WHERE client_id = :client_id AND platform = 'facebook'
+                LIMIT 1
             ");
-            $stmt->execute([
-                'client_id'   => $clientId,
-                'external_id' => $pageId
-            ]);
+            $stmt->execute(['client_id' => $clientId]);
+            $connectionId = $stmt->fetchColumn();
 
-            $connectionId = $pdo->lastInsertId();
-            if (!$connectionId) {
-                // Retrieve connection ID if ON DUPLICATE KEY UPDATE was fired
+            if ($connectionId) {
                 $stmt = $pdo->prepare("
-                    SELECT id FROM platform_connections 
-                    WHERE client_id = :client_id AND platform = 'facebook' AND external_account_id = :external_id
+                    UPDATE platform_connections 
+                    SET external_account_id = :external_id, status = 'connected', connected_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+                $stmt->execute([
+                    'external_id' => $pageId,
+                    'id'          => $connectionId
+                ]);
+            } else {
+                $stmt = $pdo->prepare("
+                    INSERT INTO platform_connections (client_id, platform, external_account_id, status)
+                    VALUES (:client_id, 'facebook', :external_id, 'connected')
                 ");
                 $stmt->execute([
                     'client_id'   => $clientId,
                     'external_id' => $pageId
                 ]);
-                $connectionId = $stmt->fetchColumn();
+                $connectionId = $pdo->lastInsertId();
             }
 
             // B. Store or update the token
@@ -175,51 +187,97 @@ try {
 
         // C. Check for linked Instagram account for this page if target is instagram
         if ($targetPlatform === 'instagram') {
-            $igUrl = sprintf(
-                "https://graph.facebook.com/%s/%s?fields=instagram_business_account&access_token=%s",
-                $fbConfig['graph_api_version'],
-                $pageId,
-                urlencode($pageAccessToken)
-            );
+            $igAccountId = null;
 
-            $ch = curl_init($igUrl);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $igResponse = curl_exec($ch);
-            $igHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            // Step 1: Check if returned directly in the pages list (User Access Token context)
+            if (!empty($page['instagram_business_account']['id'])) {
+                $igAccountId = $page['instagram_business_account']['id'];
+                log_message('info', "Instagram business account found in me/accounts response directly", [
+                    'page_id' => $pageId,
+                    'instagram_id' => $igAccountId
+                ]);
+            } else {
+                // Fallback 1: Query page node using the User Access Token (most privileged token)
+                $igUrl = sprintf(
+                    "https://graph.facebook.com/%s/%s?fields=instagram_business_account&access_token=%s",
+                    $fbConfig['graph_api_version'],
+                    $pageId,
+                    urlencode($longUserToken)
+                );
 
-            log_message('info', "Instagram link check response", [
-                'page_id' => $pageId,
-                'http_code' => $igHttpCode,
-                'response' => $igResponse
-            ]);
+                $ch = curl_init($igUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $igResponse = curl_exec($ch);
+                $igHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
 
-            $igData = json_decode($igResponse, true);
-            if ($igHttpCode === 200 && !empty($igData['instagram_business_account']['id'])) {
-                $igAccountId = $igData['instagram_business_account']['id'];
-
-                // Insert or update Instagram connection using the same page token
-                $stmt = $pdo->prepare("
-                    INSERT INTO platform_connections (client_id, platform, external_account_id, status)
-                    VALUES (:client_id, 'instagram', :external_id, 'connected')
-                    ON DUPLICATE KEY UPDATE status = 'connected', connected_at = CURRENT_TIMESTAMP
-                ");
-                $stmt->execute([
-                    'client_id'   => $clientId,
-                    'external_id' => $igAccountId
+                log_message('info', "Instagram link check fallback (user token) response", [
+                    'page_id' => $pageId,
+                    'http_code' => $igHttpCode,
+                    'response' => $igResponse
                 ]);
 
-                $igConnectionId = $pdo->lastInsertId();
-                if (!$igConnectionId) {
+                $igData = json_decode($igResponse, true);
+                if ($igHttpCode === 200 && !empty($igData['instagram_business_account']['id'])) {
+                    $igAccountId = $igData['instagram_business_account']['id'];
+                } else {
+                    // Fallback 2: Query page node using the Page Access Token
+                    $igUrl = sprintf(
+                        "https://graph.facebook.com/%s/%s?fields=instagram_business_account&access_token=%s",
+                        $fbConfig['graph_api_version'],
+                        $pageId,
+                        urlencode($pageAccessToken)
+                    );
+
+                    $ch = curl_init($igUrl);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    $igResponse = curl_exec($ch);
+                    $igHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    curl_close($ch);
+
+                    log_message('info', "Instagram link check fallback (page token) response", [
+                        'page_id' => $pageId,
+                        'http_code' => $igHttpCode,
+                        'response' => $igResponse
+                    ]);
+
+                    $igData = json_decode($igResponse, true);
+                    if ($igHttpCode === 200 && !empty($igData['instagram_business_account']['id'])) {
+                        $igAccountId = $igData['instagram_business_account']['id'];
+                    }
+                }
+            }
+
+            if (!empty($igAccountId)) {
+                // Insert or update Instagram connection (ensure only one connection per client per platform)
+                $stmt = $pdo->prepare("
+                    SELECT id FROM platform_connections 
+                    WHERE client_id = :client_id AND platform = 'instagram'
+                    LIMIT 1
+                ");
+                $stmt->execute(['client_id' => $clientId]);
+                $igConnectionId = $stmt->fetchColumn();
+
+                if ($igConnectionId) {
                     $stmt = $pdo->prepare("
-                        SELECT id FROM platform_connections 
-                        WHERE client_id = :client_id AND platform = 'instagram' AND external_account_id = :external_id
+                        UPDATE platform_connections 
+                        SET external_account_id = :external_id, status = 'connected', connected_at = CURRENT_TIMESTAMP
+                        WHERE id = :id
+                    ");
+                    $stmt->execute([
+                        'external_id' => $igAccountId,
+                        'id'          => $igConnectionId
+                    ]);
+                } else {
+                    $stmt = $pdo->prepare("
+                        INSERT INTO platform_connections (client_id, platform, external_account_id, status)
+                        VALUES (:client_id, 'instagram', :external_id, 'connected')
                     ");
                     $stmt->execute([
                         'client_id'   => $clientId,
                         'external_id' => $igAccountId
                     ]);
-                    $igConnectionId = $stmt->fetchColumn();
+                    $igConnectionId = $pdo->lastInsertId();
                 }
 
                 $stmt = $pdo->prepare("
@@ -234,6 +292,8 @@ try {
                 ]);
                 
                 log_message('info', "Linked Instagram account detected and saved", ['client_id' => $clientId, 'instagram_id' => $igAccountId]);
+            } else {
+                throw new Exception("No linked Instagram Business Account found on your Facebook Page. Please convert your Instagram account to a Professional (Business/Creator) account and link it in Facebook Page settings (Settings -> Linked Accounts -> Instagram).");
             }
         }
     }

@@ -11,8 +11,13 @@ Options -Indexes
 RewriteEngine On
 RewriteBase /hub/
 
-# Prevent access to config, db, platforms, storage, jobs, logs, and utils directories
-RewriteRule ^(config|db|platforms|storage|jobs|utils|logs)(/|$) - [F,L]
+# Prevent access to config, db, platforms, storage, utils, and logs directories
+RewriteRule ^(config|db|platforms|storage|utils|logs)(/|$) - [F,L]
+
+# For jobs directory, only allow localhost (127.0.0.1 or ::1) to trigger them
+RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
+RewriteCond %{REMOTE_ADDR} !^::1$
+RewriteRule ^jobs(/|$) - [F,L]
 
 # Prevent access to schema.sql specifically if it was queried outside /db/
 RewriteRule ^schema\.sql$ - [F,L]

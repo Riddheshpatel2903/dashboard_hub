@@ -208,14 +208,34 @@ foreach ($platformMetadata as $key => $meta) {
                         <!-- Action Button -->
                         <div class="mt-lg pt-md border-t border-surface-variant">
                             <?php if ($status === 'connected' && !$expiresSoon): ?>
-                                <button class="w-full h-10 bg-surface-container text-on-surface-variant font-bold rounded-lg cursor-not-allowed opacity-60 text-xs" disabled>
-                                    Linked & Active
-                                </button>
+                                <div class="flex gap-sm">
+                                    <button class="flex-grow h-10 bg-surface-container text-on-surface-variant font-bold rounded-lg cursor-not-allowed opacity-60 text-xs" disabled>
+                                        Linked & Active
+                                    </button>
+                                    <button onclick="unlinkPlatform('<?php echo $key; ?>')" 
+                                            class="px-md h-10 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold rounded-lg transition-all flex items-center justify-center gap-xs text-xs">
+                                        <span class="material-symbols-outlined text-sm">link_off</span>
+                                        <span>Unlink</span>
+                                    </button>
+                                </div>
+                            <?php elseif ($isExpired || $expiresSoon): ?>
+                                <div class="flex flex-col gap-xs">
+                                    <a href="<?php echo htmlspecialchars($meta['auth_url']); ?>" 
+                                       class="w-full h-10 bg-primary text-on-primary font-bold rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-xs text-xs">
+                                        <span class="material-symbols-outlined text-sm">refresh</span>
+                                        <span>Reconnect Account</span>
+                                    </a>
+                                    <button onclick="unlinkPlatform('<?php echo $key; ?>')" 
+                                            class="w-full h-10 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold rounded-lg transition-all flex items-center justify-center gap-xs text-xs">
+                                        <span class="material-symbols-outlined text-sm">link_off</span>
+                                        <span>Unlink Channel</span>
+                                    </button>
+                                </div>
                             <?php else: ?>
                                 <a href="<?php echo htmlspecialchars($meta['auth_url']); ?>" 
                                    class="w-full h-10 bg-primary text-on-primary font-bold rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-xs text-xs">
-                                    <span class="material-symbols-outlined text-sm"><?php echo ($isExpired || $expiresSoon) ? 'refresh' : 'link'; ?></span>
-                                    <span><?php echo ($isExpired || $expiresSoon) ? 'Reconnect Account' : 'Link Account'; ?></span>
+                                    <span class="material-symbols-outlined text-sm">link</span>
+                                    <span>Link Account</span>
                                 </a>
                             <?php endif; ?>
                         </div>

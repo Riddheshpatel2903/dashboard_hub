@@ -13,31 +13,17 @@ if ($client_id === null) {
     exit();
 }
 
-$connCount = 0;
-$platformsList = [];
+// Post stats and connection counts will be loaded asynchronously via AJAX
 
-// 1. Fetch connection statuses from the Hub
+$connectedPlatforms = [];
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
         if ($conn['status'] === 'connected') {
-            $connCount++;
-            $platformsList[] = $conn['platform'];
+            $connectedPlatforms[] = $conn['platform'];
         }
     }
 }
-
-// 2. Fetch total and scheduled posts count from local cache
-$stmt = $pdo->prepare("
-    SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) as published,
-        SUM(CASE WHEN status = 'scheduled' THEN 1 ELSE 0 END) as scheduled
-    FROM posts_cache 
-    WHERE client_id = :client_id
-");
-$stmt->execute(['client_id' => $client_id]);
-$postStats = $stmt->fetch() ?: ['total' => 0, 'published' => 0, 'scheduled' => 0];
 
 // Fetch 5 most recent posts
 $stmtRecent = $pdo->prepare("
@@ -79,6 +65,46 @@ $recentPosts = $stmtRecent->fetchAll();
                 </a>
             </div>
 
+            <!-- Filter Bar Card -->
+            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md shadow-sm">
+                <form id="dashboard-filter-form" onsubmit="event.preventDefault(); reloadDashboardData();" class="flex flex-wrap items-end gap-md">
+                    <!-- Platform Selector -->
+                    <div class="flex-1 min-w-[200px] space-y-xs">
+                        <label class="font-data-label text-data-label text-on-surface-variant block" for="filter-platform">SELECT CHANNEL</label>
+                        <select id="filter-platform" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary capitalize">
+                            <option value="">All Channels</option>
+                            <?php foreach ($connectedPlatforms as $p): ?>
+                                <option value="<?php echo htmlspecialchars($p); ?>">
+                                    <?php echo htmlspecialchars($p === 'google_business' ? 'Google Profile' : $p); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Date Pickers -->
+                    <div class="w-[180px] space-y-xs">
+                        <label class="font-data-label text-data-label text-on-surface-variant block" for="filter-start-date">START DATE</label>
+                        <input type="date" id="filter-start-date" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none" value="<?php echo date('Y-m-d', strtotime('-30 days')); ?>">
+                    </div>
+
+                    <div class="w-[180px] space-y-xs">
+                        <label class="font-data-label text-data-label text-on-surface-variant block" for="filter-end-date">END DATE</label>
+                        <input type="date" id="filter-end-date" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-sm">
+                        <button type="submit" class="h-10 px-lg bg-primary text-on-primary rounded-lg font-body-sm font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-xs">
+                            <span class="material-symbols-outlined text-sm">filter_list</span>
+                            <span>Filter</span>
+                        </button>
+                        <button type="button" onclick="clearDashboardFilters();" class="h-10 px-lg bg-surface-container text-on-surface-variant rounded-lg font-body-sm font-bold hover:bg-surface-container-high transition-all flex items-center justify-center">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
                 <!-- Card 1: Platforms -->
@@ -88,7 +114,7 @@ $recentPosts = $stmtRecent->fetchAll();
                         <span class="text-primary font-data-metric text-data-metric bg-primary-container/10 px-xs rounded">Active</span>
                     </div>
                     <div class="z-10">
-                        <h3 class="font-display-md text-display-md leading-none"><?php echo $connCount; ?> <span class="text-body-sm font-normal text-on-surface-variant">/ 6 active</span></h3>
+                        <h3 id="stat-connections" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
                         <p class="text-on-surface-variant text-body-sm">Connected Channels</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
@@ -105,7 +131,7 @@ $recentPosts = $stmtRecent->fetchAll();
                         <span class="text-green-600 font-data-metric text-data-metric bg-green-100 px-xs rounded">+100%</span>
                     </div>
                     <div class="z-10">
-                        <h3 class="font-display-md text-display-md leading-none"><?php echo (int)$postStats['total']; ?></h3>
+                        <h3 id="stat-total-posts" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
                         <p class="text-on-surface-variant text-body-sm">All Time Count</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
@@ -122,7 +148,7 @@ $recentPosts = $stmtRecent->fetchAll();
                         <span class="text-green-600 font-data-metric text-data-metric bg-green-100 px-xs rounded">Live</span>
                     </div>
                     <div class="z-10">
-                        <h3 class="font-display-md text-display-md leading-none"><?php echo (int)$postStats['published']; ?></h3>
+                        <h3 id="stat-published-posts" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
                         <p class="text-on-surface-variant text-body-sm">Released Content</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
@@ -139,7 +165,7 @@ $recentPosts = $stmtRecent->fetchAll();
                         <span class="text-primary font-data-metric text-data-metric bg-primary-container/10 px-xs rounded">Queue</span>
                     </div>
                     <div class="z-10">
-                        <h3 class="font-display-md text-display-md leading-none text-primary"><?php echo (int)$postStats['scheduled']; ?></h3>
+                        <h3 id="stat-scheduled-posts" class="font-display-md text-display-md leading-none text-primary"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
                         <p class="text-on-surface-variant text-body-sm">Awaiting Dispatch</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
@@ -148,6 +174,22 @@ $recentPosts = $stmtRecent->fetchAll();
                             <circle cx="80" cy="20" fill="none" r="10" stroke="#2031a9" stroke-width="1"></circle>
                         </svg>
                     </div>
+                </div>
+            </div>
+
+            <!-- Analytics Container Card -->
+            <div id="dashboard-analytics-card" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg shadow-sm space-y-md">
+                <div class="flex justify-between items-center border-b border-surface-variant pb-sm">
+                    <div>
+                        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Performance Analytics</h3>
+                        <p class="text-on-surface-variant text-xs mt-xs">Live channel metrics and trends fetched from the Hub.</p>
+                    </div>
+                    <div id="analytics-active-badge" class="px-sm py-[2px] rounded-full text-[10px] font-bold uppercase tracking-tight bg-primary-container/20 text-primary border border-primary-fixed capitalize">
+                        All Channels
+                    </div>
+                </div>
+                <div id="dashboard-analytics-content" class="min-h-[250px] flex items-center justify-center">
+                    <span class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
                 </div>
             </div>
 
@@ -250,5 +292,77 @@ $recentPosts = $stmtRecent->fetchAll();
             </div>
         </div>
     </main>
+
+    <script>
+    function reloadDashboardData() {
+        const platform = document.getElementById('filter-platform').value;
+        const startDate = document.getElementById('filter-start-date').value;
+        const endDate = document.getElementById('filter-end-date').value;
+
+        // 1. Show spinners
+        const spinner = '<span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>';
+        document.getElementById('stat-connections').innerHTML = spinner;
+        document.getElementById('stat-total-posts').innerHTML = spinner;
+        document.getElementById('stat-published-posts').innerHTML = spinner;
+        document.getElementById('stat-scheduled-posts').innerHTML = spinner;
+        
+        document.getElementById('dashboard-analytics-content').innerHTML = 
+            '<span class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>';
+
+        // Update badge
+        const badge = document.getElementById('analytics-active-badge');
+        badge.textContent = platform ? platform.replace('_', ' ') : 'All Channels';
+
+        // 2. Fetch statistics counts
+        const queryParams = new URLSearchParams({
+            platform: platform,
+            start_date: startDate,
+            end_date: endDate
+        }).toString();
+
+        fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_stats.php?${queryParams}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const activeCountText = platform ? ' / 1 active' : ' / 6 active';
+                    document.getElementById('stat-connections').innerHTML = 
+                        data.connections_count + ` <span class="text-body-sm font-normal text-on-surface-variant">${activeCountText}</span>`;
+                    document.getElementById('stat-total-posts').textContent = data.total_posts;
+                    document.getElementById('stat-published-posts').textContent = data.published_posts;
+                    document.getElementById('stat-scheduled-posts').textContent = data.scheduled_posts;
+                } else {
+                    console.error("Failed to load stats:", data.error);
+                }
+            })
+            .catch(err => console.error("Error loading stats:", err));
+
+        // 3. Fetch analytics (charts & list)
+        fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_analytics.php?${queryParams}`)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('dashboard-analytics-content').innerHTML = html;
+            })
+            .catch(err => {
+                console.error("Error loading analytics:", err);
+                document.getElementById('dashboard-analytics-content').innerHTML = 
+                    '<p class="text-error text-xs font-bold text-center">Failed to load live analytics metrics from Hub.</p>';
+            });
+    }
+
+    function clearDashboardFilters() {
+        document.getElementById('filter-platform').value = '';
+        // Set default date range to last 30 days
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        document.getElementById('filter-start-date').value = thirtyDaysAgo.toISOString().split('T')[0];
+        document.getElementById('filter-end-date').value = new Date().toISOString().split('T')[0];
+        
+        reloadDashboardData();
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        reloadDashboardData();
+    });
+    </script>
 </body>
 </html>

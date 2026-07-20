@@ -1,8 +1,5 @@
 <?php
-/**
- * Postings History Table (Tailwind & Stitch Design System).
- */
-
+/** Postings History Table (Tailwind & Stitch Design System). */
 require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require_once __DIR__ . '/../db/connection.php';
 
@@ -15,8 +12,9 @@ $platformFilter = $_GET['platform'] ?? '';
 $dateFilter = $_GET['date'] ?? '';
 $startDate = $_GET['start_date'] ?? '';
 $endDate = $_GET['end_date'] ?? '';
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page < 1) $page = 1;
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+if ($page < 1)
+    $page = 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
@@ -25,12 +23,12 @@ $sql = "WHERE client_id = :client_id AND status != 'deleted'";
 $params = ['client_id' => $client_id];
 
 if (!empty($platformFilter)) {
-    $sql .= " AND platform = :platform";
+    $sql .= ' AND platform = :platform';
     $params['platform'] = $platformFilter;
 }
 
 if (!empty($dateFilter)) {
-    $sql .= " AND (DATE(published_at) = :date_pub OR DATE(scheduled_at) = :date_sched)";
+    $sql .= ' AND (DATE(published_at) = :date_pub OR DATE(scheduled_at) = :date_sched)';
     $params['date_pub'] = $dateFilter;
     $params['date_sched'] = $dateFilter;
 }
@@ -54,7 +52,8 @@ $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM posts_cache {$sql}");
 $stmtCount->execute($params);
 $totalPosts = $stmtCount->fetchColumn();
 $totalPages = ceil($totalPosts / $limit);
-if ($totalPages < 1) $totalPages = 1;
+if ($totalPages < 1)
+    $totalPages = 1;
 
 // Fetch posts
 $stmtPosts = $pdo->prepare("
@@ -167,11 +166,12 @@ $posts = $stmtPosts->fetchAll();
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-surface-variant">
-                                <?php foreach ($posts as $post): 
+                                <?php
+                                foreach ($posts as $post):
                                     // Resolve Platform Specific colors and icons
                                     $platIcon = 'face';
                                     $platColorClass = 'bg-surface-container text-on-surface-variant';
-                                    
+
                                     if ($post['platform'] === 'facebook') {
                                         $platIcon = 'public';
                                         $platColorClass = 'bg-[#EFF6FF] text-[#1877F2] border border-[#DBEAFE]';
@@ -200,9 +200,9 @@ $posts = $stmtPosts->fetchAll();
                                     } elseif ($post['status'] === 'failed') {
                                         $statusClass = 'bg-error-container text-error border border-error/20';
                                     }
-                                    
+
                                     $targetTime = $post['status'] === 'published' ? $post['published_at'] : ($post['scheduled_at'] ?: $post['created_at']);
-                                ?>
+                                    ?>
                                     <tr class="group hover:bg-secondary-container/10 transition-colors">
                                         <!-- Platform Column -->
                                         <td class="px-lg py-md">
@@ -250,12 +250,12 @@ $posts = $stmtPosts->fetchAll();
                         </span>
                         <div class="flex gap-sm">
                             <?php if ($page > 1): ?>
-                                <a href="?page=<?php echo $page-1; ?>&platform=<?php echo urlencode($platformFilter); ?>&start_date=<?php echo urlencode($startDate); ?>&end_date=<?php echo urlencode($endDate); ?>" 
+                                <a href="?page=<?php echo $page - 1; ?>&platform=<?php echo urlencode($platformFilter); ?>&start_date=<?php echo urlencode($startDate); ?>&end_date=<?php echo urlencode($endDate); ?>" 
                                    class="h-8 px-md bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:bg-surface-container rounded font-body-sm font-bold flex items-center justify-center">&larr; Prev</a>
                             <?php endif; ?>
                             
                             <?php if ($page < $totalPages): ?>
-                                <a href="?page=<?php echo $page+1; ?>&platform=<?php echo urlencode($platformFilter); ?>&start_date=<?php echo urlencode($startDate); ?>&end_date=<?php echo urlencode($endDate); ?>" 
+                                <a href="?page=<?php echo $page + 1; ?>&platform=<?php echo urlencode($platformFilter); ?>&start_date=<?php echo urlencode($startDate); ?>&end_date=<?php echo urlencode($endDate); ?>" 
                                    class="h-8 px-md bg-surface-container-lowest border border-surface-variant text-on-surface-variant hover:bg-surface-container rounded font-body-sm font-bold flex items-center justify-center">Next &rarr;</a>
                             <?php endif; ?>
                         </div>
@@ -269,7 +269,7 @@ $posts = $stmtPosts->fetchAll();
     <div id="post-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden" style="display: none;">
         <div class="bg-surface-container-lowest border border-surface-variant w-full max-w-[500px] rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div class="px-lg py-md border-b border-surface-variant flex justify-between items-center bg-surface-container-low">
-                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Post Inspector</h3>
+                <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Today's Posts</h3>
                 <button class="text-on-surface-variant hover:text-on-surface text-2xl font-bold" id="modal-close-btn">&times;</button>
             </div>
             <div class="p-lg overflow-y-auto max-h-[75vh]" id="modal-body-content">
@@ -279,6 +279,8 @@ $posts = $stmtPosts->fetchAll();
     </div>
 
     <script>
+
+
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('post-modal');
             const modalBody = document.getElementById('modal-body-content');

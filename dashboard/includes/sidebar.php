@@ -103,6 +103,13 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
                 <span class="material-symbols-outlined" data-icon="health_and_safety">health_and_safety</span>
                 <span class="font-body-md text-body-md">System Health</span>
             </a>
+
+            <!-- Scheduler Monitor -->
+            <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('scheduler_monitoring.php', $current_script, $isAdminSection, true); ?>" 
+               href="<?php echo DASHBOARD_BASE_URL; ?>/admin/scheduler_monitoring.php">
+                <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+                <span class="font-body-md text-body-md">Scheduler Monitor</span>
+            </a>
         <?php endif; ?>
     </nav>
 
@@ -123,3 +130,17 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
         </a>
     </div>
 </aside>
+
+<script>
+// Background cron simulation for local dev
+(function() {
+    if (window.addEventListener) {
+        window.addEventListener('load', function() {
+            fetch('<?php echo DASHBOARD_BASE_URL; ?>/pages/cron_trigger.php')
+                .catch(function(err) {
+                    console.warn('Cron trigger failed:', err);
+                });
+        });
+    }
+})();
+</script>

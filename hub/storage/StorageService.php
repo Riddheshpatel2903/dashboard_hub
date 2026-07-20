@@ -43,6 +43,45 @@ class StorageService {
             return false;
         }
 
+        $tempJpgCreated = false;
+        // Auto convert images to JPEG if they are not already JPEG (for Instagram API compatibility)
+        if ($isImage && $mimeType !== 'image/jpeg' && $mimeType !== 'image/jpg') {
+            try {
+                $srcImg = null;
+                if ($mimeType === 'image/png' && function_exists('imagecreatefrompng')) {
+                    $srcImg = imagecreatefrompng($localPath);
+                } elseif ($mimeType === 'image/webp' && function_exists('imagecreatefromwebp')) {
+                    $srcImg = imagecreatefromwebp($localPath);
+                } elseif ($mimeType === 'image/gif' && function_exists('imagecreatefromgif')) {
+                    $srcImg = imagecreatefromgif($localPath);
+                }
+                
+                if ($srcImg) {
+                    $jpgPath = $localPath . '.jpg';
+                    // Convert transparency to white background
+                    $bg = imagecreatetruecolor(imagesx($srcImg), imagesy($srcImg));
+                    $white = imagecolorallocate($bg, 255, 255, 255);
+                    imagefill($bg, 0, 0, $white);
+                    imagecopy($bg, $srcImg, 0, 0, 0, 0, imagesx($srcImg), imagesy($srcImg));
+                    
+                    if (imagejpeg($bg, $jpgPath, 90)) {
+                        imagedestroy($srcImg);
+                        imagedestroy($bg);
+                        // Point localPath to the newly converted JPG
+                        $localPath = $jpgPath;
+                        $mimeType = 'image/jpeg';
+                        $fileSize = filesize($localPath);
+                        $tempJpgCreated = true;
+                    } else {
+                        imagedestroy($srcImg);
+                        imagedestroy($bg);
+                    }
+                }
+            } catch (Exception $e) {
+                log_message('warning', "Image conversion to JPEG failed: " . $e->getMessage());
+            }
+        }
+
         // Target path: clients/{client_id}/{timestamp}_{filename}
         $fileName = 'clients/' . $clientId . '/' . time() . '_' . basename($localPath);
         
@@ -53,7 +92,14 @@ class StorageService {
 
         $destPath = __DIR__ . '/../uploads/' . $fileName;
 
-        if (!copy($localPath, $destPath)) {
+        $copied = copy($localPath, $destPath);
+
+        // If we created a temp converted JPG, clean it up from the temp folder
+        if ($tempJpgCreated && file_exists($localPath)) {
+            @unlink($localPath);
+        }
+
+        if (!$copied) {
             log_message('error', "Upload failed: unable to copy file to local destination: {$destPath}", ['client_id' => $clientId]);
             return false;
         }

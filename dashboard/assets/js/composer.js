@@ -32,14 +32,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 2. Selectable platform label classes and dynamic notices
+    // 2. Selectable platform label classes and dynamic notices (Mutually exclusive YouTube video mode)
     checkboxes.forEach(chk => {
         chk.addEventListener('change', function() {
-            const label = chk.closest('.platform-checkbox-label');
-            if (chk.checked) {
-                label.classList.add('selected');
+            if (chk.value === 'youtube') {
+                if (chk.checked) {
+                    // Disable and uncheck all other platforms
+                    checkboxes.forEach(other => {
+                        if (other.value !== 'youtube') {
+                            other.checked = false;
+                            other.disabled = true;
+                            const label = other.closest('.platform-checkbox-label');
+                            if (label) {
+                                label.classList.add('opacity-40', 'cursor-not-allowed');
+                                label.classList.remove('selected');
+                            }
+                        }
+                    });
+                    // Restrict media input to video only
+                    mediaInput.accept = 'video/*';
+                } else {
+                    // Re-enable all other platforms
+                    checkboxes.forEach(other => {
+                        other.disabled = false;
+                        const label = other.closest('.platform-checkbox-label');
+                        if (label) {
+                            label.classList.remove('opacity-40', 'cursor-not-allowed');
+                        }
+                    });
+                    mediaInput.removeAttribute('accept');
+                }
             } else {
-                label.classList.remove('selected');
+                if (chk.checked) {
+                    // Disable YouTube
+                    checkboxes.forEach(other => {
+                        if (other.value === 'youtube') {
+                            other.checked = false;
+                            other.disabled = true;
+                            const label = other.closest('.platform-checkbox-label');
+                            if (label) {
+                                label.classList.add('opacity-40', 'cursor-not-allowed');
+                                label.classList.remove('selected');
+                            }
+                        }
+                    });
+                } else {
+                    // Re-enable YouTube if no other platforms are checked
+                    const anyChecked = Array.from(checkboxes).some(c => c.checked && c.value !== 'youtube');
+                    if (!anyChecked) {
+                        checkboxes.forEach(other => {
+                            other.disabled = false;
+                            const label = other.closest('.platform-checkbox-label');
+                            if (label) {
+                                label.classList.remove('opacity-40', 'cursor-not-allowed');
+                            }
+                        });
+                    }
+                }
+            }
+
+            const label = chk.closest('.platform-checkbox-label');
+            if (label) {
+                if (chk.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
             }
             updatePlatformNotices();
         });
@@ -168,9 +226,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        if (checkedPlatforms.includes('youtube') && mediaInput.files.length === 0) {
-            alert('YouTube posting requires a video attachment.');
-            return;
+        if (checkedPlatforms.includes('youtube')) {
+            if (mediaInput.files.length === 0) {
+                alert('YouTube posting requires a video attachment.');
+                return;
+            }
+            const file = mediaInput.files[0];
+            if (!file.type.startsWith('video/')) {
+                alert('YouTube only supports video uploads. Please attach a video file.');
+                return;
+            }
         }
 
         // Disable UI and trigger loader status
@@ -207,4 +272,42 @@ document.addEventListener('DOMContentLoaded', function() {
             submitLoading.style.display = 'none';
         });
     });
+    // Enforce 5-minute interval rounding on schedule datetime selection
+    function roundToNearest5Minutes(date) {
+        const coefficients = 1000 * 60 * 5; // 5 minutes in ms
+        return new Date(Math.round(date.getTime() / coefficients) * coefficients);
+    }
+
+    const scheduleInput = document.getElementById('scheduled-at');
+    if (scheduleInput) {
+        // Default to current time rounded up to nearest 5 minutes
+        const now = new Date();
+        const roundedNow = roundToNearest5Minutes(now);
+        
+        // Format to YYYY-MM-DDTHH:MM local time compatible with datetime-local value
+        const year = roundedNow.getFullYear();
+        const month = String(roundedNow.getMonth() + 1).padStart(2, '0');
+        const day = String(roundedNow.getDate()).padStart(2, '0');
+        const hours = String(roundedNow.getHours()).padStart(2, '0');
+        const minutes = String(roundedNow.getMinutes()).padStart(2, '0');
+        
+        const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+        scheduleInput.value = formattedDate;
+        scheduleInput.min = formattedDate;
+
+        // Automatically correct manual inputs to nearest 5-minute multiples
+        scheduleInput.addEventListener('change', function() {
+            if (!this.value) return;
+            const selectedDate = new Date(this.value);
+            const roundedSelected = roundToNearest5Minutes(selectedDate);
+            
+            const sYear = roundedSelected.getFullYear();
+            const sMonth = String(roundedSelected.getMonth() + 1).padStart(2, '0');
+            const sDay = String(roundedSelected.getDate()).padStart(2, '0');
+            const sHours = String(roundedSelected.getHours()).padStart(2, '0');
+            const sMinutes = String(roundedSelected.getMinutes()).padStart(2, '0');
+            
+            this.value = `${sYear}-${sMonth}-${sDay}T${sHours}:${sMinutes}`;
+        });
+    }
 });

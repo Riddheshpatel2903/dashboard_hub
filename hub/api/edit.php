@@ -33,7 +33,7 @@ try {
         SELECT p.id, p.content, p.external_post_id, pc.platform, pc.external_account_id, pt.access_token_encrypted
         FROM posts p
         JOIN platform_connections pc ON p.platform_connection_id = pc.id
-        JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+        LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
         WHERE p.id = :post_id AND p.client_id = :client_id
         LIMIT 1
     ");
@@ -51,7 +51,7 @@ try {
 
     $platform = $post['platform'];
     $externalPostId = $post['external_post_id'];
-    $token = decrypt($post['access_token_encrypted']);
+    $token = !empty($post['access_token_encrypted']) ? decrypt($post['access_token_encrypted']) : '';
 
     $response = [];
     

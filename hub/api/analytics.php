@@ -36,7 +36,7 @@ try {
             SELECT p.external_post_id, pc.platform, pc.external_account_id, pt.access_token_encrypted
             FROM posts p
             JOIN platform_connections pc ON p.platform_connection_id = pc.id
-            JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
             WHERE p.id = :post_id AND p.client_id = :client_id
             LIMIT 1
         ");
@@ -54,13 +54,13 @@ try {
 
         $platform = $postData['platform'];
         $externalId = $postData['external_post_id'];
-        $token = decrypt($postData['access_token_encrypted']);
+        $token = !empty($postData['access_token_encrypted']) ? decrypt($postData['access_token_encrypted']) : '';
     } else {
         // Get account level metrics by finding the first connection for this client + platform
         $stmt = $pdo->prepare("
             SELECT pc.external_account_id, pt.access_token_encrypted
             FROM platform_connections pc
-            JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
             WHERE pc.client_id = :client_id AND pc.platform = :platform AND pc.status = 'connected'
             LIMIT 1
         ");
@@ -77,7 +77,7 @@ try {
         }
 
         $externalId = $connData['external_account_id'];
-        $token = decrypt($connData['access_token_encrypted']);
+        $token = !empty($connData['access_token_encrypted']) ? decrypt($connData['access_token_encrypted']) : '';
     }
 
     $normalizedMetrics = [];
@@ -85,11 +85,13 @@ try {
     // Dispatch and normalize responses
     switch ($platform) {
         case 'facebook':
-            $metrics = $postId > 0 
-                ? ['post_impressions_unique', 'post_engaged_users', 'post_reactions_by_type_total'] 
-                : ['page_impressions', 'page_engaged_users'];
-            
-            $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
+            if ($postId > 0) {
+                $metrics = ['post_engaged_users', 'post_reactions_by_type_total'];
+                $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
+            } else {
+                $metrics = ['page_post_engagements', 'page_views_total'];
+                $raw = FacebookHandler::getInsights($token, $externalId, $metrics, 'day');
+            }
             
             // Map FB metrics to standard structure
             if (!empty($raw['data'])) {
@@ -115,12 +117,12 @@ try {
             if ($postId > 0) {
                 // Post/Media specific metrics
                 $metrics = ['impressions', 'reach', 'engagement', 'saved', 'video_views'];
+                $raw = InstagramHandler::getInsights($token, $externalId, $metrics);
             } else {
                 // Account level metrics
                 $metrics = ['impressions', 'reach', 'profile_views'];
+                $raw = InstagramHandler::getInsights($token, $externalId, $metrics, 'day');
             }
-            
-            $raw = InstagramHandler::getInsights($token, $externalId, $metrics);
             
             if (!empty($raw['data'])) {
                 foreach ($raw['data'] as $item) {

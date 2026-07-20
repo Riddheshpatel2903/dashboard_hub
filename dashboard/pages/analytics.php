@@ -32,7 +32,7 @@ $errorMsg = null;
 
 if (!empty($platform)) {
     // 2. Fetch metrics from the Hub
-    $analyticsRes = hubGetAnalytics($client_id, $platform, $startDate, $endDate);
+    $analyticsRes = hubGetAnalytics($client_id, $platform, 0, $startDate, $endDate);
     if (!empty($analyticsRes['success']) && is_array($analyticsRes['metrics'])) {
         $metrics = $analyticsRes['metrics'];
     } else {

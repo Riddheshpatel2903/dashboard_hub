@@ -24,6 +24,20 @@ class InstagramHandler {
             throw new Exception("Instagram requires a valid media URL for posting (text-only posts are not supported).");
         }
 
+        // Validate public media URL reachability
+        $ch = curl_init($mediaUrl);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_exec($ch);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if (!empty($curlError)) {
+            throw new Exception("Public media URL is unreachable. Local server connection to tunnel failed: {$curlError}. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running.");
+        }
+
         $ext = strtolower(pathinfo(parse_url($mediaUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
         $isVideo = in_array($ext, ['mp4', 'mov', 'avi']);
 
@@ -107,13 +121,19 @@ class InstagramHandler {
      * @return array
      * @throws Exception
      */
-    public static function getInsights($token, $mediaId, array $metrics) {
+    public static function getInsights($token, $mediaId, array $metrics, $period = null) {
+        $urlParams = [
+            'metric'       => implode(',', $metrics),
+            'access_token' => $token
+        ];
+        if ($period) {
+            $urlParams['period'] = $period;
+        }
         $endpoint = sprintf(
-            "https://graph.facebook.com/%s/%s/insights?metric=%s&access_token=%s",
+            "https://graph.facebook.com/%s/%s/insights?%s",
             self::$version,
             $mediaId,
-            implode(',', $metrics),
-            urlencode($token)
+            http_build_query($urlParams)
         );
         return self::executeRequest('GET', $endpoint);
     }

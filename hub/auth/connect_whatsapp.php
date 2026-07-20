@@ -99,28 +99,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($phoneData['data'] as $phone) {
                     $phoneNumberId = $phone['id']; // Used for sending messages and webhook checking
                     
-                    // A. Insert or update platform connection (using phone_number_id as external_account_id)
+                    // A. Insert or update platform connection (ensure only one connection per client per platform)
                     $stmt = $pdo->prepare("
-                        INSERT INTO platform_connections (client_id, platform, external_account_id, status)
-                        VALUES (:client_id, 'whatsapp', :external_id, 'connected')
-                        ON DUPLICATE KEY UPDATE status = 'connected', connected_at = CURRENT_TIMESTAMP
+                        SELECT id FROM platform_connections 
+                        WHERE client_id = :client_id AND platform = 'whatsapp'
+                        LIMIT 1
                     ");
-                    $stmt->execute([
-                        'client_id'   => $clientId,
-                        'external_id' => $phoneNumberId
-                    ]);
-                    
-                    $connectionId = $pdo->lastInsertId();
-                    if (!$connectionId) {
+                    $stmt->execute(['client_id' => $clientId]);
+                    $connectionId = $stmt->fetchColumn();
+
+                    if ($connectionId) {
                         $stmt = $pdo->prepare("
-                            SELECT id FROM platform_connections 
-                            WHERE client_id = :client_id AND platform = 'whatsapp' AND external_account_id = :external_id
+                            UPDATE platform_connections 
+                            SET external_account_id = :external_id, status = 'connected', connected_at = CURRENT_TIMESTAMP
+                            WHERE id = :id
+                        ");
+                        $stmt->execute([
+                            'external_id' => $phoneNumberId,
+                            'id'          => $connectionId
+                        ]);
+                    } else {
+                        $stmt = $pdo->prepare("
+                            INSERT INTO platform_connections (client_id, platform, external_account_id, status)
+                            VALUES (:client_id, 'whatsapp', :external_id, 'connected')
                         ");
                         $stmt->execute([
                             'client_id'   => $clientId,
                             'external_id' => $phoneNumberId
                         ]);
-                        $connectionId = $stmt->fetchColumn();
+                        $connectionId = $pdo->lastInsertId();
                     }
                     
                     // B. Store encrypted access token

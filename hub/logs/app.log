@@ -50,3 +50,1687 @@
 [2026-07-18 15:02:24] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
 [2026-07-18 15:04:56] [INFO]: Instagram link check response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
 [2026-07-18 15:04:56] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 06:23:41] [INFO]: Instagram link check response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:23:41] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 06:24:24] [INFO]: Instagram link check response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:24:24] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 06:24:57] [INFO]: Instagram link check response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:24:57] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 06:30:43] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:30:44] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:30:44] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 06:46:13] [INFO]: Local file uploaded successfully: clients/1/1784522773_1784522773_08412fb854693e1cab68e1340ac6752d.jpg {"client_id":1,"size":102363}
+[2026-07-20 06:46:15] [ERROR]: Publish failed on facebook {"message":"Facebook Graph API Exception (Code: 324): Missing or invalid image file"}
+[2026-07-20 06:46:34] [INFO]: Local file uploaded successfully: clients/1/1784522794_1784522794_08412fb854693e1cab68e1340ac6752d.jpg {"client_id":1,"size":102363}
+[2026-07-20 06:46:34] [ERROR]: Publish failed on facebook {"message":"Facebook Graph API Exception (Code: 324): Missing or invalid image file"}
+[2026-07-20 06:50:37] [INFO]: Local file uploaded successfully: clients/1/1784523037_1784523037_08412fb854693e1cab68e1340ac6752d.jpg {"client_id":1,"size":102363}
+[2026-07-20 06:50:39] [ERROR]: Publish failed on facebook {"message":"Facebook Graph API Exception (Code: 324): Missing or invalid image file"}
+[2026-07-20 06:51:02] [INFO]: Local file uploaded successfully: clients/1/1784523062_1784523062_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 06:51:10] [ERROR]: Publish failed on facebook {"message":"Facebook Graph API Exception (Code: 324): Missing or invalid image file"}
+[2026-07-20 06:54:25] [INFO]: Local file uploaded successfully: clients/1/1784523265_1784523265_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 06:56:13] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSBJ2oGTkl35XhkBlFCGW6KN1Y0HNVI25BLtgm1n0Ty1kWD4CzZBmKa2sAGZB1ReatK40I2ozjRR8FUrv5a3xI4WVu2WMACm01KBKp8zeiTkSEbsxNmptewJ5aApYyQrcnlHMCLazyenFZBBS9Os8O0WoxdJ0x3aM2f3c99Vxfm1med2qBFzgGe1\"}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 06:56:14] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:56:16] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 06:56:16] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 07:17:07] [ERROR]: Failed to retrieve YouTube Channel details {"response":"{\n  \"kind\": \"youtube#channelListResponse\",\n  \"etag\": \"RuuXzTIr0OoDqI4S0RU6n4FqKEM\",\n  \"pageInfo\": {\n    \"totalResults\": 0,\n    \"resultsPerPage\": 5\n  }\n}\n"}
+[2026-07-20 07:20:00] [INFO]: YouTube Channel connection successful {"client_id":1,"channel_count":1}
+[2026-07-20 07:20:39] [INFO]: YouTube Channel connection successful {"client_id":1,"channel_count":1}
+[2026-07-20 07:21:37] [INFO]: Local file uploaded successfully: clients/1/1784524897_1784524897_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 07:22:54] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:22:56] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:22:57] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:22:59] [ERROR]: Failed to delete post ID 15 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 07:23:08] [ERROR]: Failed to delete post ID 15 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 07:23:20] [ERROR]: Failed to delete post ID 15 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 07:25:40] [INFO]: Local file uploaded successfully: clients/1/1784525140_1784525140_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 07:28:07] [INFO]: Local file uploaded successfully: clients/1/1784525287_1784525287_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 07:28:08] [ERROR]: Publish failed on facebook {"message":"Facebook Graph API Exception (Code: 389): Unable to fetch video file from URL."}
+[2026-07-20 07:30:08] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:30:10] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:30:12] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:30:33] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:30:37] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 07:48:59] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSBvKS89xxoCTyuoHsimdAzp1xhadF6dG1zVbvthl7O2HzNJi7ZAqLSZAcwbwTh6GCwIbFYiJluH6QoMuHPxh7ajn8WIK9b6kPF7rhZA3FQADZAwZCmr2RGQHD9HOq83gQS4rxIjVfHhlNOZAQPZBdXVaTg3qjR2fMDr2C3A6d57BQuK1m9M9oy2VexlyqLK\"}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 07:48:59] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 07:49:00] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 07:49:00] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 07:49:52] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSLDh9NMUYvv834Uq8r7VZCMLMpLB21lE5n3iLgbXCZB5DzQZCFPMKNHuD2ygKZCxQZCBsoHR8fqKF1s3OOp2AXFR7y8zqkCtMTf04AElqC0abbpZCiK5iAl8tG98EGms2O8kIGT6wFHx4fxCl9RVjBddXQYrvNTDZAwnbMNPIlgSbRZARot74GZCf0WQT\"}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 07:49:53] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 07:49:53] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 07:49:53] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 07:55:07] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSMMhk89f6PlaR7uzasUNVl7bUmJpFuBfCvmUSQ4JftCrdDJFxfDG60VSIrXaqnjz0Kk1iG6ZCHtO9UT4W8SIvjFuYaWtubLxAQ6bc4AY4hU7o8h74vzXJHrHCpmhD8JZApHK5dtTWz7hM87GdooI4YXiPiDy8MWJU3e5ZAFeP8VVluIQAZCCMYYydXcv\"}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 07:55:08] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 07:55:08] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 07:55:08] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 07:55:54] [INFO]: Local file uploaded successfully: clients/1/1784526954_1784526954_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 07:58:11] [INFO]: Local file uploaded successfully: clients/1/1784527091_1784527091_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 08:03:36] [INFO]: Local file uploaded successfully: clients/1/1784527416_1784527416_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 08:08:18] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSFeQCS9OPhZBELgl4KL6XO7cvSMKsodfdByu6P2YdytDjUZBiZCg7XaqmC2bQou8Jdtuv778vw9SHQZBCGlHbFRsJOpjPcKsHKFtdBesP7iPXr0frtfZC5xnfBZARBAEQQ7YHs9FXyQrtRvPV0jJ73oLot2kGriEZA417IM5tBhpD72wJE8oz4IzBZCq89aZC\"}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 08:08:19] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 08:08:19] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 08:08:19] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 11:41:10] [INFO]: Local file uploaded successfully: clients/1/1784527870_1784527870_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 11:44:08] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 11:44:10] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 11:44:11] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 11:44:12] [ERROR]: Failed to delete post ID 15 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 12:05:09] [INFO]: LinkedIn connection successful {"client_id":1,"urn":"urn:li:person:ETniD2axdr"}
+[2026-07-20 12:05:46] [INFO]: Local file uploaded successfully: clients/1/1784529346_1784529346_web (1).png {"client_id":1,"size":19766}
+[2026-07-20 12:07:20] [INFO]: Local file uploaded successfully: clients/1/1784529440_1784529440_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 12:39:04] [INFO]: Local file uploaded successfully: clients/1/1784531344_1784531344_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 12:46:27] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:46:27] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:47:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:47:06] [INFO]: Scheduler: Successfully queued 6 posts. {"execution_time_seconds":0.0344,"queued_ids":[34,35,36,37,38,39]}
+[2026-07-20 12:47:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:47:09] [INFO]: Queue Worker: Published post ID 34 successfully on facebook
+[2026-07-20 12:47:12] [INFO]: Queue Worker: Published post ID 35 successfully on facebook
+[2026-07-20 12:47:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:47:16] [INFO]: Scheduler: Successfully queued 2 posts. {"execution_time_seconds":0.0301,"queued_ids":[40,41]}
+[2026-07-20 12:47:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:47:19] [INFO]: Queue Worker: Published post ID 36 successfully on facebook
+[2026-07-20 12:47:20] [INFO]: Queue Worker: Published post ID 40 successfully on facebook
+[2026-07-20 12:47:23] [INFO]: Queue Worker: Published post ID 37 successfully on facebook
+[2026-07-20 12:47:24] [INFO]: Queue Worker: Published post ID 41 successfully on facebook
+[2026-07-20 12:47:24] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":2,"execution_time_seconds":7.7347}
+[2026-07-20 12:47:28] [ERROR]: Queue Worker: Failed publishing post ID 38 on facebook {"error":"SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`hub_db`.`post_logs`, CONSTRAINT `post_logs_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE)"}
+[2026-07-20 12:47:28] [ERROR]: Queue Worker: Execution failed. {"error":"SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`hub_db`.`post_logs`, CONSTRAINT `post_logs_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE)","trace":"#0 D:\\xampp\\htdocs\\dashboard_hub\\hub\\jobs\\queue_worker.php(268): PDOStatement->execute(Array)\n#1 D:\\xampp\\htdocs\\dashboard_hub\\hub\\jobs\\test_scheduler.php(68): include('D:\\\\xampp\\\\htdocs...')\n#2 {main}","execution_time_seconds":22.0566}
+[2026-07-20 12:47:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:47:52] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0266,"queued_ids":[42]}
+[2026-07-20 12:47:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:47:55] [INFO]: Queue Worker: Published post ID 42 successfully on facebook
+[2026-07-20 12:47:55] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":3.021}
+[2026-07-20 12:47:55] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:47:55] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0266,"queued_ids":[44]}
+[2026-07-20 12:47:55] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:48:01] [INFO]: Queue Worker: Published post ID 44 successfully on facebook
+[2026-07-20 12:48:01] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":5.6016}
+[2026-07-20 12:48:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:48:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-20 12:48:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:48:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0143}
+[2026-07-20 12:48:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:48:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0147}
+[2026-07-20 12:48:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:48:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0311}
+[2026-07-20 12:48:33] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:48:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0053}
+[2026-07-20 12:48:33] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:48:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0288}
+[2026-07-20 12:48:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:48:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0138}
+[2026-07-20 12:48:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:48:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0191}
+[2026-07-20 12:49:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:49:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0118}
+[2026-07-20 12:49:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:49:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0286}
+[2026-07-20 12:49:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:49:26] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0273,"queued_ids":[46]}
+[2026-07-20 12:49:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:49:29] [INFO]: Queue Worker: Published post ID 46 successfully on facebook
+[2026-07-20 12:49:29] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":2.973}
+[2026-07-20 12:49:29] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:49:29] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0169,"queued_ids":[48]}
+[2026-07-20 12:49:29] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:49:32] [INFO]: Queue Worker: Published post ID 48 successfully on facebook
+[2026-07-20 12:49:32] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":2.9673}
+[2026-07-20 12:49:52] [INFO]: Local file uploaded successfully: clients/1/1784531992_1784531992_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 12:49:53] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:49:53] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 12:49:53] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:49:53] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 12:50:01] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:50:01] [INFO]: Scheduler: Successfully queued 3 posts. {"execution_time_seconds":0.0184,"queued_ids":[50,51,52]}
+[2026-07-20 12:50:01] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:50:38] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:50:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0046}
+[2026-07-20 12:50:38] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:50:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 12:50:47] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:50:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 12:50:47] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:50:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0173}
+[2026-07-20 12:50:53] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:50:53] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0279,"queued_ids":[53]}
+[2026-07-20 12:50:53] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:51:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:51:03] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0138,"queued_ids":[55]}
+[2026-07-20 12:51:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:51:04] [INFO]: Queue Worker: Published post ID 53 successfully on facebook
+[2026-07-20 12:51:04] [INFO]: Queue Worker: Published post ID 55 successfully on facebook
+[2026-07-20 12:51:04] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":1.2523}
+[2026-07-20 12:51:04] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":11.254}
+[2026-07-20 12:51:10] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:51:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0052}
+[2026-07-20 12:51:10] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:51:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.009}
+[2026-07-20 12:51:57] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:51:57] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0044}
+[2026-07-20 12:51:57] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:51:57] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 12:51:59] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:51:59] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:51:59] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:51:59] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 12:51:59] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:51:59] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0039}
+[2026-07-20 12:51:59] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:51:59] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0226}
+[2026-07-20 12:52:00] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:00] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0044}
+[2026-07-20 12:52:00] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:00] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 12:52:01] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:01] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0032}
+[2026-07-20 12:52:01] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:01] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-20 12:52:01] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:01] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.004}
+[2026-07-20 12:52:01] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:01] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 12:52:02] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 12:52:02] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 12:52:02] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0043}
+[2026-07-20 12:52:02] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 12:52:02] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0039}
+[2026-07-20 12:52:02] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 12:52:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0045}
+[2026-07-20 12:52:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:52:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0043}
+[2026-07-20 12:52:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 12:52:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:52:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 12:52:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0038}
+[2026-07-20 12:52:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 12:52:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0148}
+[2026-07-20 12:52:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0094}
+[2026-07-20 12:52:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0046}
+[2026-07-20 12:52:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 12:52:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 12:52:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-20 12:52:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 12:52:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 12:52:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 12:52:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 12:52:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 12:52:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 12:52:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 12:52:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0034}
+[2026-07-20 12:52:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.005}
+[2026-07-20 12:52:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0037}
+[2026-07-20 12:52:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:52:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0053}
+[2026-07-20 12:52:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0227}
+[2026-07-20 12:52:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0091}
+[2026-07-20 12:52:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 12:52:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0087}
+[2026-07-20 12:52:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0096}
+[2026-07-20 12:52:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0044}
+[2026-07-20 12:52:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 12:52:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0123}
+[2026-07-20 12:52:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0117}
+[2026-07-20 12:52:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 12:52:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 12:52:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 12:52:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0295}
+[2026-07-20 12:52:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0035}
+[2026-07-20 12:52:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 12:52:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 12:52:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:52:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0038}
+[2026-07-20 12:52:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.009}
+[2026-07-20 12:52:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0048}
+[2026-07-20 12:52:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 12:52:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0158}
+[2026-07-20 12:52:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 12:52:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.004}
+[2026-07-20 12:52:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.026}
+[2026-07-20 12:52:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0168}
+[2026-07-20 12:52:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 12:52:10] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0122}
+[2026-07-20 12:52:10] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0252}
+[2026-07-20 12:52:10] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0035}
+[2026-07-20 12:52:10] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 12:52:10] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0045}
+[2026-07-20 12:52:10] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:52:10] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:52:10] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.017}
+[2026-07-20 12:52:11] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:11] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0039}
+[2026-07-20 12:52:11] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:11] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0269}
+[2026-07-20 12:52:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0045}
+[2026-07-20 12:52:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 12:52:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0039}
+[2026-07-20 12:52:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:52:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:52:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0083}
+[2026-07-20 12:52:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0044}
+[2026-07-20 12:52:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 12:52:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:52:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 12:52:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0047}
+[2026-07-20 12:52:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-20 12:52:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0048}
+[2026-07-20 12:52:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 12:52:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 12:52:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 12:52:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0037}
+[2026-07-20 12:52:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 12:52:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0043}
+[2026-07-20 12:52:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 12:52:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 12:52:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 12:52:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0089}
+[2026-07-20 12:52:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 12:52:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0208}
+[2026-07-20 12:52:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0275}
+[2026-07-20 12:52:17] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 12:52:17] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0171}
+[2026-07-20 12:52:18] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0239}
+[2026-07-20 12:52:18] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0326}
+[2026-07-20 12:52:19] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0036}
+[2026-07-20 12:52:19] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.01}
+[2026-07-20 12:52:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0034}
+[2026-07-20 12:52:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0124}
+[2026-07-20 12:52:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:52:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 12:52:21] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.004}
+[2026-07-20 12:52:21] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:52:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.004}
+[2026-07-20 12:52:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.006}
+[2026-07-20 12:52:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0157}
+[2026-07-20 12:52:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 12:52:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0046}
+[2026-07-20 12:52:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0216}
+[2026-07-20 12:52:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 12:52:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0309}
+[2026-07-20 12:52:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 12:52:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 12:52:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0039}
+[2026-07-20 12:52:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 12:52:24] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0046}
+[2026-07-20 12:52:24] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 12:52:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0035}
+[2026-07-20 12:52:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 12:52:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0048}
+[2026-07-20 12:52:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 12:52:28] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:28] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0044}
+[2026-07-20 12:52:28] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0195}
+[2026-07-20 12:52:28] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:28] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 12:52:28] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 12:52:29] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0122}
+[2026-07-20 12:52:29] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:30] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.003}
+[2026-07-20 12:52:30] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-20 12:52:31] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:31] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0041}
+[2026-07-20 12:52:31] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:31] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 12:52:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0048}
+[2026-07-20 12:52:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0208}
+[2026-07-20 12:52:33] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0161}
+[2026-07-20 12:52:33] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0229}
+[2026-07-20 12:52:33] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0036}
+[2026-07-20 12:52:33] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 12:52:36] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:52:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0161}
+[2026-07-20 12:52:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:52:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 12:54:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:54:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0049}
+[2026-07-20 12:54:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:54:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 12:56:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:56:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 12:56:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:56:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0102}
+[2026-07-20 12:56:43] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:56:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0052}
+[2026-07-20 12:56:43] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:56:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 12:56:48] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:56:48] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0051}
+[2026-07-20 12:56:48] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:56:48] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0307}
+[2026-07-20 12:56:49] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:56:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0041}
+[2026-07-20 12:56:49] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:56:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0126}
+[2026-07-20 12:57:10] [INFO]: Local file uploaded successfully: clients/1/1784532430_1784532430_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 12:57:12] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 12:57:12] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 12:57:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0038}
+[2026-07-20 12:57:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 12:57:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0202}
+[2026-07-20 12:57:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 12:57:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0042}
+[2026-07-20 12:57:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 12:57:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 12:57:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 12:57:17] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0229}
+[2026-07-20 12:57:17] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-20 12:57:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0255}
+[2026-07-20 12:57:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0327}
+[2026-07-20 12:57:24] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0212}
+[2026-07-20 12:57:24] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0279}
+[2026-07-20 12:57:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0031}
+[2026-07-20 12:57:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 12:57:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0285}
+[2026-07-20 12:57:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0298}
+[2026-07-20 12:57:27] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0041}
+[2026-07-20 12:57:27] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:27] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 12:57:29] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 12:57:29] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0096}
+[2026-07-20 12:57:30] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:57:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 12:57:30] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:57:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 12:58:48] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:58:48] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0095,"queued_ids":[60]}
+[2026-07-20 12:58:48] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:58:50] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:58:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 12:58:50] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:58:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 12:58:56] [INFO]: Queue Worker: Published post ID 60 successfully on facebook
+[2026-07-20 12:58:56] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":8.2157}
+[2026-07-20 12:58:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:58:56] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0181,"queued_ids":[62]}
+[2026-07-20 12:58:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:59:01] [INFO]: Queue Worker: Published post ID 62 successfully on facebook
+[2026-07-20 12:59:01] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":1,"execution_time_seconds":4.3441}
+[2026-07-20 12:59:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 12:59:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0231}
+[2026-07-20 12:59:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 12:59:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 13:00:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 13:00:25] [INFO]: Scheduler: Successfully queued 3 posts. {"execution_time_seconds":0.0439,"queued_ids":[57,58,59]}
+[2026-07-20 13:00:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 13:00:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 13:00:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0335}
+[2026-07-20 13:00:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 13:00:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0202}
+[2026-07-20 13:01:03] [INFO]: Queue Worker: Published post ID 57 successfully on facebook
+[2026-07-20 13:01:04] [ERROR]: Queue Worker: Failed publishing post ID 58 on youtube {"error":"Failed to initiate YouTube resumable upload session. Code 401: {\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\n    \"errors\": [\n      {\n        \"message\": \"Invalid Credentials\",\n        \"domain\": \"global\",\n        \"reason\": \"authError\",\n        \"location\": \"Authorization\",\n        \"locationType\": \"header\"\n      }\n    ],\n    \"status\": \"UNAUTHENTICATED\"\n  }\n}\n"}
+[2026-07-20 13:01:04] [INFO]: Queue Worker: Scheduled retry #1 for post ID 58 at 2026-07-20 13:21:04
+[2026-07-20 13:01:05] [INFO]: Queue Worker: Published post ID 59 successfully on linkedin
+[2026-07-20 13:01:05] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":2,"execution_time_seconds":39.4126}
+[2026-07-20 13:01:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 13:01:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 13:01:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 13:01:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0121}
+[2026-07-20 13:09:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 13:09:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 13:09:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 13:09:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 13:09:33] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:09:45] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:09:46] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:18] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:19] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:21] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:28] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:29] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:30] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:33] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:34] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:11:35] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 13:12:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 13:12:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0268}
+[2026-07-20 13:12:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 13:12:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0109}
+[2026-07-20 14:19:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:19:23] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0124,"queued_ids":[58]}
+[2026-07-20 14:19:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:19:24] [ERROR]: Queue Worker: Failed publishing post ID 58 on youtube {"error":"Failed to initiate YouTube resumable upload session. Code 401: {\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\n    \"errors\": [\n      {\n        \"message\": \"Invalid Credentials\",\n        \"domain\": \"global\",\n        \"reason\": \"authError\",\n        \"location\": \"Authorization\",\n        \"locationType\": \"header\"\n      }\n    ],\n    \"status\": \"UNAUTHENTICATED\"\n  }\n}\n"}
+[2026-07-20 14:19:24] [INFO]: Queue Worker: Scheduled retry #2 for post ID 58 at 2026-07-20 14:59:24
+[2026-07-20 14:19:24] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":0.5693}
+[2026-07-20 14:19:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:19:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 14:19:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:19:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 14:20:00] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 14:20:00] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 14:20:01] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)"}
+[2026-07-20 14:22:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:22:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 14:22:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:22:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 14:22:40] [INFO]: Local file uploaded successfully: clients/1/1784537560_1784537560_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 14:22:42] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:22:42] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 14:22:42] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:22:42] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 14:25:38] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:25:38] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0407,"queued_ids":[64]}
+[2026-07-20 14:25:38] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:25:38] [ERROR]: Queue Worker: Failed publishing post ID 64 on youtube {"error":"Failed to initiate YouTube resumable upload session. Code 401: {\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\n    \"errors\": [\n      {\n        \"message\": \"Invalid Credentials\",\n        \"domain\": \"global\",\n        \"reason\": \"authError\",\n        \"location\": \"Authorization\",\n        \"locationType\": \"header\"\n      }\n    ],\n    \"status\": \"UNAUTHENTICATED\"\n  }\n}\n"}
+[2026-07-20 14:25:38] [INFO]: Queue Worker: Scheduled retry #1 for post ID 64 at 2026-07-20 14:45:38
+[2026-07-20 14:25:38] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":0.5113}
+[2026-07-20 14:25:51] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:25:51] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0097}
+[2026-07-20 14:25:51] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:25:51] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 14:25:54] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 401): Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project."}
+[2026-07-20 14:25:58] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:25:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0224}
+[2026-07-20 14:25:58] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:25:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 14:27:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0219}
+[2026-07-20 14:27:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 14:27:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 14:27:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 14:27:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0047}
+[2026-07-20 14:27:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-20 14:27:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 14:27:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.033}
+[2026-07-20 14:27:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0273}
+[2026-07-20 14:27:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0292}
+[2026-07-20 14:27:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0091}
+[2026-07-20 14:27:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0185}
+[2026-07-20 14:27:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 14:27:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0102}
+[2026-07-20 14:27:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:27:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 14:27:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:27:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 14:28:37] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:28:37] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0145}
+[2026-07-20 14:28:37] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:28:37] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-20 14:28:39] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:28:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0446}
+[2026-07-20 14:28:39] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:28:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.019}
+[2026-07-20 14:29:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:29:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 14:29:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:29:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 14:30:55] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:30:55] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 14:30:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:30:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0099}
+[2026-07-20 14:31:02] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:31:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0087}
+[2026-07-20 14:31:02] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:31:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 14:31:19] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:31:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 14:31:19] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:31:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0186}
+[2026-07-20 14:31:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:31:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 14:31:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:31:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 14:31:21] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:31:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 14:31:21] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:31:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 14:31:21] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:31:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0256}
+[2026-07-20 14:31:21] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:31:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0286}
+[2026-07-20 14:31:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:31:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.029}
+[2026-07-20 14:31:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:31:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0286}
+[2026-07-20 14:32:24] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0139}
+[2026-07-20 14:32:24] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0265}
+[2026-07-20 14:32:36] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0095}
+[2026-07-20 14:32:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 14:32:37] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:37] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0422}
+[2026-07-20 14:32:37] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:37] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0287}
+[2026-07-20 14:32:38] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0306}
+[2026-07-20 14:32:38] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0307}
+[2026-07-20 14:32:38] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0309}
+[2026-07-20 14:32:38] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.031}
+[2026-07-20 14:32:39] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-20 14:32:39] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-20 14:32:45] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:32:45] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0282}
+[2026-07-20 14:32:45] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:32:45] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0289}
+[2026-07-20 14:33:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 14:33:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 14:33:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0198}
+[2026-07-20 14:33:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0286}
+[2026-07-20 14:33:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 14:33:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 14:33:19] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 14:33:19] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 14:33:23] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 14:33:23] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0098}
+[2026-07-20 14:33:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 14:33:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 14:33:39] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0292}
+[2026-07-20 14:33:39] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 14:33:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 14:33:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0109}
+[2026-07-20 14:33:54] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.009}
+[2026-07-20 14:33:54] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 14:33:55] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:55] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0306}
+[2026-07-20 14:33:55] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:55] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0295}
+[2026-07-20 14:33:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0287}
+[2026-07-20 14:33:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0304}
+[2026-07-20 14:33:57] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:33:57] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 14:33:57] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:33:57] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-20 14:34:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:34:42] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 14:34:42] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:34:42] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0092}
+[2026-07-20 14:35:33] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:35:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 14:35:33] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:35:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0137}
+[2026-07-20 14:35:53] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:35:53] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0276}
+[2026-07-20 14:35:53] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:35:53] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-20 14:35:53] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:35:53] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0106}
+[2026-07-20 14:35:53] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:35:53] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0099}
+[2026-07-20 14:35:57] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:35:57] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 14:35:57] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:35:57] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0091}
+[2026-07-20 14:35:58] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:35:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 14:35:58] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:35:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0095}
+[2026-07-20 14:36:01] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:01] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 14:36:01] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:01] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0148}
+[2026-07-20 14:36:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0093}
+[2026-07-20 14:36:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0094}
+[2026-07-20 14:36:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 14:36:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 14:36:14] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 401): Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project."}
+[2026-07-20 14:36:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0257}
+[2026-07-20 14:36:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 14:36:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 14:36:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 14:36:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.008}
+[2026-07-20 14:36:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.1115}
+[2026-07-20 14:36:30] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 14:36:30] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 14:36:31] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:31] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0345}
+[2026-07-20 14:36:31] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:31] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 14:36:38] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 14:36:38] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 14:36:39] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0109}
+[2026-07-20 14:36:39] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 14:36:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0052}
+[2026-07-20 14:36:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 14:36:44] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:36:44] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.008}
+[2026-07-20 14:36:44] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:36:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 14:42:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:42:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0358}
+[2026-07-20 14:42:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:42:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 14:42:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:42:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0325}
+[2026-07-20 14:42:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:42:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0101}
+[2026-07-20 14:42:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:42:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 14:42:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:42:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0289}
+[2026-07-20 14:43:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0146}
+[2026-07-20 14:43:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 14:43:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 14:43:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0111}
+[2026-07-20 14:43:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0133}
+[2026-07-20 14:43:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0176}
+[2026-07-20 14:43:12] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 14:43:12] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0099}
+[2026-07-20 14:43:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0453}
+[2026-07-20 14:43:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 14:43:27] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 14:43:27] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:27] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 14:43:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:43:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-20 14:43:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:43:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 14:44:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:44:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 14:44:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:44:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-20 14:44:42] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:44:42] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0117}
+[2026-07-20 14:44:42] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:44:42] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 14:45:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 14:45:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0109}
+[2026-07-20 14:45:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 14:45:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0219}
+[2026-07-20 15:19:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:19:09] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0333,"queued_ids":[64]}
+[2026-07-20 15:19:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:19:11] [ERROR]: Queue Worker: Failed publishing post ID 64 on youtube {"error":"Failed to initiate YouTube resumable upload session. Code 401: {\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\n    \"errors\": [\n      {\n        \"message\": \"Invalid Credentials\",\n        \"domain\": \"global\",\n        \"reason\": \"authError\",\n        \"location\": \"Authorization\",\n        \"locationType\": \"header\"\n      }\n    ],\n    \"status\": \"UNAUTHENTICATED\"\n  }\n}\n"}
+[2026-07-20 15:19:11] [INFO]: Queue Worker: Scheduled retry #2 for post ID 64 at 2026-07-20 15:59:11
+[2026-07-20 15:19:11] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":2.0714}
+[2026-07-20 15:19:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:19:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 15:19:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:19:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0204}
+[2026-07-20 15:19:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:19:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0201}
+[2026-07-20 15:19:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:19:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0146}
+[2026-07-20 15:19:42] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSOGghPz42JToRVvZAbb4ah7VIkuzQ1r20JMi8ZCuhGbLuu3AoR742sXXzumEW0S5SLonvf3zAIAJegAZBZCZBarMxDEoKKuHyQmGj95nBIUnsEGfao34XfvZBQcPjiJQS6whM2MhWZAnY0HUeM0C0zJQnk0wDMGwUZCzivwKvaAeiyC0Q6sGUso0tGqZB\"}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 15:19:43] [INFO]: Instagram link check fallback (user token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 15:19:44] [INFO]: Instagram link check fallback (page token) response {"page_id":"1243224272200630","http_code":200,"response":"{\"id\":\"1243224272200630\"}"}
+[2026-07-20 15:19:44] [ERROR]: Facebook OAuth transaction failed {"exception":"No linked Instagram Business Account found on your Facebook Page. Please convert your Instagram account to a Professional (Business/Creator) account and link it in Facebook Page settings (Settings -> Linked Accounts -> Instagram)."}
+[2026-07-20 15:29:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:29:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0119}
+[2026-07-20 15:29:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:29:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0089}
+[2026-07-20 15:29:35] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:29:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 15:29:35] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:29:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 15:29:44] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSM2ZAHxYwkuwM8sR4JZBCYqPdrSTs18FUjyTPqODZA6mHptpW4OpJ2QWDgpg0FYjfXOfDlw766TEnUP9RqkkhCsB4sL0XNOY2B1dlRyvt7dekc0H42kDCPb7Em1E1RtCNZCjq0WJtQWct42rWj4f9kBRKQWxO5Ez1ZA8yspJlK7kZA2zTeswcMdPDZBpfKZB\",\"instagram_business_account\":{\"id\":\"17841451698722819\"}}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 15:29:44] [INFO]: Instagram business account found in me/accounts response directly {"page_id":"1243224272200630","instagram_id":"17841451698722819"}
+[2026-07-20 15:29:44] [INFO]: Linked Instagram account detected and saved {"client_id":1,"instagram_id":"17841451698722819"}
+[2026-07-20 15:29:44] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 15:29:46] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:29:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 15:29:46] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:29:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0083}
+[2026-07-20 15:30:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:30:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0241}
+[2026-07-20 15:30:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:30:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.014}
+[2026-07-20 15:30:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:30:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0299}
+[2026-07-20 15:30:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:30:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 15:30:30] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:30:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0053}
+[2026-07-20 15:30:30] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:30:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 15:31:06] [INFO]: Local file uploaded successfully: clients/1/1784541666_1784541666_c6ed503c-adde-4adf-8f18-82baef1acf95.png {"client_id":1,"size":2908361}
+[2026-07-20 15:31:06] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 10): (#10) Requires instagram_content_publish permission to manage the object"}
+[2026-07-20 15:34:36] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:34:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 15:34:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:34:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0167}
+[2026-07-20 15:34:39] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:34:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 15:34:39] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:34:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0142}
+[2026-07-20 15:34:44] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:34:44] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0295}
+[2026-07-20 15:34:44] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:34:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.016}
+[2026-07-20 15:34:46] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:34:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0447}
+[2026-07-20 15:34:46] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:34:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0334}
+[2026-07-20 15:35:06] [INFO]: Local file uploaded successfully: clients/1/1784541906_1784541906_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 15:35:07] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 10): (#10) Requires instagram_content_publish permission to manage the object"}
+[2026-07-20 15:40:45] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:40:45] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0168}
+[2026-07-20 15:40:45] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:40:45] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0303}
+[2026-07-20 15:40:57] [INFO]: Local file uploaded successfully: clients/1/1784542257_1784542257_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 15:40:57] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 10): (#10) Requires instagram_content_publish permission to manage the object"}
+[2026-07-20 15:41:02] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:41:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 15:41:02] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:41:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 15:47:54] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:47:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 15:47:54] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:47:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-20 15:47:54] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:47:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 15:47:54] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:47:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 15:47:55] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:47:55] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0394}
+[2026-07-20 15:47:55] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:47:55] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 15:47:58] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:47:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0288}
+[2026-07-20 15:47:58] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:47:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0308}
+[2026-07-20 15:48:03] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:48:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 15:48:03] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:48:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0164}
+[2026-07-20 15:48:17] [INFO]: Local file uploaded successfully: clients/1/1784542697_1784542697_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 15:48:18] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 10): (#10) Requires instagram_content_publish permission to manage the object"}
+[2026-07-20 15:55:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 15:55:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 15:55:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 15:55:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0143}
+[2026-07-20 16:05:18] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:05:18] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0098,"queued_ids":[64]}
+[2026-07-20 16:05:18] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:05:18] [ERROR]: Queue Worker: Failed publishing post ID 64 on youtube {"error":"Failed to initiate YouTube resumable upload session. Code 401: {\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\n    \"errors\": [\n      {\n        \"message\": \"Invalid Credentials\",\n        \"domain\": \"global\",\n        \"reason\": \"authError\",\n        \"location\": \"Authorization\",\n        \"locationType\": \"header\"\n      }\n    ],\n    \"status\": \"UNAUTHENTICATED\"\n  }\n}\n"}
+[2026-07-20 16:05:18] [INFO]: Queue Worker: Scheduled retry #3 for post ID 64 at 2026-07-20 17:25:18
+[2026-07-20 16:05:18] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":0.4459}
+[2026-07-20 16:05:28] [INFO]: Local file uploaded successfully: clients/1/1784543728_1784543728_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 16:05:29] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 10): (#10) Requires instagram_content_publish permission to manage the object"}
+[2026-07-20 16:11:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:11:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 16:11:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:11:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0094}
+[2026-07-20 16:11:24] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:11:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 16:11:24] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:11:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 16:11:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:11:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 16:11:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:11:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0127}
+[2026-07-20 16:12:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:12:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.005}
+[2026-07-20 16:12:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:12:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 16:12:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:12:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0228}
+[2026-07-20 16:12:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:12:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 16:13:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:13:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0308}
+[2026-07-20 16:13:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:13:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0096}
+[2026-07-20 16:13:25] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:13:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 16:13:25] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:13:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 16:13:48] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:13:48] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0191}
+[2026-07-20 16:13:48] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:13:48] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0227}
+[2026-07-20 16:13:58] [INFO]: Platform instagram disconnected for client 1 {"connection_id":12}
+[2026-07-20 16:14:00] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:14:00] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 16:14:00] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:14:00] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-20 16:14:30] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSPmuMKYgeWNaWxuwPf2FEfXnYrxngzjpKtLpZBTyKHMCZAgCM1eiwbgbgCtcDgWyIGEc0bcXymCLC0kC0ZCKrSJo59bDyUVPplMFPQmIaAPKVkd1IWjXvxpjOmtBFQ2KyjeKqR6camN4T9HP4gdQ4pifetpvcpwbehu6K1ZCtpwegfR8dvZBIjEoiBibC\",\"instagram_business_account\":{\"id\":\"17841451698722819\"}}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 16:14:30] [INFO]: Instagram business account found in me/accounts response directly {"page_id":"1243224272200630","instagram_id":"17841451698722819"}
+[2026-07-20 16:14:30] [INFO]: Linked Instagram account detected and saved {"client_id":1,"instagram_id":"17841451698722819"}
+[2026-07-20 16:14:30] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 16:14:31] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:14:31] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 16:14:31] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:14:31] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 16:14:37] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:14:37] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 16:14:37] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:14:37] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 16:14:47] [INFO]: Local file uploaded successfully: clients/1/1784544287_1784544287_c6ed503c-adde-4adf-8f18-82baef1acf95.png {"client_id":1,"size":2908361}
+[2026-07-20 16:14:49] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 9004): Only photo or video can be accepted as media type."}
+[2026-07-20 16:15:07] [INFO]: Local file uploaded successfully: clients/1/1784544307_1784544307_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 16:15:08] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-20 16:16:27] [INFO]: Local file uploaded successfully: clients/1/1784544387_1784544387_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 16:16:28] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-20 16:19:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:19:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 16:19:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:19:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-20 16:21:47] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:21:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0053}
+[2026-07-20 16:21:47] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:21:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0127}
+[2026-07-20 16:21:58] [INFO]: Local file uploaded successfully: clients/1/1784544718_1784544718_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 16:21:58] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:23:28] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:23:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0138}
+[2026-07-20 16:23:29] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:23:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0151}
+[2026-07-20 16:23:43] [INFO]: Local file uploaded successfully: clients/1/1784544823_1784544823_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 16:23:44] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:24:59] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:24:59] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0094}
+[2026-07-20 16:24:59] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:24:59] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0241}
+[2026-07-20 16:25:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:25:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0403}
+[2026-07-20 16:25:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:25:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 16:25:20] [INFO]: Local file uploaded successfully: clients/1/1784544920_1784544920_16392302_1920_1080_30fps.mp4 {"client_id":1,"size":7834158}
+[2026-07-20 16:25:21] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:26:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:26:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0083}
+[2026-07-20 16:26:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:26:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0168}
+[2026-07-20 16:26:38] [INFO]: Local file uploaded successfully: clients/1/1784544998_1784544998_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:26:39] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:26:54] [INFO]: Local file uploaded successfully: clients/1/1784545014_1784545014_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:26:55] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:27:03] [INFO]: Local file uploaded successfully: clients/1/1784545023_1784545023_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:27:04] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:27:13] [INFO]: Local file uploaded successfully: clients/1/1784545033_1784545033_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:27:14] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:28:27] [INFO]: Local file uploaded successfully: clients/1/1784545107_1784545107_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:28:28] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:49:01] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:49:01] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 16:49:01] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:49:01] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0162}
+[2026-07-20 16:49:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:49:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0295}
+[2026-07-20 16:49:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:49:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 16:49:29] [INFO]: Local file uploaded successfully: clients/1/1784546369_1784546369_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:49:29] [ERROR]: Publish failed on instagram {"message":"Public media URL is unreachable. Local server connection to tunnel failed: OpenSSL/3.1.3: error:0A00010B:SSL routines::wrong version number. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 16:49:36] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:49:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 16:49:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:49:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 16:49:39] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:49:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0453}
+[2026-07-20 16:49:39] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:49:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0153}
+[2026-07-20 16:49:48] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:49:48] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0245}
+[2026-07-20 16:49:48] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:49:48] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 16:49:54] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:49:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0322}
+[2026-07-20 16:49:54] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:49:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0156}
+[2026-07-20 16:50:01] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:01] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-20 16:50:01] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:01] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 16:50:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0049}
+[2026-07-20 16:50:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 16:50:12] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 16:50:12] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 16:50:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 16:50:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-20 16:50:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 16:50:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 16:50:27] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 16:50:27] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:27] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 16:50:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 16:50:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 16:50:37] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:37] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0134}
+[2026-07-20 16:50:37] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:37] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0323}
+[2026-07-20 16:50:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 16:50:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 16:50:46] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:50:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0121}
+[2026-07-20 16:50:46] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:50:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 16:51:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:51:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0223}
+[2026-07-20 16:51:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:51:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-20 16:51:18] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:51:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0196}
+[2026-07-20 16:51:19] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:51:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0308}
+[2026-07-20 16:51:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:51:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0179}
+[2026-07-20 16:51:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:51:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0287}
+[2026-07-20 16:51:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:51:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0267}
+[2026-07-20 16:51:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:51:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0215}
+[2026-07-20 16:55:00] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:55:00] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0157}
+[2026-07-20 16:55:00] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:55:00] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0393}
+[2026-07-20 16:55:14] [INFO]: Local file uploaded successfully: clients/1/1784546714_1784546714_gps.png {"client_id":1,"size":15695}
+[2026-07-20 16:55:35] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:55:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0182}
+[2026-07-20 16:55:35] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:55:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0232}
+[2026-07-20 16:56:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:56:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0141}
+[2026-07-20 16:56:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:56:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 16:56:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:56:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.014}
+[2026-07-20 16:56:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:56:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 16:56:10] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 16:56:19] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:56:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0205}
+[2026-07-20 16:56:19] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:56:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-20 16:56:22] [ERROR]: Analytics request failure {"error":"Instagram Graph Exception (Code: 10): (#10) Application does not have permission for this action"}
+[2026-07-20 16:56:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:56:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0046}
+[2026-07-20 16:56:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:56:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.006}
+[2026-07-20 16:59:28] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:59:28] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 16:59:28] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:59:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0133}
+[2026-07-20 16:59:38] [INFO]: Scheduler: Started execution.
+[2026-07-20 16:59:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 16:59:38] [INFO]: Queue Worker: Started execution.
+[2026-07-20 16:59:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 17:01:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:01:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 17:01:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:01:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 17:01:29] [INFO]: Local file uploaded successfully: clients/1/1784547089_1784547089_c6ed503c-adde-4adf-8f18-82baef1acf95.png {"client_id":1,"size":2908361}
+[2026-07-20 17:02:05] [ERROR]: Publish failed on youtube {"message":"Failed to initiate YouTube resumable upload session. Code 401: {\n  \"error\": {\n    \"code\": 401,\n    \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\",\n    \"errors\": [\n      {\n        \"message\": \"Invalid Credentials\",\n        \"domain\": \"global\",\n        \"reason\": \"authError\",\n        \"location\": \"Authorization\",\n        \"locationType\": \"header\"\n      }\n    ],\n    \"status\": \"UNAUTHENTICATED\"\n  }\n}\n"}
+[2026-07-20 17:02:18] [ERROR]: Publish failed on instagram {"message":"Instagram Graph Exception (Code: -2): Timeout"}
+[2026-07-20 17:02:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:02:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.034}
+[2026-07-20 17:02:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:02:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-20 17:03:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.009}
+[2026-07-20 17:03:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 17:03:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 17:03:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 17:03:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 17:03:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 17:03:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0234}
+[2026-07-20 17:03:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0167}
+[2026-07-20 17:03:35] [INFO]: Platform youtube disconnected for client 1 {"connection_id":9}
+[2026-07-20 17:03:36] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0236}
+[2026-07-20 17:03:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-20 17:03:40] [INFO]: Platform instagram disconnected for client 1 {"connection_id":13}
+[2026-07-20 17:03:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.025}
+[2026-07-20 17:03:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 17:03:50] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSOuuLcmYXZAZCSxH15LyZAEbGkTAlG9h8b9rPit03bTEih1ChZBG5ikZABF4MbPYF3CxZAjJqJUdubogS1CNGCj8AdCecbzayyGYXhQjmzw38n9oMXnC3c8n4GfCek3X99HiA0PuKrRNyCJMpozB072iq02x2KshWSvdH00brZCqlYFrAnkK8tRZBzyJsTn4\",\"instagram_business_account\":{\"id\":\"17841451698722819\"}}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-20 17:03:50] [INFO]: Instagram business account found in me/accounts response directly {"page_id":"1243224272200630","instagram_id":"17841451698722819"}
+[2026-07-20 17:03:50] [INFO]: Linked Instagram account detected and saved {"client_id":1,"instagram_id":"17841451698722819"}
+[2026-07-20 17:03:50] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-20 17:03:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:03:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 17:03:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:03:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0152}
+[2026-07-20 17:05:35] [INFO]: YouTube Channel connection successful {"client_id":1,"channel_count":1}
+[2026-07-20 17:05:36] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:05:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0183}
+[2026-07-20 17:05:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:05:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0133}
+[2026-07-20 17:05:43] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:05:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 17:05:44] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:05:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 17:05:57] [INFO]: Local file uploaded successfully: clients/1/1784547357_1784547357_c6ed503c-adde-4adf-8f18-82baef1acf95.png {"client_id":1,"size":2908361}
+[2026-07-20 17:06:12] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:06:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0083}
+[2026-07-20 17:06:12] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:06:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0322}
+[2026-07-20 17:06:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:06:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0053}
+[2026-07-20 17:06:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:06:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 17:06:28] [INFO]: Local file uploaded successfully: clients/1/1784547388_1784547388_c6ed503c-adde-4adf-8f18-82baef1acf95.png {"client_id":1,"size":2908361}
+[2026-07-20 17:06:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:06:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0239}
+[2026-07-20 17:06:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:06:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 17:07:19] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:07:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0321}
+[2026-07-20 17:07:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:07:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0308}
+[2026-07-20 17:07:36] [INFO]: Local file uploaded successfully: clients/1/1784547456_1784547456_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 17:08:13] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:08:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 17:08:13] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:08:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 17:09:00] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:09:00] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0191}
+[2026-07-20 17:09:00] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:09:00] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 17:09:31] [INFO]: Local file uploaded successfully: clients/1/1784547571_1784547571_web (1).png {"client_id":1,"size":19766}
+[2026-07-20 17:09:33] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:09:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 17:09:33] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:09:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0179}
+[2026-07-20 17:09:35] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:09:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 17:09:35] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:09:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0274}
+[2026-07-20 17:11:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:11:07] [INFO]: Scheduler: Successfully queued 4 posts. {"execution_time_seconds":0.0534,"queued_ids":[93,94,95,96]}
+[2026-07-20 17:11:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:11:23] [ERROR]: Queue Worker: Failed publishing post ID 93 on facebook {"error":"Facebook Graph API Exception (Code: 1): Please reduce the amount of data you're asking for, then retry your request"}
+[2026-07-20 17:11:23] [INFO]: Queue Worker: Scheduled retry #1 for post ID 93 at 2026-07-20 17:31:23
+[2026-07-20 17:11:24] [INFO]: Queue Worker: Published post ID 94 successfully on linkedin
+[2026-07-20 17:11:24] [ERROR]: Queue Worker: Failed publishing post ID 95 on instagram {"error":"Public media URL is unreachable. Local server connection to tunnel failed: URL rejected: Malformed input to a URL function. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 17:11:24] [INFO]: Queue Worker: Scheduled retry #1 for post ID 95 at 2026-07-20 17:31:24
+[2026-07-20 17:11:28] [INFO]: Queue Worker: Published post ID 96 successfully on youtube
+[2026-07-20 17:11:28] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":2,"execution_time_seconds":20.5858}
+[2026-07-20 17:11:28] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:11:28] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0255}
+[2026-07-20 17:11:28] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:11:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0301}
+[2026-07-20 17:15:50] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:15:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0083}
+[2026-07-20 17:15:50] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:15:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 17:15:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:15:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 17:15:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:15:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0099}
+[2026-07-20 17:16:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:16:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0238}
+[2026-07-20 17:16:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:16:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 17:16:16] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:16:18] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:16:19] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:16:20] [ERROR]: Failed to delete post ID 96 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 17:16:37] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:16:39] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:16:41] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:16:42] [ERROR]: Failed to delete post ID 96 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 17:16:48] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:16:48] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 17:16:48] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:16:48] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0272}
+[2026-07-20 17:16:50] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:16:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0089}
+[2026-07-20 17:16:50] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:16:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 17:17:16] [INFO]: YouTube Channel connection successful {"client_id":1,"channel_count":1}
+[2026-07-20 17:17:17] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:17:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 17:17:17] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:17:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 17:17:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:17:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0051}
+[2026-07-20 17:17:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:17:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0276}
+[2026-07-20 17:17:54] [INFO]: Local file uploaded successfully: clients/1/1784548074_1784548074_phone-call (2).png {"client_id":1,"size":7638}
+[2026-07-20 17:17:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:17:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-20 17:17:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:17:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 17:17:58] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:17:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0303}
+[2026-07-20 17:17:58] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:17:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 17:19:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:19:41] [INFO]: Scheduler: Successfully queued 4 posts. {"execution_time_seconds":0.0299,"queued_ids":[97,98,99,100]}
+[2026-07-20 17:19:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:19:46] [INFO]: Queue Worker: Published post ID 97 successfully on facebook
+[2026-07-20 17:19:46] [INFO]: Queue Worker: Published post ID 98 successfully on linkedin
+[2026-07-20 17:19:46] [ERROR]: Queue Worker: Failed publishing post ID 99 on instagram {"error":"Public media URL is unreachable. Local server connection to tunnel failed: URL rejected: Malformed input to a URL function. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 17:19:46] [INFO]: Queue Worker: Scheduled retry #1 for post ID 99 at 2026-07-20 17:20:46
+[2026-07-20 17:19:51] [INFO]: Queue Worker: Published post ID 100 successfully on youtube
+[2026-07-20 17:19:51] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":3,"execution_time_seconds":10.5878}
+[2026-07-20 17:20:08] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:20:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0229}
+[2026-07-20 17:20:08] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:20:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0174}
+[2026-07-20 17:20:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:20:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.031}
+[2026-07-20 17:20:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:20:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0207}
+[2026-07-20 17:21:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:09] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0103,"queued_ids":[99]}
+[2026-07-20 17:21:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:09] [ERROR]: Queue Worker: Failed publishing post ID 99 on instagram {"error":"Public media URL is unreachable. Local server connection to tunnel failed: URL rejected: Malformed input to a URL function. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 17:21:09] [INFO]: Queue Worker: Scheduled retry #2 for post ID 99 at 2026-07-20 17:23:09
+[2026-07-20 17:21:11] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":2.0278}
+[2026-07-20 17:21:12] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0383}
+[2026-07-20 17:21:12] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0164}
+[2026-07-20 17:21:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0307}
+[2026-07-20 17:21:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0193}
+[2026-07-20 17:21:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0205}
+[2026-07-20 17:21:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0326}
+[2026-07-20 17:21:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0457}
+[2026-07-20 17:21:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0148}
+[2026-07-20 17:21:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 17:21:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0102}
+[2026-07-20 17:21:17] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 17:21:17] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0065}
+[2026-07-20 17:21:18] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0169}
+[2026-07-20 17:21:18] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0309}
+[2026-07-20 17:21:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:21:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0143}
+[2026-07-20 17:21:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:21:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0285}
+[2026-07-20 17:22:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:42] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0379}
+[2026-07-20 17:22:42] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:42] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-20 17:22:47] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0442}
+[2026-07-20 17:22:47] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.015}
+[2026-07-20 17:22:48] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:48] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0186}
+[2026-07-20 17:22:48] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:48] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 17:22:49] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 17:22:49] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0077}
+[2026-07-20 17:22:49] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.032}
+[2026-07-20 17:22:49] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0144}
+[2026-07-20 17:22:50] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0326}
+[2026-07-20 17:22:50] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.015}
+[2026-07-20 17:22:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0101}
+[2026-07-20 17:22:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0263}
+[2026-07-20 17:22:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:22:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-20 17:22:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:22:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0066}
+[2026-07-20 17:23:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:23:20] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.026,"queued_ids":[99]}
+[2026-07-20 17:23:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:23:20] [ERROR]: Queue Worker: Failed publishing post ID 99 on instagram {"error":"Public media URL is unreachable. Local server connection to tunnel failed: URL rejected: Malformed input to a URL function. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 17:23:20] [INFO]: Queue Worker: Scheduled retry #3 for post ID 99 at 2026-07-20 17:27:20
+[2026-07-20 17:23:22] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":2.0236}
+[2026-07-20 17:23:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:23:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.022}
+[2026-07-20 17:23:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:23:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 17:24:51] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:24:51] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0315}
+[2026-07-20 17:24:51] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:24:51] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0346}
+[2026-07-20 17:25:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:25:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0158}
+[2026-07-20 17:25:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:25:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0175}
+[2026-07-20 17:26:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:26:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0279}
+[2026-07-20 17:26:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:26:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0277}
+[2026-07-20 17:26:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:26:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0417}
+[2026-07-20 17:26:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:26:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 17:26:08] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:26:09] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:26:09] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:26:44] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:26:44] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0063}
+[2026-07-20 17:26:44] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:26:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 17:27:29] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:27:29] [INFO]: Scheduler: Successfully queued 1 posts. {"execution_time_seconds":0.0335,"queued_ids":[99]}
+[2026-07-20 17:27:29] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:27:29] [ERROR]: Queue Worker: Failed publishing post ID 99 on instagram {"error":"Public media URL is unreachable. Local server connection to tunnel failed: URL rejected: Malformed input to a URL function. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 17:27:29] [ERROR]: Queue Worker: Permanent publication failure for post ID 99 on instagram
+[2026-07-20 17:27:31] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":0,"execution_time_seconds":2.0827}
+[2026-07-20 17:27:40] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:27:40] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 17:27:40] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:27:40] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0056}
+[2026-07-20 17:27:41] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:27:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-20 17:27:41] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:27:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 17:27:52] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:27:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0307}
+[2026-07-20 17:27:52] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:27:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0285}
+[2026-07-20 17:29:35] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:29:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0085}
+[2026-07-20 17:29:35] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:29:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 17:29:35] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:29:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0168}
+[2026-07-20 17:29:36] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:29:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0317}
+[2026-07-20 17:32:02] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0102}
+[2026-07-20 17:32:02] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0092}
+[2026-07-20 17:32:04] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0224}
+[2026-07-20 17:32:04] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 17:32:05] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0323}
+[2026-07-20 17:32:05] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0226}
+[2026-07-20 17:32:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0084}
+[2026-07-20 17:32:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0061}
+[2026-07-20 17:32:16] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0119}
+[2026-07-20 17:32:16] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-20 17:32:17] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-20 17:32:17] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0186}
+[2026-07-20 17:32:17] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0442}
+[2026-07-20 17:32:17] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0155}
+[2026-07-20 17:32:18] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0298}
+[2026-07-20 17:32:18] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 17:32:21] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:32:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0206}
+[2026-07-20 17:32:21] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:32:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0274}
+[2026-07-20 17:39:06] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:39:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0086}
+[2026-07-20 17:39:06] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:39:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-20 17:39:11] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:17] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:18] [ERROR]: Failed to delete post ID 100 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 17:39:20] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:30] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:39] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:49] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:49] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:39:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0281}
+[2026-07-20 17:39:49] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:39:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0302}
+[2026-07-20 17:39:53] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:54] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:56] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:39:57] [ERROR]: Failed to delete post ID 96 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 17:40:10] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:40:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0097}
+[2026-07-20 17:40:10] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:40:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 17:40:12] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:40:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 17:40:12] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:40:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0068}
+[2026-07-20 17:41:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:41:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0069}
+[2026-07-20 17:41:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:41:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-20 17:45:09] [INFO]: Local file uploaded successfully: clients/1/1784549709_1784549709_Gemini_Generated_Image_6ddffq6ddffq6ddf.png {"client_id":1,"size":1812142}
+[2026-07-20 17:45:11] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:45:11] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0073}
+[2026-07-20 17:45:11] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:45:11] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-20 17:45:20] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:45:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0088}
+[2026-07-20 17:45:20] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:45:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0067}
+[2026-07-20 17:56:07] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:56:07] [INFO]: Scheduler: Successfully queued 3 posts. {"execution_time_seconds":0.0167,"queued_ids":[101,102,103]}
+[2026-07-20 17:56:07] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:56:17] [INFO]: Queue Worker: Published post ID 101 successfully on facebook
+[2026-07-20 17:56:18] [INFO]: Queue Worker: Published post ID 102 successfully on linkedin
+[2026-07-20 17:56:18] [ERROR]: Queue Worker: Failed publishing post ID 103 on instagram {"error":"Instagram error: Public media URL is unreachable. Local server connection to tunnel failed: Could not resolve host: dfogl-2402-a00-405-b941-51d0-a601-2633-5f49.free.pinggy.net. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running."}
+[2026-07-20 17:56:18] [ERROR]: Queue Worker: Permanent publication failure for post ID 103 on instagram
+[2026-07-20 17:56:20] [INFO]: Queue Worker: Execution completed. {"processed_posts_count":2,"execution_time_seconds":13.5703}
+[2026-07-20 17:56:21] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:56:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0081}
+[2026-07-20 17:56:21] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:56:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0274}
+[2026-07-20 17:56:31] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:56:31] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0085}
+[2026-07-20 17:56:31] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:56:31] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0075}
+[2026-07-20 17:56:35] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:56:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0326}
+[2026-07-20 17:56:35] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:56:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0293}
+[2026-07-20 17:56:38] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:56:39] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:56:40] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:56:49] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:56:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0341}
+[2026-07-20 17:56:49] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:56:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0252}
+[2026-07-20 17:56:56] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:56:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-20 17:56:56] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:56:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 17:56:58] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:56:59] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:56:59] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-20 17:57:09] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:57:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0276}
+[2026-07-20 17:57:09] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:57:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0276}
+[2026-07-20 17:57:13] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:57:15] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:57:17] [ERROR]: Analytics request failure {"error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-20 17:57:17] [ERROR]: Failed to delete post ID 100 on youtube {"error":"YouTube API Exception (Code 404): The video that you are trying to delete cannot be found. Check the value of the request's <code>id</code> parameter to ensure that it is correct."}
+[2026-07-20 17:57:24] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:57:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.037}
+[2026-07-20 17:57:24] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:57:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0072}
+[2026-07-20 17:57:27] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:57:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0246}
+[2026-07-20 17:57:27] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:57:27] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0274}
+[2026-07-20 17:57:30] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:57:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.018}
+[2026-07-20 17:57:30] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:57:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0064}
+[2026-07-20 17:57:32] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:57:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0291}
+[2026-07-20 17:57:32] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:57:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-20 17:58:14] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:58:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0104}
+[2026-07-20 17:58:14] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:58:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0095}
+[2026-07-20 17:58:15] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:58:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-20 17:58:15] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:58:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0275}
+[2026-07-20 17:58:22] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:58:22] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0162}
+[2026-07-20 17:58:22] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:58:22] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.03}
+[2026-07-20 17:58:26] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:58:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0581}
+[2026-07-20 17:58:26] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:58:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0304}
+[2026-07-20 17:58:50] [INFO]: Scheduler: Started execution.
+[2026-07-20 17:58:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0311}
+[2026-07-20 17:58:50] [INFO]: Queue Worker: Started execution.
+[2026-07-20 17:58:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0092}

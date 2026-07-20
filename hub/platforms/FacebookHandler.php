@@ -18,7 +18,7 @@ class FacebookHandler {
      * @return array            Contains response array (including platform post 'id')
      * @throws Exception
      */
-    public static function publishPost($token, $pageId, $content, $mediaUrl = null) {
+    public static function publishPost($token, $pageId, $content, $mediaUrl = null, $localFilePath = null) {
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$pageId}/";
         $payload = ['access_token' => $token];
 
@@ -27,12 +27,22 @@ class FacebookHandler {
             $isVid = in_array($ext, ['mp4', 'mov', 'avi', 'mpeg']);
             
             if ($isVid) {
-                $endpoint .= "videos";
-                $payload['file_url'] = $mediaUrl;
+                if ($localFilePath && file_exists($localFilePath)) {
+                    $endpoint = "https://graph-video.facebook.com/" . self::$version . "/{$pageId}/videos";
+                    $payload['source'] = new CURLFile($localFilePath);
+                } else {
+                    $endpoint .= "videos";
+                    $payload['file_url'] = $mediaUrl;
+                }
                 $payload['description'] = $content;
             } else {
-                $endpoint .= "photos";
-                $payload['url'] = $mediaUrl;
+                if ($localFilePath && file_exists($localFilePath)) {
+                    $endpoint = "https://graph.facebook.com/" . self::$version . "/{$pageId}/photos";
+                    $payload['source'] = new CURLFile($localFilePath);
+                } else {
+                    $endpoint .= "photos";
+                    $payload['url'] = $mediaUrl;
+                }
                 $payload['message'] = $content;
             }
         } else {
@@ -83,13 +93,19 @@ class FacebookHandler {
      * @return array
      * @throws Exception
      */
-    public static function getInsights($token, $targetId, array $metrics) {
+    public static function getInsights($token, $targetId, array $metrics, $period = null) {
+        $urlParams = [
+            'metric'       => implode(',', $metrics),
+            'access_token' => $token
+        ];
+        if ($period) {
+            $urlParams['period'] = $period;
+        }
         $endpoint = sprintf(
-            "https://graph.facebook.com/%s/%s/insights?metric=%s&access_token=%s",
+            "https://graph.facebook.com/%s/%s/insights?%s",
             self::$version,
             $targetId,
-            implode(',', $metrics),
-            urlencode($token)
+            http_build_query($urlParams)
         );
         return self::executeRequest('GET', $endpoint);
     }
@@ -139,7 +155,20 @@ class FacebookHandler {
         if (strtoupper($method) === 'POST') {
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+            
+            $hasFile = false;
+            foreach ($payload as $val) {
+                if ($val instanceof CURLFile) {
+                    $hasFile = true;
+                    break;
+                }
+            }
+            
+            if ($hasFile) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            } else {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+            }
         } else {
             // GET, DELETE
             curl_setopt($ch, CURLOPT_URL, $url);

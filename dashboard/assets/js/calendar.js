@@ -20,12 +20,43 @@ document.addEventListener('DOMContentLoaded', function() {
         pin.addEventListener('click', function(e) {
             e.stopPropagation();
             const date = this.getAttribute('data-date');
-            window.location.href = `post_history.php?date=${date}`;
+            openDatePostsModal(date);
         });
     });
 
+    function openDatePostsModal(date) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        modalBody.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:2rem 0;">Loading posts...</p>';
+
+        fetch(`ajax_date_posts.php?date=${date}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.text())
+        .then(html => {
+            modalBody.innerHTML = html;
+            
+            // Add click listeners to each post item in the list
+            modalBody.querySelectorAll('.modal-list-post-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-id');
+                    openPostModal(postId);
+                });
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            modalBody.innerHTML = '<p style="color:var(--color-danger); text-align:center;">Failed to retrieve posts.</p>';
+        });
+    }
+
+
+
     // Open and load details via AJAX
     function openPostModal(postId) {
+        modal.classList.remove('hidden');
         modal.style.display = 'flex';
         modalBody.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:2rem 0;">Loading post details...</p>';
 
@@ -61,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     fetch('post_detail.php', {
                         method: 'POST',
                         headers: {
-                            'Content-Type: application/json',
+                            'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({
@@ -93,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Modal close controls
     function closeModal() {
+        modal.classList.add('hidden');
         modal.style.display = 'none';
         modalBody.innerHTML = '';
     }

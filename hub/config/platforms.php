@@ -15,14 +15,14 @@ return [
     ],
     // Google OAuth is shared between YouTube and Google Business Profile APIs
     'google' => [
-        'client_id' => getenv('HUB_GOOGLE_CLIENT_ID') ?: 'placeholder_google_client_id',
-        'client_secret' => getenv('HUB_GOOGLE_CLIENT_SECRET') ?: 'placeholder_google_client_secret',
+        'client_id' => getenv('HUB_GOOGLE_CLIENT_ID') ?: '408603801836-5h57orfrrhtsmr95nv2f4g9mrp273h77.apps.googleusercontent.com',
+        'client_secret' => getenv('HUB_GOOGLE_CLIENT_SECRET') ?: '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',
         'redirect_uri_youtube' => HUB_BASE_URL . '/auth/callback_youtube.php',
         'redirect_uri_business' => HUB_BASE_URL . '/auth/callback_google_business.php',
     ],
     'linkedin' => [
-        'client_id' => getenv('HUB_LINKEDIN_CLIENT_ID') ?: 'placeholder_linkedin_client_id',
-        'client_secret' => getenv('HUB_LINKEDIN_CLIENT_SECRET') ?: 'placeholder_linkedin_client_secret',
+        'client_id' => getenv('HUB_LINKEDIN_CLIENT_ID') ?: '77gdy7vv3ll3py',
+        'client_secret' => getenv('HUB_LINKEDIN_CLIENT_SECRET') ?: 'WPL_AP1.xSIC4Pqf8CaOLjh9.oeqQxA==',
         'redirect_uri' => HUB_BASE_URL . '/auth/callback_linkedin.php',
     ],
 ];

@@ -5,10 +5,10 @@
  */
 
 require_once __DIR__ . '/../includes/session_check.php';
-$pdo = require_once __DIR__ . '/../db/connection.php';
+$pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
 
-// Check if request is POST (Edit or Delete action)
+// Check if request is POST (Delete action)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
@@ -57,36 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['post_id' => $postId]);
             
             echo json_encode(['success' => true, 'message' => 'Post deleted successfully.']);
-            exit();
-            
-        } elseif ($action === 'edit') {
-            $newContent = trim($input['content'] ?? '');
-            $title = $input['title'] ?? 'Updated Video Title';
-            
-            if (empty($newContent)) {
-                throw new Exception("Content cannot be empty.");
-            }
-            
-            if ($platform === 'instagram') {
-                throw new Exception("Instagram posts cannot be edited.");
-            }
-            
-            if ($hubPostId > 0) {
-                // Edit post on Hub
-                $res = hubEdit($client_id, $hubPostId, $newContent, $title);
-                if (empty($res['success'])) {
-                    throw new Exception($res['error'] ?? 'Hub failed to edit post.');
-                }
-            }
-            
-            // Update local cache
-            $stmt = $pdo->prepare("UPDATE posts_cache SET content = :content WHERE id = :post_id");
-            $stmt->execute([
-                'content' => $newContent,
-                'post_id' => $postId
-            ]);
-            
-            echo json_encode(['success' => true, 'message' => 'Post updated successfully.']);
             exit();
         } else {
             throw new Exception("Invalid action.");
@@ -220,16 +190,6 @@ if ($status === 'published') {
         </span>
     </div>
 
-    <!-- Platform specific warning notice -->
-    <?php if ($platform === 'instagram'): ?>
-        <div class="bg-amber-50 text-amber-800 p-md rounded-lg flex items-start gap-sm border border-amber-200 text-xs">
-            <span class="material-symbols-outlined text-sm">warning</span>
-            <div>
-                <strong>Instagram Limitation:</strong> Captions cannot be edited via direct API. Deleting this post removes it entirely.
-            </div>
-        </div>
-    <?php endif; ?>
-
     <!-- Media Attachment Preview -->
     <?php if ($post['media_path']): 
         // Build media path
@@ -250,17 +210,6 @@ if ($status === 'published') {
     <div class="space-y-xs">
         <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block">Content / Caption</label>
         <div id="detail-caption-display" class="bg-surface-container-low border border-surface-variant p-md rounded-lg text-sm leading-relaxed whitespace-pre-wrap"><?php echo htmlspecialchars($post['content']); ?></div>
-        
-        <!-- Editable textarea form (hidden initially) -->
-        <?php if ($platform !== 'instagram'): ?>
-            <div id="detail-edit-form" class="hidden flex-col gap-sm mt-sm">
-                <textarea id="edit-content-input" class="w-full bg-surface-container-low border border-surface-variant rounded-lg p-md font-body-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none" rows="4"><?php echo htmlspecialchars($post['content']); ?></textarea>
-                <div class="flex gap-sm justify-end">
-                    <button class="px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold rounded-lg text-xs transition-colors" onclick="toggleEditMode(false)">Cancel</button>
-                    <button class="px-md py-sm bg-primary text-on-primary font-bold rounded-lg text-xs transition-all shadow-sm hover:brightness-110 active:scale-95" onclick="submitPostEdit(<?php echo $post['id']; ?>)">Save Changes</button>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 
     <!-- Live Performance Metrics from Hub -->
@@ -291,14 +240,7 @@ if ($status === 'published') {
 
     <!-- Actions Row -->
     <div class="flex justify-between items-center border-t border-surface-variant pt-md">
-        <div>
-            <?php if ($platform !== 'instagram' && $status !== 'deleted'): ?>
-                <button class="px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface font-bold rounded-lg text-xs transition-colors flex items-center gap-xs" onclick="toggleEditMode(true)" id="btn-edit-trigger">
-                    <span class="material-symbols-outlined text-sm">edit</span>
-                    <span>Edit Post</span>
-                </button>
-            <?php endif; ?>
-        </div>
+        <div></div>
         
         <?php if ($status !== 'deleted'): ?>
             <button class="px-md py-sm bg-error-container text-error hover:opacity-90 font-bold rounded-lg text-xs transition-all flex items-center gap-xs" id="btn-delete-post" data-id="<?php echo $post['id']; ?>">
@@ -310,57 +252,3 @@ if ($status === 'published') {
         <?php endif; ?>
     </div>
 </div>
-
-<script>
-    function toggleEditMode(enable) {
-        const display = document.getElementById('detail-caption-display');
-        const form = document.getElementById('detail-edit-form');
-        const editBtn = document.getElementById('btn-edit-trigger');
-        
-        if (enable) {
-            display.classList.add('hidden');
-            form.classList.remove('hidden');
-            form.classList.add('flex');
-            if (editBtn) editBtn.classList.add('hidden');
-        } else {
-            display.classList.remove('hidden');
-            form.classList.add('hidden');
-            form.classList.remove('flex');
-            if (editBtn) editBtn.classList.remove('hidden');
-        }
-    }
-
-    function submitPostEdit(postId) {
-        const newText = document.getElementById('edit-content-input').value.trim();
-        if (newText === '') {
-            alert('Post content cannot be blank.');
-            return;
-        }
-
-        fetch('post_detail.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                action: 'edit',
-                post_id: postId,
-                content: newText
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert('Post updated successfully!');
-                window.location.reload();
-            } else {
-                alert('Failed to edit: ' + data.error);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Communication failure while editing.');
-        });
-    }
-</script>
