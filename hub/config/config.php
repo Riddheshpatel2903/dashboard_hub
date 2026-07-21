@@ -10,7 +10,13 @@ define('DB_USER', getenv('HUB_DB_USER') ?: 'root');
 define('DB_PASS', getenv('HUB_DB_PASS') !== false ? getenv('HUB_DB_PASS') : '');
 
 // Application Settings
-define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: 'http://localhost:8080/dashboard_hub/hub', '/'));
+$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+if (empty($httpHost)) {
+    $httpHost = 'localhost:8080';
+}
+$defaultBaseUrl = "{$httpScheme}://{$httpHost}/dashboard_hub/hub";
+define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
 // Public HTTPS Tunnel URL (used exclusively to serve media files to external platform APIs during local dev)
 define('PUBLIC_TUNNEL_URL', 'https://dfogl-2402-a00-405-b941-51d0-a601-2633-5f49.free.pinggy.net/dashboard_hub/hub');
 

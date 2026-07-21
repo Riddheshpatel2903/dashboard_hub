@@ -40,9 +40,9 @@ $scopes = [
     'pages_manage_metadata',
     'instagram_basic',
     'instagram_content_publish',
-    'instagram_business_basic',
-    'instagram_business_content_publish',
-    'business_management'
+    'business_management',
+    'read_insights',
+    'instagram_manage_insights'
 ];
 
 $authUrl = sprintf(

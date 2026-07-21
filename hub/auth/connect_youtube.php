@@ -25,6 +25,7 @@ $stateData = [
     'client_id' => $clientId,
     'nonce'     => $nonce
 ];
+
 $state = base64_encode(json_encode($stateData));
 
 $scopes = [
