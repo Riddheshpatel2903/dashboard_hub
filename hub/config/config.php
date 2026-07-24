@@ -15,7 +15,18 @@ $httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
 if (empty($httpHost)) {
     $httpHost = 'localhost:8080';
 }
-$defaultBaseUrl = "{$httpScheme}://{$httpHost}/dashboard_hub/hub";
+
+$docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');
+$hubRoot = str_replace('\\', '/', realpath(__DIR__ . '/..') ?: '');
+
+$hubSubpath = '';
+if (!empty($docRoot) && !empty($hubRoot) && strpos(strtolower($hubRoot), strtolower($docRoot)) === 0) {
+    $hubSubpath = substr($hubRoot, strlen($docRoot));
+}
+$hubSubpath = str_replace('\\', '/', $hubSubpath);
+$hubSubpath = '/' . ltrim($hubSubpath, '/');
+
+$defaultBaseUrl = "{$httpScheme}://{$httpHost}{$hubSubpath}";
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
 // Public HTTPS Tunnel URL (used exclusively to serve media files to external platform APIs during local dev)
 define('PUBLIC_TUNNEL_URL', 'https://dfogl-2402-a00-405-b941-51d0-a601-2633-5f49.free.pinggy.net/dashboard_hub/hub');

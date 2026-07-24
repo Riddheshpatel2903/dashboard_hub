@@ -25,11 +25,11 @@ define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
 define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
 define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 // Dynamically compute base URL path relative to the server document root
-$docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
-$dashRoot = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+$docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');
+$dashRoot = str_replace('\\', '/', realpath(__DIR__ . '/..') ?: '');
 
 $dashboardBaseUrl = '';
-if (!empty($docRoot) && strpos($dashRoot, $docRoot) === 0) {
+if (!empty($docRoot) && !empty($dashRoot) && strpos(strtolower($dashRoot), strtolower($docRoot)) === 0) {
     $dashboardBaseUrl = substr($dashRoot, strlen($docRoot));
 }
 $dashboardBaseUrl = str_replace('\\', '/', $dashboardBaseUrl);
@@ -37,6 +37,26 @@ $dashboardBaseUrl = rtrim($dashboardBaseUrl, '/');
 
 define('DASHBOARD_BASE_URL', $dashboardBaseUrl);
 $cookiePath = empty($dashboardBaseUrl) ? '/' : $dashboardBaseUrl;
+
+// Hub API Access Coordinates
+$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+if (empty($httpHost)) {
+    $httpHost = 'localhost:8080';
+}
+
+$hubRoot = str_replace('\\', '/', realpath(__DIR__ . '/../../hub') ?: '');
+$hubSubpath = '';
+if (!empty($docRoot) && !empty($hubRoot) && strpos(strtolower($hubRoot), strtolower($docRoot)) === 0) {
+    $hubSubpath = substr($hubRoot, strlen($docRoot));
+}
+$hubSubpath = str_replace('\\', '/', $hubSubpath);
+$hubSubpath = '/' . ltrim($hubSubpath, '/');
+
+$defaultBaseUrl = "{$httpScheme}://{$httpHost}{$hubSubpath}";
+define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
+define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
+define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 
 // Session Settings
 define('SESSION_LIFETIME', 86400);  // 24 hours

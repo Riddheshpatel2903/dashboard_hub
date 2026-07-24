@@ -6,6 +6,10 @@
 
 require_once __DIR__ . '/../config/config.php';
 
+if (isset($GLOBALS['hub_pdo']) && $GLOBALS['hub_pdo'] instanceof PDO) {
+    return $GLOBALS['hub_pdo'];
+}
+
 try {
     $dsn = sprintf(
         "mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4",
@@ -21,6 +25,7 @@ try {
     ];
     
     $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    $GLOBALS['hub_pdo'] = $pdo;
     
     return $pdo;
 } catch (PDOException $e) {

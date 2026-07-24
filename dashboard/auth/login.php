@@ -3,13 +3,18 @@
  * Dashboard User Login (Tailwind & Stitch Design System).
  */
 
-session_start();
-$pdo = require_once __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../config/config.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // If session is already active, redirect home
 if (isset($_SESSION['user_id'])) {
-    if ($_SESSION['role'] === 'client') {
+    $role = $_SESSION['role'] ?? 'client';
+    $clientId = $_SESSION['client_id'] ?? null;
+    
+    if ($role === 'client' && $clientId !== null) {
         header('Location: ' . DASHBOARD_BASE_URL . '/pages/dashboard_home.php');
     } else {
         header('Location: ' . DASHBOARD_BASE_URL . '/admin/clients_overview.php');
@@ -19,13 +24,29 @@ if (isset($_SESSION['user_id'])) {
 
 $error = '';
 $email = '';
+$pdo = null;
+
+try {
+    $pdo = require __DIR__ . '/../db/connection.php';
+    if (!($pdo instanceof PDO)) {
+        $pdo = null;
+    }
+} catch (Exception $e) {
+    $pdo = null;
+    $error = 'Database Connection Failed: ' . $e->getMessage() . '. Please verify MySQL is running in XAMPP.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+        || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-    if (empty($email) || empty($password)) {
+    if (!($pdo instanceof PDO)) {
+        // DB connection error already set in $error
+    } else if (empty($email) || empty($password)) {
         $error = 'Please enter your email and password.';
     } else {
         try {
@@ -49,7 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute(['email' => $email]);
                 $user = $stmt->fetch();
 
-                if ($user && $password === $user['password']) {
+                // Support both hashed passwords and legacy plain text passwords
+                $passwordValid = false;
+                if ($user) {
+                    if ($password === $user['password'] || password_verify($password, $user['password'])) {
+                        $passwordValid = true;
+                    }
+                }
+
+                if ($user && $passwordValid) {
                     // Success: Clear login attempts history for this IP & email
                     $stmt = $pdo->prepare("
                         DELETE FROM login_attempts 
@@ -64,16 +93,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute(['id' => $user['id']]);
 
                     // Populate Session
-                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_id'] = (int)$user['id'];
                     $_SESSION['role'] = $user['role'];
-                    $_SESSION['client_id'] = $user['client_id'];
+                    $_SESSION['client_id'] = $user['client_id'] !== null ? (int)$user['client_id'] : null;
 
-                    if ($user['role'] === 'client') {
-                        header('Location: ' . DASHBOARD_BASE_URL . '/pages/dashboard_home.php');
+                    // Ensure session is written and saved to disk before returning or redirecting
+                    session_write_close();
+
+                    $baseUrl = DASHBOARD_BASE_URL;
+                    if ($user['role'] === 'client' && $user['client_id'] !== null) {
+                        $redirectUrl = $baseUrl . '/pages/dashboard_home.php';
                     } else {
-                        header('Location: ' . DASHBOARD_BASE_URL . '/admin/clients_overview.php');
+                        $redirectUrl = $baseUrl . '/admin/clients_overview.php';
                     }
-                    exit();
+
+                    if ($isAjax) {
+                        header('Content-Type: application/json');
+                        echo json_encode(['success' => true, 'redirect' => $redirectUrl]);
+                        exit();
+                    } else {
+                        header('Location: ' . $redirectUrl);
+                        exit();
+                    }
                 } else {
                     // Record failure for rate limiting
                     $stmt = $pdo->prepare("
@@ -88,6 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             $error = 'System error: ' . $e->getMessage();
         }
+    }
+
+    if ($isAjax && !empty($error)) {
+        header('Content-Type: application/json', true, 400);
+        echo json_encode(['success' => false, 'error' => $error]);
+        exit();
     }
 }
 ?>
@@ -108,11 +155,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen flex items-center justify-center p-md">
     <main class="w-full max-w-[420px] flex flex-col items-center">
         <!-- Logo Section -->
-        <div class="mb-xl flex flex-col items-center gap-sm">
-            <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+        <div class="mb-lg flex flex-col items-center gap-sm">
+            <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-on-primary shadow-sm">
                 <span class="material-symbols-outlined text-3xl">terminal</span>
             </div>
             <h1 class="font-display-md text-display-md text-primary tracking-tight">Command Center</h1>
+            
+            <!-- Live Network & Database Connection Badge -->
+            <div class="mt-xs">
+                <?php if ($pdo instanceof PDO): ?>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-xs">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>Network OK &bull; Database Online</span>
+                    </div>
+                <?php else: ?>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-700 border border-rose-500/20 shadow-xs">
+                        <span class="inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                        <span>Database Disconnected</span>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
 
         <!-- Login Card -->
@@ -122,14 +187,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Access your marketing dashboard</p>
             </div>
 
-            <?php if (!empty($error)): ?>
-                <div class="bg-error-container text-on-error-container border border-error/20 p-md rounded-lg mb-lg text-body-sm flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-xl">warning</span>
-                    <span><?php echo htmlspecialchars($error); ?></span>
-                </div>
-            <?php endif; ?>
+            <!-- Fetching Data / Network Progress Banner -->
+            <div id="login-status-banner" class="hidden mb-lg p-md rounded-lg text-body-sm flex items-center gap-sm bg-blue-50 border border-blue-200 text-blue-800 transition-all duration-300">
+                <span id="status-icon" class="material-symbols-outlined text-xl animate-spin">sync</span>
+                <span id="status-message">Establishing secure connection...</span>
+            </div>
 
-            <form class="space-y-md" method="POST" action="">
+            <div id="login-error-container">
+                <?php if (!empty($error)): ?>
+                    <div class="bg-error-container text-on-error-container border border-error/20 p-md rounded-lg mb-lg text-body-sm flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-xl">warning</span>
+                        <span><?php echo htmlspecialchars($error); ?></span>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <form id="login-form" class="space-y-md" method="POST" action="">
                 <!-- Email Field -->
                 <div class="space-y-sm">
                     <label class="font-data-label text-data-label text-on-surface-variant block" for="email">EMAIL ADDRESS</label>
@@ -152,9 +225,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <!-- Login Button -->
-                <button class="w-full h-12 bg-primary text-on-primary font-body-lg rounded-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-sm mt-lg" type="submit">
-                    <span>Login</span>
-                    <span class="material-symbols-outlined text-xl">login</span>
+                <button id="login-submit-btn" class="w-full h-12 bg-primary text-on-primary font-body-lg rounded-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-sm mt-lg shadow-sm" type="submit">
+                    <span id="btn-text">Login</span>
+                    <span id="btn-icon" class="material-symbols-outlined text-xl">login</span>
                 </button>
             </form>
         </div>
@@ -189,6 +262,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const yAxis = (window.innerHeight / 2 - e.pageY) / 100;
                 card.style.transform = `translate(${xAxis}px, ${yAxis}px)`;
             });
+
+            // Prevent form submit cancellation & handle submission with dynamic status indicators
+            const loginForm = document.getElementById('login-form');
+            const submitBtn = document.getElementById('login-submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            const errorContainer = document.getElementById('login-error-container');
+            const statusBanner = document.getElementById('login-status-banner');
+            const statusMessage = document.getElementById('status-message');
+            const statusIcon = document.getElementById('status-icon');
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevent standard page reload that cancels fetch requests
+
+                    // Lock button & show animated loader
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    btnText.textContent = 'Authenticating...';
+                    btnIcon.textContent = 'sync';
+                    btnIcon.classList.add('animate-spin');
+
+                    // Reset error container & show progress status banner
+                    errorContainer.innerHTML = '';
+                    statusBanner.classList.remove('hidden');
+                    statusMessage.textContent = 'Connecting to server & verifying credentials...';
+
+                    const formData = new FormData(loginForm);
+
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (response.ok && data.success) {
+                            statusMessage.textContent = 'Success! Fetching dashboard session data...';
+                            statusBanner.className = 'mb-lg p-md rounded-lg text-body-sm flex items-center gap-sm bg-emerald-50 border border-emerald-200 text-emerald-800 transition-all duration-300';
+                            statusIcon.textContent = 'check_circle';
+                            statusIcon.classList.remove('animate-spin');
+
+                            btnText.textContent = 'Redirecting...';
+                            btnIcon.textContent = 'arrow_forward';
+
+                            setTimeout(() => {
+                                let target = data.redirect || '<?php echo DASHBOARD_BASE_URL; ?>/pages/dashboard_home.php';
+                                window.location.replace(target);
+                            }, 200);
+                        } else {
+                            throw new Error(data.error || 'Authentication failed. Please check your credentials.');
+                        }
+                    })
+                    .catch((err) => {
+                        statusBanner.classList.add('hidden');
+
+                        errorContainer.innerHTML = `
+                            <div class="bg-error-container text-on-error-container border border-error/20 p-md rounded-lg mb-lg text-body-sm flex items-center gap-sm">
+                                <span class="material-symbols-outlined text-xl">warning</span>
+                                <span>${err.message || 'Connection error. Please try again.'}</span>
+                            </div>
+                        `;
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        btnText.textContent = 'Login';
+                        btnIcon.textContent = 'login';
+                        btnIcon.classList.remove('animate-spin');
+                    });
+                });
+            }
         });
     </script>
 </body>

@@ -1,0 +1,6 @@
+# 
+
+Connected to hub_db successfully.
+Updated posts status ENUM in hub_db.
+
+Connected to dashboard_db successfully.

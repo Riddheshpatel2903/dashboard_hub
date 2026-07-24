@@ -3,6 +3,8 @@
  * Dashboard User Logout.
  */
 
+require_once __DIR__ . '/../config/config.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -27,6 +29,5 @@ if (ini_get("session.use_cookies")) {
 // Destroy session on server
 session_destroy();
 
-require_once __DIR__ . '/../config/config.php';
 header('Location: ' . DASHBOARD_BASE_URL . '/auth/login.php');
 exit();

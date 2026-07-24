@@ -8,7 +8,7 @@ $pdo = require_once __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
 
 // If no client context exists (e.g., admin who hasn't picked a client), redirect to admin area
-if ($client_id === null) {
+if ($client_id === null && ($user_role === 'staff' || $user_role === 'admin')) {
     header('Location: ' . DASHBOARD_BASE_URL . '/admin/clients_overview.php');
     exit();
 }
