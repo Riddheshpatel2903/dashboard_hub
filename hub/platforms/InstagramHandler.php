@@ -24,18 +24,22 @@ class InstagramHandler {
             throw new Exception("Instagram requires a valid media URL for posting (text-only posts are not supported).");
         }
 
-        // Validate public media URL reachability
+        // Soft pre-flight check for public media URL reachability (prevents free tunnel loopback restrictions from blocking Instagram API)
         $ch = curl_init($mediaUrl);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+        curl_setopt($ch, CURLOPT_RANGE, '0-100');
         curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_error($ch);
         curl_close($ch);
 
-        if (!empty($curlError)) {
-            throw new Exception("Public media URL is unreachable. Local server connection to tunnel failed: {$curlError}. Please ensure your public tunnel (e.g. lhr.life or ngrok) is active and running.");
+        if (!empty($curlError) && $httpCode === 0) {
+            log_message('warning', "Local pre-flight tunnel reachability notice: {$curlError} for {$mediaUrl}. Proceeding with Instagram API container creation.");
         }
 
         $ext = strtolower(pathinfo(parse_url($mediaUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
@@ -167,6 +171,19 @@ class InstagramHandler {
             'message'      => $reply
         ];
         return self::executeRequest('POST', $endpoint, $payload);
+    }
+
+    /**
+     * Retrieves Instagram Account profile info (followers, following, media count).
+     */
+    public static function getAccountInfo($token, $igUserId) {
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/%s?fields=followers_count,follows_count,media_count,username,name&access_token=%s",
+            self::$version,
+            urlencode($igUserId),
+            urlencode($token)
+        );
+        return self::executeRequest('GET', $endpoint);
     }
 
     /**

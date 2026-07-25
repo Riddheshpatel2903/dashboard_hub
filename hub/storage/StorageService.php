@@ -24,6 +24,30 @@ class StorageService {
 
         $fileSize = filesize($localPath);
         $mimeType = mime_content_type($localPath);
+
+        // Fallback mime detection via extension if finfo / PHP returns application/octet-stream
+        if (empty($mimeType) || $mimeType === 'application/octet-stream') {
+            $ext = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
+            $extMap = [
+                'jpg'  => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png'  => 'image/png',
+                'gif'  => 'image/gif',
+                'webp' => 'image/webp',
+                'bmp'  => 'image/bmp',
+                'mp4'  => 'video/mp4',
+                'mov'  => 'video/quicktime',
+                'avi'  => 'video/x-msvideo',
+                'mkv'  => 'video/x-matroska',
+                'webm' => 'video/webm',
+                'm4v'  => 'video/mp4',
+                '3gp'  => 'video/3gpp'
+            ];
+            if (isset($extMap[$ext])) {
+                $mimeType = $extMap[$ext];
+            }
+        }
+
         $isImage = strpos($mimeType, 'image/') === 0;
         $isVideo = strpos($mimeType, 'video/') === 0;
 
@@ -148,5 +172,141 @@ class StorageService {
      */
     public static function generateSignedUrl($storagePath, $expiresInSeconds = 3600) {
         return self::getPublicUrl($storagePath);
+    }
+
+    /**
+     * Delete all physical instances of a media file across Hub and Dashboard upload directories.
+     *
+     * @param string $mediaPath File path, relative path, or filename
+     * @param int|null $clientId
+     * @return int Count of files physically deleted
+     */
+    public static function deletePostMedia($mediaPath, $clientId = null) {
+        if (empty($mediaPath)) return 0;
+
+        $baseName = basename($mediaPath);
+        if (empty($baseName) || $baseName === '.' || $baseName === '..') return 0;
+
+        $cleanPath = ltrim(str_replace(['\\', 'uploads/'], ['/', ''], $mediaPath), '/');
+
+        $hubDir = realpath(__DIR__ . '/..') ?: '';
+        $dashboardDir = realpath(__DIR__ . '/../../dashboard') ?: '';
+
+        $candidatePaths = [
+            $mediaPath,
+            $hubDir . '/uploads/' . $cleanPath,
+            $hubDir . '/uploads/' . $baseName,
+            $dashboardDir . '/uploads/' . $cleanPath,
+            $dashboardDir . '/uploads/' . $baseName,
+        ];
+
+        if ($clientId) {
+            $candidatePaths[] = $hubDir . '/uploads/clients/' . $clientId . '/' . $baseName;
+            $candidatePaths[] = $dashboardDir . '/uploads/clients/' . $clientId . '/' . $baseName;
+        }
+
+        $deletedCount = 0;
+        foreach (array_unique($candidatePaths) as $p) {
+            if (!empty($p) && file_exists($p) && is_file($p)) {
+                if (@unlink($p)) {
+                    $deletedCount++;
+                    log_message('info', "Unlinked physical post media: {$p}");
+                }
+            }
+        }
+        return $deletedCount;
+    }
+
+    /**
+     * Scans Hub and Dashboard uploads folders and removes any orphan media files
+     * not associated with active database post records.
+     *
+     * @param PDO|null $pdo PDO database connection instance
+     * @return array Summary of deleted files count and total bytes freed
+     */
+    public static function cleanOrphanUploads($pdo = null) {
+        if (!$pdo) {
+            try {
+                $pdo = require __DIR__ . '/../db/connection.php';
+            } catch (Exception $e) {
+                return ['success' => false, 'error' => 'DB connection failed for storage cleanup: ' . $e->getMessage()];
+            }
+        }
+
+        // 1. Gather all active media filenames in database across both Dashboard DB and Hub DB
+        $activeFiles = [];
+
+        try {
+            $dashPdo = require __DIR__ . '/../../dashboard/db/connection.php';
+            if ($dashPdo instanceof PDO) {
+                $stmtCache = $dashPdo->query("SELECT media_path FROM posts_cache WHERE media_path IS NOT NULL AND media_path != ''");
+                while ($row = $stmtCache->fetch(PDO::FETCH_ASSOC)) {
+                    $bn = basename($row['media_path']);
+                    if ($bn) $activeFiles[strtolower($bn)] = true;
+                }
+            }
+        } catch (Exception $e) {
+            log_message('warning', "Dashboard DB query warning during storage cleanup: " . $e->getMessage());
+        }
+
+        try {
+            $hubPdo = require __DIR__ . '/../db/connection.php';
+            if ($hubPdo instanceof PDO) {
+                $stmtPosts = $hubPdo->query("SELECT media_temp_path FROM posts WHERE media_temp_path IS NOT NULL AND media_temp_path != ''");
+                while ($row = $stmtPosts->fetch(PDO::FETCH_ASSOC)) {
+                    $bn = basename($row['media_temp_path']);
+                    if ($bn) $activeFiles[strtolower($bn)] = true;
+                }
+
+                $stmtMedia = $hubPdo->query("SELECT storage_path FROM media_files WHERE storage_path IS NOT NULL AND storage_path != ''");
+                while ($row = $stmtMedia->fetch(PDO::FETCH_ASSOC)) {
+                    $bn = basename($row['storage_path']);
+                    if ($bn) $activeFiles[strtolower($bn)] = true;
+                }
+            }
+        } catch (Exception $e) {
+            log_message('warning', "Hub DB query warning during storage cleanup: " . $e->getMessage());
+        }
+
+        // 2. Scan uploads directories
+        $hubUploads = __DIR__ . '/../uploads';
+        $dashUploads = __DIR__ . '/../../dashboard/uploads';
+        $dirsToScan = array_filter([$hubUploads, $dashUploads], 'is_dir');
+
+        $deletedCount = 0;
+        $bytesFreed = 0;
+
+        foreach ($dirsToScan as $dir) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $fileName = strtolower($file->getFilename());
+                    // Skip index.html / .gitignore / system files
+                    if (in_array($fileName, ['index.html', 'index.php', '.gitignore', '.ds_store'])) continue;
+
+                    // If file is NOT in active database records, remove it!
+                    if (!isset($activeFiles[$fileName])) {
+                        $fSize = $file->getSize();
+                        $fPath = $file->getPathname();
+                        if (@unlink($fPath)) {
+                            $deletedCount++;
+                            $bytesFreed += $fSize;
+                            log_message('info', "Storage cleanup: unlinked orphan file {$fPath} ({$fSize} bytes)");
+                        }
+                    }
+                }
+            }
+        }
+
+        return [
+            'success'       => true,
+            'files_deleted' => $deletedCount,
+            'bytes_freed'   => $bytesFreed,
+            'formatted_size'=> round($bytesFreed / (1024 * 1024), 2) . ' MB'
+        ];
     }
 }

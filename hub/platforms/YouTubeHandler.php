@@ -148,6 +148,18 @@ class YouTubeHandler
     }
 
     /**
+     * Helper to extract clean 11-character YouTube video ID from raw ID or full YouTube URL.
+     */
+    public static function extractVideoId($idOrUrl)
+    {
+        if (empty($idOrUrl)) return '';
+        if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $idOrUrl, $matches)) {
+            return $matches[1];
+        }
+        return trim($idOrUrl);
+    }
+
+    /**
      * Retrieves channel analytics statistics.
      * Quota Cost: 1 unit (1 unit for list).
      *
@@ -159,16 +171,16 @@ class YouTubeHandler
     public static function getChannelStats($token, $channelId = null)
     {
         if (empty($channelId) || $channelId === 'mine') {
-            $url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true';
+            $url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics,contentDetails&mine=true';
         } else {
-            $url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&id=' . urlencode($channelId);
+            $url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics,contentDetails&id=' . urlencode($channelId);
         }
 
         $res = self::executeRequest('GET', $token, $url);
 
         // Fallback: If querying by channel ID returned no items, try mine=true
         if (empty($res['items']) && !empty($channelId) && $channelId !== 'mine') {
-            $urlFallback = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true';
+            $urlFallback = 'https://www.googleapis.com/youtube/v3/channels?part=statistics,contentDetails&mine=true';
             try {
                 $resFallback = self::executeRequest('GET', $token, $urlFallback);
                 if (!empty($resFallback['items'])) {
@@ -180,6 +192,62 @@ class YouTubeHandler
         }
 
         return $res;
+    }
+
+    /**
+     * Retrieves video statistics (views, likes, comments, duration) via YouTube Data API v3.
+     * Quota Cost: 1 unit.
+     *
+     * @param string $token   Google access token
+     * @param string $videoId YouTube Video ID (external)
+     * @return array
+     * @throws Exception
+     */
+    public static function getVideoStats($token, $videoId)
+    {
+        $cleanId = self::extractVideoId($videoId);
+        $url = 'https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails&id=' . urlencode($cleanId);
+        return self::executeRequest('GET', $token, $url);
+    }
+
+    /**
+     * Retrieves recent uploaded videos and their live statistics (views, likes, comments, duration).
+     *
+     * @param string $token
+     * @param int    $maxResults
+     * @return array
+     */
+    public static function getRecentChannelVideos($token, $maxResults = 50)
+    {
+        // 1. Get uploads playlist ID
+        $chRes = self::getChannelStats($token, 'mine');
+        if (empty($chRes['items'][0]['contentDetails']['relatedPlaylists']['uploads'])) {
+            return [];
+        }
+        $uploadsPlaylistId = $chRes['items'][0]['contentDetails']['relatedPlaylists']['uploads'];
+
+        // 2. Get playlist items
+        $plUrl = 'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=' . (int)$maxResults . '&playlistId=' . urlencode($uploadsPlaylistId);
+        $plRes = self::executeRequest('GET', $token, $plUrl);
+
+        if (empty($plRes['items'])) {
+            return [];
+        }
+
+        $videoIds = [];
+        foreach ($plRes['items'] as $item) {
+            if (!empty($item['contentDetails']['videoId'])) {
+                $videoIds[] = $item['contentDetails']['videoId'];
+            }
+        }
+
+        if (empty($videoIds)) {
+            return [];
+        }
+
+        // 3. Batch fetch live video stats & ISO duration
+        $vUrl = 'https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails&id=' . implode(',', array_map('urlencode', $videoIds));
+        return self::executeRequest('GET', $token, $vUrl);
     }
 
     /**

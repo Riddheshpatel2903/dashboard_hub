@@ -147,6 +147,19 @@ class FacebookHandler {
     }
 
     /**
+     * Retrieves Facebook Page profile info (followers count, fans count).
+     */
+    public static function getAccountInfo($token, $pageId) {
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/%s?fields=followers_count,fan_count,name&access_token=%s",
+            self::$version,
+            urlencode($pageId),
+            urlencode($token)
+        );
+        return self::executeRequest('GET', $endpoint);
+    }
+
+    /**
      * Shared helper to handle cURL requests.
      */
     private static function executeRequest($method, $url, array $payload = []) {

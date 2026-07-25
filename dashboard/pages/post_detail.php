@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Resolve local cache post to Hub post ID and verify ownership
         $stmt = $pdo->prepare("
-            SELECT hub_post_id, platform 
+            SELECT hub_post_id, platform, media_path 
             FROM posts_cache 
             WHERE id = :post_id AND client_id = :client_id 
             LIMIT 1
@@ -42,21 +42,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $hubPostId = (int)$post['hub_post_id'];
         $platform = $post['platform'];
+        $mediaPath = $post['media_path'] ?? '';
         
         if ($action === 'delete') {
             if ($hubPostId > 0) {
                 // Delete post on Hub
                 $res = hubDelete($client_id, $hubPostId);
                 if (empty($res['success'])) {
-                    throw new Exception($res['error'] ?? 'Hub failed to delete post.');
+                    // Log notice if Hub delete returns error, but proceed with local cleanup
+                    error_log("Hub post deletion notice: " . ($res['error'] ?? 'Unknown error'));
                 }
             }
             
-            // Mark as deleted locally
-            $stmt = $pdo->prepare("UPDATE posts_cache SET status = 'deleted' WHERE id = :post_id");
-            $stmt->execute(['post_id' => $postId]);
+            // Delete media file from all upload folders if exists
+            if (!empty($mediaPath)) {
+                require_once __DIR__ . '/../../hub/storage/StorageService.php';
+                StorageService::deletePostMedia($mediaPath, $client_id);
+            }
+
+            // Hard delete post from posts_cache table so no entry shows in Post History
+            $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :post_id");
+            $stmtDel->execute(['post_id' => $postId]);
             
-            echo json_encode(['success' => true, 'message' => 'Post deleted successfully.']);
+            echo json_encode(['success' => true, 'message' => 'Post and associated media deleted successfully.']);
             exit();
         } else {
             throw new Exception("Invalid action.");

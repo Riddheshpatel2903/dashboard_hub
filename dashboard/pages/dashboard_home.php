@@ -40,6 +40,7 @@ $recentPosts = $stmtRecent->fetchAll();
 <head>
     <title>Dashboard Home | Stitch Social Mission Control</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .chart-grid {
             background-image: radial-gradient(circle, #c6c5d6 1px, transparent 1px);
@@ -343,7 +344,16 @@ $recentPosts = $stmtRecent->fetchAll();
         fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_analytics.php?${queryParams}`)
             .then(res => res.text())
             .then(html => {
-                document.getElementById('dashboard-analytics-content').innerHTML = html;
+                const container = document.getElementById('dashboard-analytics-content');
+                container.innerHTML = html;
+                // Re-evaluate script elements inside AJAX response
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
             })
             .catch(err => {
                 console.error("Error loading analytics:", err);

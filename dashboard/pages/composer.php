@@ -60,62 +60,41 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                                 ⚠️ No active connections found. Please <a href="connections.php" class="underline font-bold">link your channels</a> first.
                             </div>
                         <?php else: ?>
-                            <div class="space-y-md">
-                                <!-- Social Platforms -->
-                                <?php 
-                                $socialPlats = array_filter($connectedPlatforms, function($p) { return $p !== 'youtube'; });
-                                if (!empty($socialPlats)):
+                            <div class="flex flex-wrap gap-sm">
+                                <?php foreach ($connectedPlatforms as $plat): 
+                                    $platIcon = 'face';
+                                    $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1D4ED8] peer-checked:text-[#1D4ED8]';
+                                    if ($plat === 'facebook') {
+                                        $platIcon = 'public';
+                                        $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1877F2] peer-checked:text-[#1877F2]';
+                                    } elseif ($plat === 'instagram') {
+                                        $platIcon = 'photo_camera';
+                                        $platColor = 'peer-checked:bg-[#FDF2F8] peer-checked:border-[#E1306C] peer-checked:text-[#E1306C]';
+                                    } elseif ($plat === 'youtube') {
+                                        $platIcon = 'play_circle';
+                                        $platColor = 'peer-checked:bg-[#FEF2F2] peer-checked:border-[#FF0000] peer-checked:text-[#FF0000]';
+                                    } elseif ($plat === 'whatsapp') {
+                                        $platIcon = 'chat';
+                                        $platColor = 'peer-checked:bg-[#F0FDF4] peer-checked:border-[#25D366] peer-checked:text-[#25D366]';
+                                    } elseif ($plat === 'linkedin') {
+                                        $platIcon = 'work';
+                                        $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#0A66C2] peer-checked:text-[#0A66C2]';
+                                    } elseif ($plat === 'google_business') {
+                                        $platIcon = 'store';
+                                        $platColor = 'peer-checked:bg-[#EEF2FF] peer-checked:border-[#4285F4] peer-checked:text-[#4285F4]';
+                                    }
                                 ?>
-                                    <div>
-                                        <span class="text-xs text-on-surface-variant font-semibold block mb-xs">Social Feed Channels</span>
-                                        <div class="flex flex-wrap gap-sm">
-                                            <?php foreach ($socialPlats as $plat): 
-                                                $platIcon = 'face';
-                                                $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1D4ED8] peer-checked:text-[#1D4ED8]';
-                                                if ($plat === 'facebook') {
-                                                    $platIcon = 'public';
-                                                    $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1877F2] peer-checked:text-[#1877F2]';
-                                                } elseif ($plat === 'instagram') {
-                                                    $platIcon = 'photo_camera';
-                                                    $platColor = 'peer-checked:bg-[#FDF2F8] peer-checked:border-[#E1306C] peer-checked:text-[#E1306C]';
-                                                } elseif ($plat === 'whatsapp') {
-                                                    $platIcon = 'chat';
-                                                    $platColor = 'peer-checked:bg-[#F0FDF4] peer-checked:border-[#25D366] peer-checked:text-[#25D366]';
-                                                } elseif ($plat === 'linkedin') {
-                                                    $platIcon = 'work';
-                                                    $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#0A66C2] peer-checked:text-[#0A66C2]';
-                                                } elseif ($plat === 'google_business') {
-                                                    $platIcon = 'store';
-                                                    $platColor = 'peer-checked:bg-[#EEF2FF] peer-checked:border-[#4285F4] peer-checked:text-[#4285F4]';
-                                                }
-                                            ?>
-                                                <label class="platform-checkbox-label cursor-pointer">
-                                                    <input class="hidden peer" type="checkbox" name="platforms[]" value="<?php echo htmlspecialchars($plat); ?>" id="platform-<?php echo $plat === 'instagram' ? 'ig' : $plat; ?>" />
-                                                    <div class="flex items-center gap-sm px-md py-sm rounded-lg border border-surface-variant bg-surface-container-low transition-all <?php echo $platColor; ?>">
-                                                        <span class="material-symbols-outlined text-[20px]"><?php echo $platIcon; ?></span>
-                                                        <span class="font-body-md font-semibold capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Profile' : $plat); ?></span>
-                                                    </div>
-                                                </label>
-                                            <?php endforeach; ?>
+                                    <label class="platform-checkbox-label cursor-pointer" id="label-platform-<?php echo $plat; ?>">
+                                        <input class="hidden peer" type="checkbox" name="platforms[]" value="<?php echo htmlspecialchars($plat); ?>" id="platform-<?php echo $plat === 'instagram' ? 'ig' : $plat; ?>" />
+                                        <div class="flex items-center gap-sm px-md py-sm rounded-lg border border-surface-variant bg-surface-container-low transition-all <?php echo $platColor; ?>">
+                                            <span class="material-symbols-outlined text-[20px]"><?php echo $platIcon; ?></span>
+                                            <span class="font-body-md font-semibold capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Profile' : $plat); ?></span>
+                                            <?php if ($plat === 'youtube'): ?>
+                                                <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded border border-red-200 uppercase ml-1 yt-tag">(Video Only)</span>
+                                            <?php endif; ?>
                                         </div>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <!-- Video Platforms (YouTube) -->
-                                <?php if (in_array('youtube', $connectedPlatforms)): ?>
-                                    <div class="border-t border-surface-variant/40 pt-md">
-                                        <span class="text-xs text-on-surface-variant font-semibold block mb-xs">Video Broadcast Channels</span>
-                                        <div class="flex flex-wrap gap-sm">
-                                            <label class="platform-checkbox-label cursor-pointer">
-                                                <input class="hidden peer" type="checkbox" name="platforms[]" value="youtube" id="platform-youtube" />
-                                                <div class="flex items-center gap-sm px-md py-sm rounded-lg border border-red-200 bg-red-50/20 hover:bg-red-50/55 transition-all peer-checked:bg-[#FEF2F2] peer-checked:border-[#FF0000] peer-checked:text-[#FF0000]">
-                                                    <span class="material-symbols-outlined text-[20px]">play_circle</span>
-                                                    <span class="font-body-md font-semibold capitalize">YouTube Video</span>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
+                                    </label>
+                                <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
                     </div>

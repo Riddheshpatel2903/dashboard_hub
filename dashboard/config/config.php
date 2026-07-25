@@ -38,26 +38,6 @@ $dashboardBaseUrl = rtrim($dashboardBaseUrl, '/');
 define('DASHBOARD_BASE_URL', $dashboardBaseUrl);
 $cookiePath = empty($dashboardBaseUrl) ? '/' : $dashboardBaseUrl;
 
-// Hub API Access Coordinates
-$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
-if (empty($httpHost)) {
-    $httpHost = 'localhost';
-}
-
-$hubRoot = str_replace('\\', '/', realpath(__DIR__ . '/../../hub') ?: '');
-$hubSubpath = '';
-if (!empty($docRoot) && !empty($hubRoot) && strpos(strtolower($hubRoot), strtolower($docRoot)) === 0) {
-    $hubSubpath = substr($hubRoot, strlen($docRoot));
-}
-$hubSubpath = str_replace('\\', '/', $hubSubpath);
-$hubSubpath = '/' . ltrim($hubSubpath, '/');
-
-$defaultBaseUrl = "{$httpScheme}://{$httpHost}{$hubSubpath}";
-define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
-define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
-define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
-
 // Session Settings
 define('SESSION_LIFETIME', 86400);  // 24 hours
 define('SECURE_SESSION_COOKIES', getenv('SECURE_SESSION_COOKIES') === 'true' || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'));

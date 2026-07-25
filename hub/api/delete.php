@@ -26,9 +26,9 @@ if ($postId <= 0) {
 }
 
 try {
-    // 1. Retrieve the post details, platform, and tokens
+    // 1. Retrieve the post details, platform, media_path, and tokens
     $stmt = $pdo->prepare("
-        SELECT p.id, p.external_post_id, pc.platform, pc.external_account_id, pt.access_token_encrypted
+        SELECT p.id, p.external_post_id, p.media_path, pc.platform, pc.external_account_id, pt.access_token_encrypted
         FROM posts p
         JOIN platform_connections pc ON p.platform_connection_id = pc.id
         JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
@@ -49,6 +49,7 @@ try {
 
     $platform = $post['platform'];
     $externalPostId = $post['external_post_id'];
+    $mediaPath = $post['media_path'] ?? '';
     $token = decrypt($post['access_token_encrypted']);
 
     $response = [];
@@ -83,12 +84,14 @@ try {
         $response = ['message' => 'Post cleared locally (no external post ID found).'];
     }
 
-    // 3. Update DB post status to 'deleted'
-    $stmt = $pdo->prepare("
-        UPDATE posts 
-        SET status = 'deleted' 
-        WHERE id = :post_id
-    ");
+    // 3. Delete physical media file from disk
+    if (!empty($mediaPath)) {
+        require_once __DIR__ . '/../storage/StorageService.php';
+        StorageService::deletePostMedia($mediaPath, $client_id);
+    }
+
+    // 4. Hard delete post from Hub posts table
+    $stmt = $pdo->prepare("DELETE FROM posts WHERE id = :post_id");
     $stmt->execute(['post_id' => $postId]);
 
     $stmt = $pdo->prepare("

@@ -91,6 +91,15 @@ try {
             } else {
                 $metrics = ['page_post_engagements', 'page_views_total'];
                 $raw = FacebookHandler::getInsights($token, $externalId, $metrics, 'day');
+                try {
+                    $accInfo = FacebookHandler::getAccountInfo($token, $externalId);
+                    if (!empty($accInfo['followers_count'])) {
+                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'followers_count', 'value' => (int)$accInfo['followers_count'], 'period' => 'lifetime'];
+                    }
+                    if (!empty($accInfo['fan_count'])) {
+                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'fan_count', 'value' => (int)$accInfo['fan_count'], 'period' => 'lifetime'];
+                    }
+                } catch (Exception $e) {}
             }
             
             // Map FB metrics to standard structure
@@ -122,6 +131,18 @@ try {
                 // Account level metrics
                 $metrics = ['impressions', 'reach', 'profile_views'];
                 $raw = InstagramHandler::getInsights($token, $externalId, $metrics, 'day');
+                try {
+                    $accInfo = InstagramHandler::getAccountInfo($token, $externalId);
+                    if (!empty($accInfo['followers_count'])) {
+                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'followers_count', 'value' => (int)$accInfo['followers_count'], 'period' => 'lifetime'];
+                    }
+                    if (!empty($accInfo['follows_count'])) {
+                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'follows_count', 'value' => (int)$accInfo['follows_count'], 'period' => 'lifetime'];
+                    }
+                    if (!empty($accInfo['media_count'])) {
+                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'media_count', 'value' => (int)$accInfo['media_count'], 'period' => 'lifetime'];
+                    }
+                } catch (Exception $e) {}
             }
             
             if (!empty($raw['data'])) {
@@ -145,21 +166,46 @@ try {
 
         case 'youtube':
             if ($postId > 0) {
-                $raw = YouTubeHandler::getVideoAnalytics($token, $externalId, $startDate, $endDate);
-                
-                // YouTube reports metrics in rows and columns
-                if (!empty($raw['columnHeaders']) && !empty($raw['rows'])) {
-                    $headers = array_column($raw['columnHeaders'], 'name');
-                    foreach ($raw['rows'] as $row) {
-                        foreach ($row as $colIdx => $val) {
-                            $metricName = $headers[$colIdx];
-                            if ($metricName !== 'video') { // Skip filter headers
-                                $normalizedMetrics[] = [
-                                    'platform'    => 'youtube',
-                                    'metric_name' => $metricName,
-                                    'value'       => $val,
-                                    'period'      => 'range'
-                                ];
+                // Try live YouTube Data API v3 video statistics first
+                try {
+                    $statsRaw = YouTubeHandler::getVideoStats($token, $externalId);
+                    if (!empty($statsRaw['items'][0]['statistics'])) {
+                        $item = $statsRaw['items'][0];
+                        $vStats = $item['statistics'];
+                        foreach ($vStats as $name => $val) {
+                            $snakeName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+                            $normalizedMetrics[] = [
+                                'platform'    => 'youtube',
+                                'metric_name' => $snakeName,
+                                'value'       => (int)$val,
+                                'period'      => 'lifetime'
+                            ];
+                        }
+                        if (!empty($item['contentDetails']['duration'])) {
+                            $normalizedMetrics[] = [
+                                'platform'    => 'youtube',
+                                'metric_name' => 'duration',
+                                'value'       => $item['contentDetails']['duration'],
+                                'period'      => 'lifetime'
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Fallback to YouTube Analytics API
+                    $raw = YouTubeHandler::getVideoAnalytics($token, $externalId, $startDate, $endDate);
+                    if (!empty($raw['columnHeaders']) && !empty($raw['rows'])) {
+                        $headers = array_column($raw['columnHeaders'], 'name');
+                        foreach ($raw['rows'] as $row) {
+                            foreach ($row as $colIdx => $val) {
+                                $metricName = $headers[$colIdx];
+                                if ($metricName !== 'video') {
+                                    $normalizedMetrics[] = [
+                                        'platform'    => 'youtube',
+                                        'metric_name' => $metricName,
+                                        'value'       => $val,
+                                        'period'      => 'range'
+                                    ];
+                                }
                             }
                         }
                     }
@@ -185,6 +231,39 @@ try {
                             'period'      => 'lifetime'
                         ];
                     }
+                }
+
+                // ALSO fetch recent videos live stats & durations directly from YouTube channel
+                try {
+                    $recentVidRaw = YouTubeHandler::getRecentChannelVideos($token, 50);
+                    if (!empty($recentVidRaw['items'])) {
+                        foreach ($recentVidRaw['items'] as $vItem) {
+                            $vId = $vItem['id'] ?? '';
+                            $vStat = $vItem['statistics'] ?? [];
+                            $vDur = $vItem['contentDetails']['duration'] ?? '';
+                            $vPublishedAt = $vItem['snippet']['publishedAt'] ?? '';
+
+                            if ($vId) {
+                                $normalizedMetrics[] = [
+                                    'platform'    => 'youtube',
+                                    'metric_name' => 'yt_video_' . $vId,
+                                    'value'       => json_encode([
+                                        'video_id'     => $vId,
+                                        'title'        => $vTitle,
+                                        'published_at' => $vPublishedAt,
+                                        'views'        => (int)($vStat['viewCount'] ?? 0),
+                                        'likes'        => (int)($vStat['likeCount'] ?? 0),
+                                        'comments'     => (int)($vStat['commentCount'] ?? 0),
+                                        'duration'     => $vDur
+                                    ]),
+                                    'period'      => 'lifetime'
+                                ];
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Log warning if recent videos call fails
+                    log_message('warning', "Failed to fetch YouTube recent channel videos: " . $e->getMessage());
                 }
             }
             break;

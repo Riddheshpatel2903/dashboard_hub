@@ -29,7 +29,7 @@ $hubSubpath = '/' . ltrim($hubSubpath, '/');
 $defaultBaseUrl = "{$httpScheme}://{$httpHost}{$hubSubpath}";
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
 // Public HTTPS Tunnel URL (used exclusively to serve media files to external platform APIs during local dev)
-define('PUBLIC_TUNNEL_URL', 'https://aazku-2402-a00-405-b941-811d-c844-83b7-c2dc.free.pinggy.net/dashboard_hub/hub');
+define('PUBLIC_TUNNEL_URL', 'https://ozekm-2402-a00-405-b941-cb2-fa4f-af0f-59a3.free.pinggy.net/dashboard_hub/hub');
 
 // 256-bit key for AES-256-CBC encryption (should be 32 bytes)
 define('ENCRYPTION_KEY', getenv('HUB_ENCRYPTION_KEY') ?: 'd41d8cd98f00b204e9800998ecf8427e');

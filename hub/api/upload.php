@@ -47,7 +47,7 @@ try {
     $storagePath = StorageService::uploadTempFile($tempLocalPath, $client_id);
 
     if (!$storagePath) {
-        throw new Exception("B2 upload failed via StorageService.");
+        throw new Exception("Media upload failed via StorageService (unsupported file format or file size exceeded).");
     }
 
     // Clean up temporary local file

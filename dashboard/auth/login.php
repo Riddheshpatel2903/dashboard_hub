@@ -97,6 +97,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['role'] = $user['role'];
                     $_SESSION['client_id'] = $user['client_id'] !== null ? (int)$user['client_id'] : null;
 
+                    // Automatically fetch and persist all platform analytics & metrics to database upon login
+                    if ($_SESSION['client_id'] !== null) {
+                        try {
+                            require_once __DIR__ . '/../includes/sync_analytics.php';
+                            syncClientAnalytics($_SESSION['client_id'], $pdo);
+                        } catch (Exception $e) {
+                            error_log("Login analytics auto-sync notice: " . $e->getMessage());
+                        }
+                    }
+
                     // Ensure session is written and saved to disk before returning or redirecting
                     session_write_close();
 

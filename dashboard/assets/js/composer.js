@@ -32,65 +32,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 2. Selectable platform label classes and dynamic notices (Mutually exclusive YouTube video mode)
-    checkboxes.forEach(chk => {
-        chk.addEventListener('change', function() {
-            if (chk.value === 'youtube') {
-                if (chk.checked) {
-                    // Disable and uncheck all other platforms
-                    checkboxes.forEach(other => {
-                        if (other.value !== 'youtube') {
-                            other.checked = false;
-                            other.disabled = true;
-                            const label = other.closest('.platform-checkbox-label');
-                            if (label) {
-                                label.classList.add('opacity-40', 'cursor-not-allowed');
-                                label.classList.remove('selected');
-                            }
-                        }
-                    });
-                    // Restrict media input to video only
-                    mediaInput.accept = 'video/*';
-                } else {
-                    // Re-enable all other platforms
-                    checkboxes.forEach(other => {
-                        other.disabled = false;
-                        const label = other.closest('.platform-checkbox-label');
-                        if (label) {
-                            label.classList.remove('opacity-40', 'cursor-not-allowed');
-                        }
-                    });
-                    mediaInput.removeAttribute('accept');
+    // Dynamic media attachment validation for YouTube (Only selectable when video is attached)
+    function updatePlatformStates() {
+        const files = mediaInput.files;
+        let isVideoAttached = false;
+
+        if (files && files.length > 0) {
+            const file = files[0];
+            const type = file.type || '';
+            const name = file.name || '';
+            if (type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name)) {
+                isVideoAttached = true;
+            }
+        }
+
+        const ytCheckbox = document.getElementById('platform-youtube');
+        if (ytCheckbox) {
+            const ytLabel = ytCheckbox.closest('.platform-checkbox-label');
+            if (isVideoAttached) {
+                ytCheckbox.disabled = false;
+                if (ytLabel) {
+                    ytLabel.classList.remove('opacity-40', 'cursor-not-allowed');
+                    ytLabel.title = "YouTube Video Upload Supported";
                 }
             } else {
-                if (chk.checked) {
-                    // Disable YouTube
-                    checkboxes.forEach(other => {
-                        if (other.value === 'youtube') {
-                            other.checked = false;
-                            other.disabled = true;
-                            const label = other.closest('.platform-checkbox-label');
-                            if (label) {
-                                label.classList.add('opacity-40', 'cursor-not-allowed');
-                                label.classList.remove('selected');
-                            }
-                        }
-                    });
-                } else {
-                    // Re-enable YouTube if no other platforms are checked
-                    const anyChecked = Array.from(checkboxes).some(c => c.checked && c.value !== 'youtube');
-                    if (!anyChecked) {
-                        checkboxes.forEach(other => {
-                            other.disabled = false;
-                            const label = other.closest('.platform-checkbox-label');
-                            if (label) {
-                                label.classList.remove('opacity-40', 'cursor-not-allowed');
-                            }
-                        });
-                    }
+                if (ytCheckbox.checked) {
+                    ytCheckbox.checked = false;
+                }
+                ytCheckbox.disabled = true;
+                if (ytLabel) {
+                    ytLabel.classList.add('opacity-40', 'cursor-not-allowed');
+                    ytLabel.title = "YouTube requires a video attachment";
                 }
             }
+        }
 
+        // Highlight selected platform labels
+        checkboxes.forEach(chk => {
             const label = chk.closest('.platform-checkbox-label');
             if (label) {
                 if (chk.checked) {
@@ -99,7 +77,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     label.classList.remove('selected');
                 }
             }
-            updatePlatformNotices();
+        });
+
+        updatePlatformNotices();
+    }
+
+    checkboxes.forEach(chk => {
+        chk.addEventListener('change', function() {
+            updatePlatformStates();
         });
     });
 
@@ -132,6 +117,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Run initial state check on page load
+    updatePlatformStates();
+
     // 3. Client-side File size and mimetype validation
     mediaInput.addEventListener('change', function() {
         const placeholderIcon = document.getElementById('preview-placeholder-icon');
@@ -141,20 +129,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mediaInput.files || mediaInput.files.length === 0) {
             if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            updatePlatformStates();
             return;
         }
 
         const file = mediaInput.files[0];
         const size = file.size;
-        const type = file.type;
+        const type = file.type || '';
+        const name = file.name || '';
         
-        const isImage = type.startsWith('image/');
-        const isVideo = type.startsWith('video/');
+        const isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+        const isVideo = type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
 
         if (!isImage && !isVideo) {
             showFileError("Invalid format: Only image or video attachments are permitted.");
             mediaInput.value = '';
             if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            updatePlatformStates();
             return;
         }
 
@@ -163,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showFileError(`Selected image is too large (${(size / (1024 * 1024)).toFixed(1)}MB). Max limit is 8MB.`);
             mediaInput.value = '';
             if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            updatePlatformStates();
             return;
         }
 
@@ -171,8 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
             showFileError(`Selected video is too large (${(size / (1024 * 1024)).toFixed(1)}MB). Max limit is 70MB.`);
             mediaInput.value = '';
             if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            updatePlatformStates();
             return;
         }
+
+        // Update platform selection state based on attached file type
+        updatePlatformStates();
 
         // Render attachment preview in preview card
         if (placeholderIcon) placeholderIcon.style.display = 'none';
