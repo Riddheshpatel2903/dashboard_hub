@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared Sidebar Layout (Tailwind & Stitch Design System).
+ * Shared Sidebar Layout (Stitch Social Mission Control Design System).
  */
 require_once __DIR__ . '/session_check.php';
 
@@ -15,100 +15,94 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
         $isActive = true;
     }
     return $isActive 
-        ? 'bg-secondary-container text-on-secondary-container font-bold active:scale-95' 
+        ? 'bg-secondary-container text-on-secondary-container font-bold scale-95 shadow-xs' 
         : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface';
 }
 ?>
 <aside class="w-[240px] h-screen fixed left-0 top-0 bg-surface-container-lowest border-r border-surface-variant flex flex-col py-lg px-md z-50">
     <!-- Brand / Logo -->
     <div class="mb-xl px-sm">
-        <h1 class="font-display-md text-display-md font-bold text-primary">Command Center</h1>
-        <p class="font-body-md text-body-md text-on-surface-variant">Marketing Agency</p>
+        <h1 class="font-display-md text-display-md font-bold text-primary tracking-tight">CC</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant opacity-70">Marketing Agency</p>
     </div>
 
     <!-- Navigation Links -->
-    <nav class="flex-grow space-y-1">
-        <!-- Dashboard Home -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('dashboard_home.php', $current_script); ?>" 
+    <nav class="flex-grow space-y-1 overflow-y-auto pr-xs">
+        <!-- Analytics -->
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('analytics.php', $current_script); ?>" 
+           href="<?php echo DASHBOARD_BASE_URL; ?>/pages/analytics.php">
+            <span class="material-symbols-outlined text-xl">insights</span>
+            <span class="font-body-md text-body-md">Analytics</span>
+        </a>
+
+        <!-- Dashboard -->
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('dashboard_home.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/dashboard_home.php">
-            <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+            <span class="material-symbols-outlined text-xl">dashboard</span>
             <span class="font-body-md text-body-md">Dashboard</span>
         </a>
 
         <!-- Connections -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('connections.php', $current_script); ?>" 
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('connections.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/connections.php">
-            <span class="material-symbols-outlined" data-icon="sync_alt">sync_alt</span>
+            <span class="material-symbols-outlined text-xl">sync_alt</span>
             <span class="font-body-md text-body-md">Connections</span>
         </a>
 
         <!-- Composer -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('composer.php', $current_script); ?>" 
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('composer.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php">
-            <span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+            <span class="material-symbols-outlined text-xl">edit_note</span>
             <span class="font-body-md text-body-md">Composer</span>
         </a>
 
         <!-- Calendar -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('calendar.php', $current_script); ?>" 
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('calendar.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/calendar.php">
-            <span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+            <span class="material-symbols-outlined text-xl">calendar_month</span>
             <span class="font-body-md text-body-md">Calendar</span>
         </a>
 
         <!-- Post History -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('post_history.php', $current_script); ?>" 
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('post_history.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php">
-            <span class="material-symbols-outlined" data-icon="history">history</span>
+            <span class="material-symbols-outlined text-xl">history</span>
             <span class="font-body-md text-body-md">Post History</span>
         </a>
 
         <!-- Inbox -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('inbox.php', $current_script); ?>" 
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('inbox.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/inbox.php">
-            <span class="material-symbols-outlined" data-icon="inbox">inbox</span>
+            <span class="material-symbols-outlined text-xl">inbox</span>
             <span class="font-body-md text-body-md">Inbox</span>
         </a>
 
-        <!-- Analytics -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('analytics.php', $current_script); ?>" 
-           href="<?php echo DASHBOARD_BASE_URL; ?>/pages/analytics.php">
-            <span class="material-symbols-outlined" data-icon="insights">insights</span>
-            <span class="font-body-md text-body-md">Analytics</span>
-        </a>
-
         <!-- Settings -->
-        <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('settings.php', $current_script); ?>" 
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('settings.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/settings.php">
-            <span class="material-symbols-outlined" data-icon="settings">settings</span>
+            <span class="material-symbols-outlined text-xl">settings</span>
             <span class="font-body-md text-body-md">Settings</span>
         </a>
-        
+
         <!-- Admin-only Links -->
         <?php if ($user_role === 'staff' || $user_role === 'admin'): ?>
-            <div class="pt-sm my-sm border-t border-surface-variant/50">
-                <span class="font-data-label text-data-label text-on-surface-variant/60 block px-md py-xs uppercase tracking-wider">Agency Control</span>
+            <div class="pt-sm my-sm border-t border-surface-variant">
+                <span class="font-data-label text-data-label text-on-surface-variant/70 block px-sm py-xs uppercase tracking-wider text-[11px]">Agency Control</span>
             </div>
 
             <!-- Client Accounts -->
-            <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('clients_overview.php', $current_script, $isAdminSection, true); ?>" 
+            <a class="flex items-center gap-3 px-sm py-2 rounded-lg transition-all duration-200 <?php echo getLinkClass('clients_overview.php', $current_script, $isAdminSection, true); ?>" 
                href="<?php echo DASHBOARD_BASE_URL; ?>/admin/clients_overview.php">
-                <span class="material-symbols-outlined" data-icon="group">group</span>
+                <span class="material-symbols-outlined text-xl">group</span>
                 <span class="font-body-md text-body-md">Client Accounts</span>
             </a>
 
             <!-- System Health -->
-            <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('system_health.php', $current_script, $isAdminSection, true); ?>" 
+            <a class="flex items-center gap-3 px-sm py-2 rounded-lg transition-all duration-200 <?php echo getLinkClass('system_health.php', $current_script, $isAdminSection, true); ?>" 
                href="<?php echo DASHBOARD_BASE_URL; ?>/admin/system_health.php">
-                <span class="material-symbols-outlined" data-icon="health_and_safety">health_and_safety</span>
+                <span class="material-symbols-outlined text-xl">health_metrics</span>
                 <span class="font-body-md text-body-md">System Health</span>
             </a>
-
-            <!-- Scheduler Monitor -->
-            <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 <?php echo getLinkClass('scheduler_monitoring.php', $current_script, $isAdminSection, true); ?>" 
-               href="<?php echo DASHBOARD_BASE_URL; ?>/admin/scheduler_monitoring.php">
-                <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
-                <span class="font-body-md text-body-md">Scheduler Monitor</span>
             </a>
         <?php endif; ?>
     </nav>

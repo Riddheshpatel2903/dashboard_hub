@@ -11,9 +11,9 @@ define('DB_PASS', getenv('HUB_DB_PASS') !== false ? getenv('HUB_DB_PASS') : '');
 
 // Application Settings
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
 if (empty($httpHost)) {
-    $httpHost = 'localhost:8080';
+    $httpHost = 'localhost';
 }
 
 $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');
@@ -29,7 +29,7 @@ $hubSubpath = '/' . ltrim($hubSubpath, '/');
 $defaultBaseUrl = "{$httpScheme}://{$httpHost}{$hubSubpath}";
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
 // Public HTTPS Tunnel URL (used exclusively to serve media files to external platform APIs during local dev)
-define('PUBLIC_TUNNEL_URL', 'https://dfogl-2402-a00-405-b941-51d0-a601-2633-5f49.free.pinggy.net/dashboard_hub/hub');
+define('PUBLIC_TUNNEL_URL', 'https://aazku-2402-a00-405-b941-811d-c844-83b7-c2dc.free.pinggy.net/dashboard_hub/hub');
 
 // 256-bit key for AES-256-CBC encryption (should be 32 bytes)
 define('ENCRYPTION_KEY', getenv('HUB_ENCRYPTION_KEY') ?: 'd41d8cd98f00b204e9800998ecf8427e');
@@ -45,7 +45,7 @@ define('QUEUE_BATCH_SIZE', (int) (getenv('HUB_QUEUE_BATCH_SIZE') ?: 10));
 
 // Scheduler & Cron Settings
 define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
-define('MAX_RETRIES', 0); // Disable retries, fail immediately on error
+define('MAX_RETRIES', 0);  // Disable retries, fail immediately on error
 define('RETRY_BACKOFF_FACTOR', (int) (getenv('HUB_RETRY_BACKOFF_FACTOR') ?: 1));  // in minutes
 define('HTTP_TIMEOUT', (int) (getenv('HUB_HTTP_TIMEOUT') ?: 30));  // in seconds
 

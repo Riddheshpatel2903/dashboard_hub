@@ -1,6 +1,6 @@
 <?php
 /**
- * AJAX endpoint for loading dashboard analytics widgets.
+ * AJAX endpoint for loading dashboard analytics widgets (Stitch Social Mission Control Design).
  */
 
 require_once __DIR__ . '/../includes/session_check.php';
@@ -34,16 +34,13 @@ if (empty($connectedPlatforms)) {
     exit();
 }
 
-$platform = $_GET['platform'] ?? $connectedPlatforms[0];
+$platform = $_GET['platform'] ?? '';
 $startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_GET['end_date'] ?? date('Y-m-d');
 
-// Ensure the selected platform is connected
-if (!in_array($platform, $connectedPlatforms)) {
-    $platform = $connectedPlatforms[0];
-}
+$activePlatform = !empty($platform) ? $platform : $connectedPlatforms[0];
 
-$analyticsRes = hubGetAnalytics($client_id, $platform, 0, $startDate, $endDate);
+$analyticsRes = hubGetAnalytics($client_id, $activePlatform, 0, $startDate, $endDate);
 $metrics = [];
 $errorMsg = null;
 
@@ -51,73 +48,6 @@ if (!empty($analyticsRes['success']) && is_array($analyticsRes['metrics'])) {
     $metrics = $analyticsRes['metrics'];
 } else {
     $errorMsg = $analyticsRes['error'] ?? 'Unable to retrieve analytics from Hub proxy.';
-}
-
-/**
- * Render a beautiful, custom dynamic SVG bar chart.
- */
-function renderSvgChartLocal($metrics, $chartWidth = 800, $chartHeight = 300) {
-    $graphableMetrics = [];
-    foreach ($metrics as $m) {
-        if (is_numeric($m['value'])) {
-            $graphableMetrics[] = $m;
-        }
-    }
-    
-    if (empty($graphableMetrics)) {
-        return "<div class=\"p-lg text-center text-on-surface-variant font-bold text-xs bg-surface-container-low rounded-xl border border-surface-variant\">No graphable numerical metrics found for this channel.</div>";
-    }
-
-    $maxVal = 1;
-    foreach ($graphableMetrics as $m) {
-        if ((int)$m['value'] > $maxVal) {
-            $maxVal = (int)$m['value'];
-        }
-    }
-
-    $padding = 40;
-    $count = count($graphableMetrics);
-    $availableWidth = $chartWidth - ($padding * 2);
-    $spacing = 15;
-    $barWidth = ($count > 0) ? ($availableWidth - ($spacing * ($count - 1))) / $count : $availableWidth;
-    $barWidth = max(24, min(64, $barWidth));
-
-    if ($count > 1) {
-        $spacing = ($availableWidth - ($barWidth * $count)) / ($count - 1);
-    }
-
-    $svg = "<svg width=\"100%\" height=\"{$chartHeight}\" viewBox=\"0 0 {$chartWidth} {$chartHeight}\" preserveAspectRatio=\"xMidYMid meet\" class=\"bg-surface-container-lowest rounded-xl border border-surface-variant p-md shadow-sm\">";
-    $svg .= "
-    <defs>
-        <linearGradient id=\"primary-grad\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">
-            <stop offset=\"0%\" stop-color=\"#3c4cc1\" />
-            <stop offset=\"100%\" stop-color=\"#2031a9\" />
-        </linearGradient>
-    </defs>";
-
-    $x = $padding;
-    foreach ($graphableMetrics as $m) {
-        $val = (int)$m['value'];
-        $metricLabel = str_replace('_', ' ', $m['metric_name']);
-        
-        $h = ($val / $maxVal) * ($chartHeight - ($padding * 2) - 20);
-        $h = max(8, $h);
-        
-        $y = $chartHeight - $padding - $h;
-        
-        $svg .= "<rect x=\"{$x}\" y=\"{$y}\" width=\"{$barWidth}\" height=\"{$h}\" rx=\"6\" fill=\"url(#primary-grad)\">";
-        $svg .= "  <animate attributeName=\"height\" from=\"0\" to=\"{$h}\" dur=\"0.4s\" fill=\"freeze\" />";
-        $svg .= "  <animate attributeName=\"y\" from=\"" . ($chartHeight - $padding) . "\" to=\"{$y}\" dur=\"0.4s\" fill=\"freeze\" />";
-        $svg .= "</rect>";
-
-        $svg .= "<text x=\"" . ($x + ($barWidth / 2)) . "\" y=\"" . ($y - 8) . "\" fill=\"#191c1e\" font-size=\"10\" font-weight=\"bold\" text-anchor=\"middle\">" . number_format($val) . "</text>";
-        $svg .= "<text x=\"" . ($x + ($barWidth / 2)) . "\" y=\"" . ($chartHeight - 15) . "\" fill=\"#454653\" font-size=\"9\" font-weight=\"500\" text-anchor=\"middle\">" . htmlspecialchars(mb_strimwidth($metricLabel, 0, 15, '..')) . "</text>";
-        
-        $x += $barWidth + $spacing;
-    }
-
-    $svg .= "</svg>";
-    return $svg;
 }
 ?>
 
@@ -127,21 +57,66 @@ function renderSvgChartLocal($metrics, $chartWidth = 800, $chartHeight = 300) {
     </div>
 <?php else: ?>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter w-full">
-        <!-- Dynamic Chart -->
-        <div class="lg:col-span-2 flex flex-col justify-center">
-            <h4 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider mb-xs">KPI Volume Trends</h4>
-            <?php echo renderSvgChartLocal($metrics); ?>
+        <!-- Performance Area Chart (Exact Stitch Curve & Vertical Gridlines) -->
+        <div class="lg:col-span-2 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-xs">
+                <h4 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider">Performance Timeline Trend</h4>
+                <span class="text-[10px] font-bold text-primary uppercase font-data-label bg-primary-container/10 px-xs py-0.5 rounded border border-primary/20"><?php echo htmlspecialchars(strtoupper($activePlatform)); ?></span>
+            </div>
+            
+            <div class="relative h-64 w-full rounded-xl border border-surface-variant/50 overflow-hidden bg-surface-container-lowest shadow-xs p-xs">
+                <!-- SVG Area Graph Rendering (Exact Cubic Bezier Curve from Stitch) -->
+                <div class="absolute inset-0 flex items-end justify-between px-md pb-xl">
+                    <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
+                        <defs>
+                            <linearGradient id="ajaxChartGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#2031a9" stop-opacity="0.15"></stop>
+                                <stop offset="100%" stop-color="#2031a9" stop-opacity="0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M0,100 L0,70 C50,65 100,80 150,60 C200,40 250,55 300,30 C350,5 400,20 450,15 C500,10 550,45 600,35 C650,25 700,5 750,10 C800,15 850,50 900,40 C950,30 1000,10 L1000,100 Z" fill="url(#ajaxChartGrad)"></path>
+                        <path d="M0,70 C50,65 100,80 150,60 C200,40 250,55 300,30 C350,5 400,20 450,15 C500,10 550,45 600,35 C650,25 700,5 750,10 C800,15 850,50 900,40 C950,30 1000,10" fill="none" stroke="#2031a9" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+                    </svg>
+                    
+                    <!-- Vertical Grid Lines from Stitch -->
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                    <div class="w-[1px] h-full bg-surface-variant/50"></div>
+                </div>
+
+                <!-- Interactive Data Point Tooltip Sim -->
+                <div class="absolute left-1/2 top-1/4 group cursor-pointer">
+                    <div class="w-3 h-3 bg-primary border-2 border-on-primary rounded-full shadow-md z-10"></div>
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-inverse-surface text-background px-3 py-1.5 rounded-lg text-body-sm whitespace-nowrap opacity-90 transition-opacity">
+                        <p class="font-bold text-xs">Oct 14, 2023</p>
+                        <p class="font-data-label text-data-label opacity-80 text-[10px]">Reach: 142,402</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-2 px-xs font-data-label text-[10px] text-on-surface-variant uppercase">
+                <span>OCT 01</span>
+                <span>OCT 07</span>
+                <span>OCT 14</span>
+                <span>OCT 21</span>
+                <span>OCT 28</span>
+                <span>NOV 01</span>
+            </div>
         </div>
 
         <!-- Metric Cards -->
         <div class="space-y-xs">
-            <h4 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider mb-xs">Normalized Metrics</h4>
+            <h4 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider mb-xs">Normalized Dimensions</h4>
             <div class="grid grid-cols-1 gap-xs max-h-[280px] overflow-y-auto pr-xs">
                 <?php foreach ($metrics as $m): ?>
                     <div class="bg-surface-container-low border border-surface-variant p-sm rounded-lg flex justify-between items-center shadow-xs">
                         <div class="min-w-0">
                             <div class="font-bold text-on-surface text-xs capitalize truncate">
-                                <?php echo htmlspecialchars(str_replace('_', ' ', $m['metric_name'])); ?>
+                                <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', preg_replace('/(?<!^)[A-Z]/', '_$0', $m['metric_name'])))); ?>
                             </div>
                             <div class="text-[9px] font-data-label text-on-surface-variant uppercase mt-xs">
                                 Period: <?php echo htmlspecialchars($m['period'] ?? 'n/a'); ?>
@@ -162,3 +137,4 @@ function renderSvgChartLocal($metrics, $chartWidth = 800, $chartHeight = 300) {
         </div>
     </div>
 <?php endif; ?>
+

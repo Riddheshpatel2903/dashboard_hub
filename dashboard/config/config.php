@@ -16,10 +16,10 @@ define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASH
 
 // Hub API Access Coordinates
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
 if (empty($httpHost)) {
-    $httpHost = 'localhost:8080';
-}
+    $httpHost = 'localhost';
+}   
 $defaultBaseUrl = "{$httpScheme}://{$httpHost}/dashboard_hub/hub";
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
 define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
@@ -40,9 +40,9 @@ $cookiePath = empty($dashboardBaseUrl) ? '/' : $dashboardBaseUrl;
 
 // Hub API Access Coordinates
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
 if (empty($httpHost)) {
-    $httpHost = 'localhost:8080';
+    $httpHost = 'localhost';
 }
 
 $hubRoot = str_replace('\\', '/', realpath(__DIR__ . '/../../hub') ?: '');

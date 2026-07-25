@@ -1,11 +1,11 @@
 <?php
+
 /**
  * YouTube API Handler.
  * Interacts with YouTube Data API v3 and YouTube Analytics API.
  */
-
-class YouTubeHandler {
-
+class YouTubeHandler
+{
     /**
      * Upload a video using YouTube's Resumable Upload protocol.
      * Quota Cost: 1600 units (1600 units for insert).
@@ -17,7 +17,8 @@ class YouTubeHandler {
      * @return array            Contains video ID on success
      * @throws Exception
      */
-    public static function uploadVideo($token, $mediaPath, $title, $desc) {
+    public static function uploadVideo($token, $mediaPath, $title, $desc)
+    {
         if (!file_exists($mediaPath)) {
             throw new Exception("Local video file not found at: {$mediaPath}");
         }
@@ -25,13 +26,13 @@ class YouTubeHandler {
         $fileSize = filesize($mediaPath);
 
         // Step 1: Initiate resumable session
-        $initUrl = "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status";
-        
+        $initUrl = 'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status';
+
         $metadata = [
             'snippet' => [
-                'title'       => $title,
+                'title' => $title,
                 'description' => $desc,
-                'categoryId'  => '22' // People & Blogs default
+                'categoryId' => '22'  // People & Blogs default
             ],
             'status' => [
                 'privacyStatus' => 'public'
@@ -42,7 +43,7 @@ class YouTubeHandler {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($metadata));
-        curl_setopt($ch, CURLOPT_HEADER, true); // We need headers to extract the Location URI
+        curl_setopt($ch, CURLOPT_HEADER, true);  // We need headers to extract the Location URI
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $token,
             'Content-Type: application/json; charset=UTF-8',
@@ -70,13 +71,13 @@ class YouTubeHandler {
         }
 
         if (empty($uploadUrl)) {
-            throw new Exception("Did not receive a resumable Location URL from YouTube.");
+            throw new Exception('Did not receive a resumable Location URL from YouTube.');
         }
 
         // Step 2: Stream file payload to the upload Location URL
         $fileHandle = fopen($mediaPath, 'rb');
         if (!$fileHandle) {
-            throw new Exception("Could not open video file handle for streaming.");
+            throw new Exception('Could not open video file handle for streaming.');
         }
 
         $ch = curl_init($uploadUrl);
@@ -115,15 +116,16 @@ class YouTubeHandler {
      * @return array
      * @throws Exception
      */
-    public static function editVideoMetadata($token, $videoId, $title, $desc) {
-        $url = "https://www.googleapis.com/youtube/v3/videos?part=snippet";
-        
+    public static function editVideoMetadata($token, $videoId, $title, $desc)
+    {
+        $url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet';
+
         $payload = [
             'id' => $videoId,
             'snippet' => [
-                'title'       => $title,
+                'title' => $title,
                 'description' => $desc,
-                'categoryId'  => '22'
+                'categoryId' => '22'
             ]
         ];
 
@@ -139,8 +141,9 @@ class YouTubeHandler {
      * @return array
      * @throws Exception
      */
-    public static function deleteVideo($token, $videoId) {
-        $url = "https://www.googleapis.com/youtube/v3/videos?id=" . urlencode($videoId);
+    public static function deleteVideo($token, $videoId)
+    {
+        $url = 'https://www.googleapis.com/youtube/v3/videos?id=' . urlencode($videoId);
         return self::executeRequest('DELETE', $token, $url);
     }
 
@@ -153,9 +156,30 @@ class YouTubeHandler {
      * @return array
      * @throws Exception
      */
-    public static function getChannelStats($token, $channelId) {
-        $url = "https://www.googleapis.com/youtube/v3/channels?part=statistics&id=" . urlencode($channelId);
-        return self::executeRequest('GET', $token, $url);
+    public static function getChannelStats($token, $channelId = null)
+    {
+        if (empty($channelId) || $channelId === 'mine') {
+            $url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true';
+        } else {
+            $url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&id=' . urlencode($channelId);
+        }
+
+        $res = self::executeRequest('GET', $token, $url);
+
+        // Fallback: If querying by channel ID returned no items, try mine=true
+        if (empty($res['items']) && !empty($channelId) && $channelId !== 'mine') {
+            $urlFallback = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true';
+            try {
+                $resFallback = self::executeRequest('GET', $token, $urlFallback);
+                if (!empty($resFallback['items'])) {
+                    return $resFallback;
+                }
+            } catch (Exception $e) {
+                // Return original response if fallback fails
+            }
+        }
+
+        return $res;
     }
 
     /**
@@ -170,13 +194,14 @@ class YouTubeHandler {
      * @return array
      * @throws Exception
      */
-    public static function getVideoAnalytics($token, $videoId, $startDate = null, $endDate = null) {
+    public static function getVideoAnalytics($token, $videoId, $startDate = null, $endDate = null)
+    {
         $startDate = $startDate ?: date('Y-m-d', strtotime('-30 days'));
         $endDate = $endDate ?: date('Y-m-d');
-        
+
         // Base URL is different: youtubeanalytics.googleapis.com vs www.googleapis.com/youtube
         $url = sprintf(
-            "https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE&startDate=%s&endDate=%s&metrics=views,comments,likes,dislikes&filters=video==%s",
+            'https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE&startDate=%s&endDate=%s&metrics=views,comments,likes,dislikes&filters=video==%s',
             $startDate,
             $endDate,
             $videoId
@@ -188,10 +213,11 @@ class YouTubeHandler {
     /**
      * Helper request executor.
      */
-    private static function executeRequest($method, $token, $url, array $payload = []) {
+    private static function executeRequest($method, $token, $url, array $payload = [])
+    {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
+
         $headers = [
             'Authorization: Bearer ' . $token,
             'Content-Type: application/json'

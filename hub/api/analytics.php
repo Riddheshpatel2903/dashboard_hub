@@ -166,12 +166,21 @@ try {
                 }
             } else {
                 $raw = YouTubeHandler::getChannelStats($token, $externalId);
+                if (empty($raw['items'])) {
+                    $raw = YouTubeHandler::getChannelStats($token, 'mine');
+                }
                 if (!empty($raw['items'][0]['statistics'])) {
                     $stats = $raw['items'][0]['statistics'];
                     foreach ($stats as $name => $val) {
+                        if ($name === 'hiddenSubscriberCount') {
+                            continue;
+                        }
+                        
+                        $snakeName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+
                         $normalizedMetrics[] = [
                             'platform'    => 'youtube',
-                            'metric_name' => $name,
+                            'metric_name' => $snakeName,
                             'value'       => (int)$val,
                             'period'      => 'lifetime'
                         ];
