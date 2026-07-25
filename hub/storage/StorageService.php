@@ -252,7 +252,7 @@ class StorageService {
         try {
             $hubPdo = require __DIR__ . '/../db/connection.php';
             if ($hubPdo instanceof PDO) {
-                $stmtPosts = $hubPdo->query("SELECT media_temp_path FROM posts WHERE media_temp_path IS NOT NULL AND media_temp_path != ''");
+                $stmtPosts = $hubPdo->query("SELECT media_temp_path FROM posts WHERE media_temp_path IS NOT NULL AND media_temp_path != '' AND status != 'deleted'");
                 while ($row = $stmtPosts->fetch(PDO::FETCH_ASSOC)) {
                     $bn = basename($row['media_temp_path']);
                     if ($bn) $activeFiles[strtolower($bn)] = true;
@@ -288,15 +288,21 @@ class StorageService {
                     // Skip index.html / .gitignore / system files
                     if (in_array($fileName, ['index.html', 'index.php', '.gitignore', '.ds_store'])) continue;
 
-                    // If file is NOT in active database records, remove it!
+                    // If file is NOT in active database records, physically delete it from the folder!
                     if (!isset($activeFiles[$fileName])) {
                         $fSize = $file->getSize();
                         $fPath = $file->getPathname();
                         if (@unlink($fPath)) {
                             $deletedCount++;
                             $bytesFreed += $fSize;
-                            log_message('info', "Storage cleanup: unlinked orphan file {$fPath} ({$fSize} bytes)");
+                            log_message('info', "Storage cleanup: physically deleted orphan file {$fPath} ({$fSize} bytes)");
                         }
+                    }
+                } elseif ($file->isDir()) {
+                    // Remove empty subdirectories if all files inside were deleted
+                    $dirPath = $file->getPathname();
+                    if (count(scandir($dirPath)) <= 2) {
+                        @rmdir($dirPath);
                     }
                 }
             }

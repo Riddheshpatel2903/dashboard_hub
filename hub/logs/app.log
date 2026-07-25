@@ -3997,3 +3997,45 @@
 [2026-07-25 17:53:40] [ERROR]: Failed to delete post ID 107 on  {"error":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.media_path' in 'field list'"}
 [2026-07-25 17:53:46] [ERROR]: Failed to delete post ID 98 on  {"error":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.media_path' in 'field list'"}
 [2026-07-25 17:53:46] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784548074_1784548074_phone-call (2).png
+[2026-07-25 18:25:30] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:25:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-25 18:25:30] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:25:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0149}
+[2026-07-25 18:25:32] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:25:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.006}
+[2026-07-25 18:25:32] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:25:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-25 18:25:32] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:25:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0384}
+[2026-07-25 18:25:32] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:25:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0269}
+[2026-07-25 18:25:33] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:25:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0091}
+[2026-07-25 18:25:33] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:25:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-25 18:25:36] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-25 18:25:36] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-25 18:25:37] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-25 18:25:38] [ERROR]: Failed to delete post ID 108 on  {"error":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.media_path' in 'field list'"}
+[2026-07-25 18:25:38] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784972307_1784972307_ChatGPT Image Jul 22, 2026, 05_49_25 PM.png
+[2026-07-25 18:26:06] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:26:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-25 18:26:06] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:26:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0091}
+[2026-07-25 18:26:10] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-25 18:26:10] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-25 18:26:11] [ERROR]: Analytics request failure {"error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-25 18:26:13] [ERROR]: Failed to delete post ID 110 on  {"error":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.media_path' in 'field list'"}
+[2026-07-25 18:26:13] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784972387_1784972387_ChatGPT Image Jul 22, 2026, 05_49_25 PM.png
+[2026-07-25 18:28:51] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:28:51] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0071}
+[2026-07-25 18:28:52] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:28:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-25 18:30:28] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:30:28] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0334}
+[2026-07-25 18:30:28] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:30:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0114}
+[2026-07-25 18:31:58] [INFO]: Scheduler: Started execution.
+[2026-07-25 18:31:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0472}
+[2026-07-25 18:31:58] [INFO]: Queue Worker: Started execution.
+[2026-07-25 18:31:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0159}
