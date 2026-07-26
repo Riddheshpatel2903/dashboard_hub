@@ -17,6 +17,16 @@ if ($client_id === null) {
     exit();
 }
 
+// Check and run synchronization if needed (5-minute throttle)
+$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
+$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
+$stmtLastSync->execute(['client_id' => $client_id]);
+$lastSync = $stmtLastSync->fetchColumn();
+if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
+    require_once __DIR__ . '/../includes/sync_analytics.php';
+    syncClientAnalytics($client_id, $pdo);
+}
+
 $platform = $_GET['platform'] ?? '';
 $startDate = $_GET['start_date'] ?? '';
 $endDate = $_GET['end_date'] ?? '';

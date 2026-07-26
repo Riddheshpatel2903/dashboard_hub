@@ -1,21 +1,18 @@
 /**
- * Composer Interactive Logic.
+ * Create Post Composer Interactive Logic.
  */
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('composer-form');
     if (!form) return;
 
     const textarea = document.getElementById('content');
-    const previewText = document.getElementById('preview-text-content');
     const mediaInput = document.getElementById('media');
-    const previewMedia = document.getElementById('preview-media');
     const fileError = document.getElementById('file-error');
-    
     const checkboxes = document.querySelectorAll('input[name="platforms[]"]');
     const igWarning = document.getElementById('ig-warning');
     const ytInfo = document.getElementById('yt-info');
     const ytTitleGroup = document.getElementById('youtube-title-group');
-    const previewPlatformLabel = document.getElementById('preview-platform-label');
+    const ytTitleInput = document.getElementById('title');
     
     const toggleSchedule = document.getElementById('toggle-schedule');
     const scheduleContainer = document.getElementById('schedule-container');
@@ -23,33 +20,76 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnPublish = document.getElementById('btn-publish');
     const submitLoading = document.getElementById('submit-loading');
 
-    // 1. Textarea content live sync with preview
+    // Scheduler inputs
+    const schedDate = document.getElementById('sched-date');
+    const schedHour = document.getElementById('sched-hour');
+    const schedMinute = document.getElementById('sched-minute');
+    const scheduledAtHidden = document.getElementById('scheduled-at');
+
+    // Preview Elements
+    const previewTabBar = document.getElementById('preview-tab-bar');
+    const phoneScreenContent = document.getElementById('phone-screen-content');
+
+    // Cropper globals
+    let cropperInstance = null;
+    let croppedBlob = null;
+    let originalFile = null;
+    let activePreviewPlatform = null;
+
+    // Helper: format YYYY-MM-DD
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (schedDate) {
+        schedDate.value = todayStr;
+        schedDate.min = todayStr;
+    }
+
+    // Combine date/time selects into single ISO-like string
+    function updateScheduledAt() {
+        if (!schedDate || !schedHour || !schedMinute || !scheduledAtHidden) return;
+        if (schedDate.value) {
+            scheduledAtHidden.value = `${schedDate.value}T${schedHour.value}:${schedMinute.value}`;
+        }
+    }
+    if (schedDate) {
+        schedDate.addEventListener('change', updateScheduledAt);
+        schedHour.addEventListener('change', updateScheduledAt);
+        schedMinute.addEventListener('change', updateScheduledAt);
+        updateScheduledAt();
+    }
+
+    // 1. Textarea live sync
     textarea.addEventListener('input', function() {
-        if (textarea.value.trim() === '') {
-            previewText.textContent = 'Post caption preview will render here...';
-        } else {
-            previewText.textContent = textarea.value;
+        if (activePreviewPlatform) {
+            renderPreview(activePreviewPlatform);
         }
     });
 
-    // Dynamic media attachment validation for YouTube (Only selectable when video is attached)
-    function updatePlatformStates() {
-        const files = mediaInput.files;
-        let isVideoAttached = false;
+    if (ytTitleInput) {
+        ytTitleInput.addEventListener('input', function() {
+            if (activePreviewPlatform === 'youtube') {
+                renderPreview('youtube');
+            }
+        });
+    }
 
-        if (files && files.length > 0) {
-            const file = files[0];
+    // Platform checkbox state and tabs builder
+    function updatePlatformStates() {
+        const file = mediaInput.files[0] || originalFile;
+        let isVideo = false;
+        let isImage = false;
+
+        if (file) {
             const type = file.type || '';
             const name = file.name || '';
-            if (type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name)) {
-                isVideoAttached = true;
-            }
+            isVideo = type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
+            isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
         }
 
         const ytCheckbox = document.getElementById('platform-youtube');
         if (ytCheckbox) {
             const ytLabel = ytCheckbox.closest('.platform-checkbox-label');
-            if (isVideoAttached) {
+            // If it's a video file, we enable YouTube. If no media or if it's an image, we disable YouTube.
+            if (isVideo) {
                 ytCheckbox.disabled = false;
                 if (ytLabel) {
                     ytLabel.classList.remove('opacity-40', 'cursor-not-allowed');
@@ -67,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Highlight selected platform labels
+        // Highlight selected labels
         checkboxes.forEach(chk => {
             const label = chk.closest('.platform-checkbox-label');
             if (label) {
@@ -80,55 +120,78 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         updatePlatformNotices();
+        rebuildPreviewTabs();
     }
 
     checkboxes.forEach(chk => {
-        chk.addEventListener('change', function() {
-            updatePlatformStates();
-        });
+        chk.addEventListener('change', updatePlatformStates);
     });
 
     function updatePlatformNotices() {
-        const checkedPlatforms = Array.from(checkboxes)
-                                     .filter(c => c.checked)
-                                     .map(c => c.value);
-
-        // Show/hide IG specific warnings
-        if (checkedPlatforms.includes('instagram')) {
-            igWarning.style.display = 'block';
+        const checked = getCheckedPlatforms();
+        
+        if (checked.includes('instagram')) {
+            igWarning.classList.remove('hidden');
         } else {
-            igWarning.style.display = 'none';
+            igWarning.classList.add('hidden');
         }
 
-        // Show/hide YouTube metadata inputs
-        if (checkedPlatforms.includes('youtube')) {
-            ytInfo.style.display = 'block';
-            ytTitleGroup.style.display = 'block';
+        if (checked.includes('youtube')) {
+            ytTitleGroup.classList.remove('hidden');
         } else {
-            ytInfo.style.display = 'none';
-            ytTitleGroup.style.display = 'none';
-        }
-
-        // Update preview labels
-        if (checkedPlatforms.length > 0) {
-            previewPlatformLabel.textContent = checkedPlatforms.map(p => p.toUpperCase().replace('_', ' ')).join(', ');
-        } else {
-            previewPlatformLabel.textContent = 'No Platform Selected';
+            ytTitleGroup.classList.add('hidden');
         }
     }
 
-    // Run initial state check on page load
-    updatePlatformStates();
+    function getCheckedPlatforms() {
+        return Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+    }
 
-    // 3. Client-side File size and mimetype validation
+    // Rebuild the preview tabs row
+    function rebuildPreviewTabs() {
+        const checked = getCheckedPlatforms();
+        previewTabBar.innerHTML = '';
+
+        if (checked.length === 0) {
+            previewTabBar.classList.add('hidden');
+            activePreviewPlatform = null;
+            renderPreview(null);
+            return;
+        }
+
+        previewTabBar.classList.remove('hidden');
+        
+        // Find if active platform is still selected
+        if (!activePreviewPlatform || !checked.includes(activePreviewPlatform)) {
+            activePreviewPlatform = checked[0];
+        }
+
+        checked.forEach(p => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `px-sm py-1 rounded text-xs font-bold capitalize transition-all border ${
+                activePreviewPlatform === p 
+                ? 'bg-primary text-on-primary border-primary shadow-xs' 
+                : 'bg-surface-container border-surface-variant text-on-surface hover:bg-surface-container-high'
+            }`;
+            btn.textContent = p === 'google_business' ? 'Google Profile' : p;
+            btn.addEventListener('click', () => {
+                activePreviewPlatform = p;
+                rebuildPreviewTabs(); // update active class
+            });
+            previewTabBar.appendChild(btn);
+        });
+
+        renderPreview(activePreviewPlatform);
+    }
+
+    // 3. Media file upload triggers cropping modal if image
     mediaInput.addEventListener('change', function() {
-        const placeholderIcon = document.getElementById('preview-placeholder-icon');
-        fileError.style.display = 'none';
-        previewMedia.style.display = 'none';
-        previewMedia.innerHTML = '';
+        fileError.classList.add('hidden');
         
         if (!mediaInput.files || mediaInput.files.length === 0) {
-            if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            originalFile = null;
+            croppedBlob = null;
             updatePlatformStates();
             return;
         }
@@ -144,101 +207,152 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isImage && !isVideo) {
             showFileError("Invalid format: Only image or video attachments are permitted.");
             mediaInput.value = '';
-            if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            originalFile = null;
+            croppedBlob = null;
             updatePlatformStates();
             return;
         }
 
-        // Validate: 8MB limit for images
+        // Image size check (8MB)
         if (isImage && size > (8 * 1024 * 1024)) {
             showFileError(`Selected image is too large (${(size / (1024 * 1024)).toFixed(1)}MB). Max limit is 8MB.`);
             mediaInput.value = '';
-            if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            originalFile = null;
+            croppedBlob = null;
             updatePlatformStates();
             return;
         }
 
-        // Validate: 70MB limit for videos
+        // Video size check (70MB)
         if (isVideo && size > (70 * 1024 * 1024)) {
             showFileError(`Selected video is too large (${(size / (1024 * 1024)).toFixed(1)}MB). Max limit is 70MB.`);
             mediaInput.value = '';
-            if (placeholderIcon) placeholderIcon.style.display = 'flex';
+            originalFile = null;
+            croppedBlob = null;
             updatePlatformStates();
             return;
         }
 
-        // Update platform selection state based on attached file type
-        updatePlatformStates();
+        originalFile = file;
 
-        // Render attachment preview in preview card
-        if (placeholderIcon) placeholderIcon.style.display = 'none';
-        previewMedia.style.display = 'flex';
-        const fileUrl = URL.createObjectURL(file);
-        
         if (isImage) {
-            const img = document.createElement('img');
-            img.src = fileUrl;
-            previewMedia.appendChild(img);
+            // Open cropper modal
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('cropper-image').src = e.target.result;
+                document.getElementById('cropper-modal').classList.remove('hidden');
+                
+                // Initialize Cropper.js
+                if (cropperInstance) {
+                    cropperInstance.destroy();
+                }
+                setTimeout(() => {
+                    cropperInstance = new Cropper(document.getElementById('cropper-image'), {
+                        aspectRatio: 1, // default square
+                        viewMode: 1,
+                        autoCropArea: 0.9
+                    });
+                }, 100);
+            };
+            reader.readAsDataURL(file);
         } else {
-            const video = document.createElement('video');
-            video.src = fileUrl;
-            video.controls = true;
-            previewMedia.appendChild(video);
+            // For videos, directly update state
+            croppedBlob = null;
+            updatePlatformStates();
         }
     });
 
     function showFileError(msg) {
         fileError.textContent = msg;
-        fileError.style.display = 'block';
+        fileError.classList.remove('hidden');
     }
+
+    // Cropper functions
+    window.closeCropperModal = function() {
+        document.getElementById('cropper-modal').classList.add('hidden');
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+        // If they close without applying, we reset file unless we already had a croppedBlob
+        if (!croppedBlob) {
+            mediaInput.value = '';
+            originalFile = null;
+            updatePlatformStates();
+        }
+    };
+
+    window.setCropAspect = function(ratio) {
+        if (cropperInstance) {
+            cropperInstance.setAspectRatio(ratio);
+        }
+    };
+
+    window.applyCrop = function() {
+        if (!cropperInstance) return;
+        cropperInstance.getCroppedCanvas({
+            maxWidth: 1200,
+            maxHeight: 1200
+        }).toBlob(function(blob) {
+            croppedBlob = blob;
+            document.getElementById('cropper-modal').classList.add('hidden');
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+            updatePlatformStates();
+        }, 'image/jpeg', 0.9);
+    };
 
     // 4. Toggle Scheduling Date selection box
     toggleSchedule.addEventListener('change', function() {
         if (toggleSchedule.checked) {
-            scheduleContainer.style.display = 'block';
+            scheduleContainer.classList.remove('hidden');
             scheduleType.value = 'later';
             btnPublish.textContent = '📅 Schedule Post';
         } else {
-            scheduleContainer.style.display = 'none';
+            scheduleContainer.classList.add('hidden');
             scheduleType.value = 'now';
             btnPublish.textContent = '🚀 Publish Post';
         }
     });
 
-    // 5. Submit post via AJAX fetch
+    // 5. Submit form with cropped blob override
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Ensure at least one platform checked
-        const checked = Array.from(checkboxes).some(c => c.checked);
-        if (!checked) {
+        const checked = getCheckedPlatforms();
+        if (checked.length === 0) {
             alert('Please choose at least one social media channel.');
             return;
         }
 
-        const checkedPlatforms = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
-        if (checkedPlatforms.includes('instagram') && mediaInput.files.length === 0) {
+        const file = mediaInput.files[0] || originalFile;
+        if (checked.includes('instagram') && !file && !croppedBlob) {
             alert('Instagram requires a photo or video attachment to publish.');
             return;
         }
         
-        if (checkedPlatforms.includes('youtube')) {
-            if (mediaInput.files.length === 0) {
+        if (checked.includes('youtube')) {
+            if (!file) {
                 alert('YouTube posting requires a video attachment.');
                 return;
             }
-            const file = mediaInput.files[0];
-            if (!file.type.startsWith('video/')) {
+            if (!file.type.startsWith('video/') && !/\.(mp4|mov|avi|mkv|webm)$/i.test(file.name)) {
                 alert('YouTube only supports video uploads. Please attach a video file.');
                 return;
             }
         }
 
-        // Disable UI and trigger loader status
+        // Disable UI
         btnPublish.disabled = true;
-        submitLoading.style.display = 'inline-block';
+        submitLoading.classList.remove('hidden');
 
         const formData = new FormData(form);
+        if (croppedBlob) {
+            formData.delete('media');
+            formData.append('media', croppedBlob, 'cropped_image.jpg');
+        }
 
         fetch('composer_submit.php', {
             method: 'POST',
@@ -246,64 +360,217 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res => {
             if (!res.ok) {
-                return res.json().then(errData => { throw new Error(errData.error || 'Server error occurred.'); });
+                return res.json().then(errData => { throw new Error(errData.error || 'Server error.'); });
             }
             return res.json();
         })
         .then(data => {
             if (data.success) {
                 alert('Post created successfully!');
-                // Redirect user to calendar view to see their changes
                 window.location.href = 'calendar.php';
             } else {
-                alert('Error publishing post: ' + data.error);
+                alert('Error: ' + data.error);
                 btnPublish.disabled = false;
-                submitLoading.style.display = 'none';
+                submitLoading.classList.add('hidden');
             }
         })
         .catch(err => {
             console.error(err);
             alert('Request Failed: ' + err.message);
             btnPublish.disabled = false;
-            submitLoading.style.display = 'none';
+            submitLoading.classList.add('hidden');
         });
     });
-    // Enforce 5-minute interval rounding on schedule datetime selection
-    function roundToNearest5Minutes(date) {
-        const coefficients = 1000 * 60 * 5; // 5 minutes in ms
-        return new Date(Math.round(date.getTime() / coefficients) * coefficients);
+
+    // Platform-specific mock screens generator
+    function renderPreview(platform) {
+        const contentVal = textarea.value.trim() || 'Post caption preview will render here...';
+        const file = mediaInput.files[0] || originalFile;
+        let fileUrl = '';
+        let isImage = false;
+        let isVideo = false;
+
+        if (croppedBlob) {
+            fileUrl = URL.createObjectURL(croppedBlob);
+            isImage = true;
+        } else if (file) {
+            fileUrl = URL.createObjectURL(file);
+            const type = file.type || '';
+            const name = file.name || '';
+            isVideo = type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
+            isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+        }
+
+        let mediaHtml = '';
+        if (fileUrl) {
+            if (isImage) {
+                mediaHtml = `<img src="${fileUrl}" class="w-full object-cover max-h-64 rounded-lg" alt="Preview" />`;
+            } else if (isVideo) {
+                mediaHtml = `<video src="${fileUrl}" controls class="w-full object-cover max-h-64 rounded-lg"></video>`;
+            }
+        } else {
+            mediaHtml = `<div class="w-full h-40 bg-gray-100 flex flex-col items-center justify-center text-gray-400 rounded-lg border border-dashed border-gray-200">
+                <span class="material-symbols-outlined text-3xl">add_a_photo</span>
+                <span class="text-[10px] mt-1">No media attached</span>
+            </div>`;
+        }
+
+        if (platform === 'facebook') {
+            phoneScreenContent.className = "h-full bg-[#f0f2f5] p-3 overflow-y-auto no-scrollbar pt-8";
+            phoneScreenContent.innerHTML = `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 space-y-3 text-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">C</div>
+                        <div class="text-left">
+                            <p class="font-bold text-[13px] text-gray-900 flex items-center gap-0.5">Acme Corporate <span class="material-symbols-outlined text-blue-500 text-[14px]">verified</span></p>
+                            <p class="text-[10px] text-gray-500 flex items-center gap-0.5">Just now · <span class="material-symbols-outlined text-[10px]">public</span></p>
+                        </div>
+                    </div>
+                    <p class="text-gray-800 leading-normal whitespace-pre-line text-left">${contentVal}</p>
+                    <div class="mt-2">${mediaHtml}</div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-500 border-t border-b border-gray-100 py-1.5 px-1 mt-2">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-blue-500">thumb_up</span> 0</span>
+                        <span>0 Comments · 0 Shares</span>
+                    </div>
+                    <div class="grid grid-cols-3 text-center text-gray-600 text-[11px] font-semibold pt-1">
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[14px]">thumb_up</span> Like</div>
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[14px]">chat_bubble</span> Comment</div>
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[14px]">share</span> Share</div>
+                    </div>
+                </div>
+            `;
+        } else if (platform === 'instagram') {
+            phoneScreenContent.className = "h-full bg-white p-0 overflow-y-auto no-scrollbar pt-8";
+            phoneScreenContent.innerHTML = `
+                <div class="flex items-center justify-between p-3 border-b border-gray-100 text-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-[1.5px]">
+                            <div class="w-full h-full rounded-full bg-white p-[1.5px]">
+                                <div class="w-full h-full rounded-full bg-gray-200"></div>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <p class="font-bold text-gray-900">acmecorporate</p>
+                            <p class="text-[9px] text-gray-500">Sponsored</p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-gray-500">more_horiz</span>
+                </div>
+                <div class="w-full aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
+                    ${fileUrl ? (isImage ? `<img src="${fileUrl}" class="w-full h-full object-cover" />` : `<video src="${fileUrl}" controls class="w-full h-full object-cover"></video>`) : `<div class="text-gray-400 flex flex-col items-center"><span class="material-symbols-outlined text-3xl">add_a_photo</span><span class="text-[10px] mt-1">No media attached</span></div>`}
+                </div>
+                <div class="p-3 space-y-2 text-xs">
+                    <div class="flex justify-between items-center text-gray-800">
+                        <div class="flex gap-3">
+                            <span class="material-symbols-outlined text-[20px]">favorite</span>
+                            <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+                            <span class="material-symbols-outlined text-[20px]">send</span>
+                        </div>
+                        <span class="material-symbols-outlined text-[20px]">bookmark</span>
+                    </div>
+                    <p class="font-bold text-gray-900 text-[11px] text-left">1,248 likes</p>
+                    <div class="leading-relaxed text-[11px] text-left">
+                        <span class="font-bold mr-1">acmecorporate</span>
+                        <span class="text-gray-800 whitespace-pre-line">${contentVal}</span>
+                    </div>
+                    <p class="text-[9px] text-gray-400 uppercase text-left">Just now</p>
+                </div>
+            `;
+        } else if (platform === 'youtube') {
+            phoneScreenContent.className = "h-full bg-white p-3 overflow-y-auto no-scrollbar pt-8";
+            const ytTitle = ytTitleInput.value || 'YouTube Video Title';
+            phoneScreenContent.innerHTML = `
+                <div class="space-y-3 text-xs text-left">
+                    <div class="w-full aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center text-white relative">
+                        ${fileUrl && isVideo ? `<video src="${fileUrl}" class="w-full h-full object-contain" controls></video>` : `<div class="text-gray-400 flex flex-col items-center"><span class="material-symbols-outlined text-4xl text-red-600">play_circle</span><span class="text-[10px] mt-1 text-white">Attach video to preview player</span></div>`}
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-[14px] leading-snug text-gray-900">${ytTitle}</h3>
+                        <p class="text-[10px] text-gray-500">0 views · Just now</p>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-b border-gray-100 py-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">Y</div>
+                            <div>
+                                <p class="font-bold text-[11px] text-gray-950">Acme Corporate</p>
+                                <p class="text-[9px] text-gray-500">0 subscribers</p>
+                            </div>
+                        </div>
+                        <button class="bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded-full uppercase">Subscribe</button>
+                    </div>
+                    <p class="text-gray-800 text-[11px] whitespace-pre-line leading-relaxed bg-gray-50 p-2 rounded">${contentVal}</p>
+                </div>
+            `;
+        } else if (platform === 'linkedin') {
+            phoneScreenContent.className = "h-full bg-[#f3f4f6] p-3 overflow-y-auto no-scrollbar pt-8";
+            phoneScreenContent.innerHTML = `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 space-y-3 text-xs text-left">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">A</div>
+                            <div>
+                                <p class="font-bold text-[12px] text-gray-950">Acme Corporate</p>
+                                <p class="text-[9px] text-gray-500">Social Media Marketing Specialist</p>
+                                <p class="text-[9px] text-gray-500 flex items-center gap-1">Just now · <span class="material-symbols-outlined text-[9px]">public</span></p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-gray-400">more_horiz</span>
+                    </div>
+                    <p class="text-gray-800 whitespace-pre-line leading-relaxed">${contentVal}</p>
+                    <div class="mt-2">${mediaHtml}</div>
+                    <div class="flex items-center justify-between text-[10px] text-gray-500 border-b border-gray-100 pb-2 mt-2">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[11px] text-blue-600">thumb_up</span> 0</span>
+                        <span>0 comments · 0 reposts</span>
+                    </div>
+                    <div class="grid grid-cols-4 text-center text-gray-600 text-[10px] font-semibold pt-1">
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[13px]">thumb_up</span> Like</div>
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[13px]">chat</span> Comment</div>
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[13px]">share</span> Share</div>
+                        <div class="flex items-center justify-center gap-1 py-1 hover:bg-gray-50 rounded"><span class="material-symbols-outlined text-[13px]">send</span> Send</div>
+                    </div>
+                </div>
+            `;
+        } else if (platform === 'google_business') {
+            phoneScreenContent.className = "h-full bg-white p-3 overflow-y-auto no-scrollbar pt-8";
+            phoneScreenContent.innerHTML = `
+                <div class="border border-gray-200 rounded-lg p-3 space-y-3 text-xs text-left shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs"><span class="material-symbols-outlined text-sm">store</span></div>
+                        <div>
+                            <p class="font-bold text-[12px] text-gray-900">Acme Corporate</p>
+                            <p class="text-[9px] text-green-700">Google Business Profile</p>
+                        </div>
+                    </div>
+                    <div class="mt-2">${mediaHtml}</div>
+                    <div class="space-y-2">
+                        <span class="inline-block bg-blue-50 text-blue-700 font-bold text-[9px] px-2 py-0.5 rounded">UPDATE</span>
+                        <p class="text-gray-800 whitespace-pre-line leading-relaxed text-[11px]">${contentVal}</p>
+                    </div>
+                    <div class="pt-2 border-t border-gray-100 flex justify-between items-center">
+                        <button class="bg-[#1a73e8] text-white font-bold text-[10px] px-4 py-1.5 rounded uppercase">Learn More</button>
+                        <span class="material-symbols-outlined text-gray-400 text-sm">share</span>
+                    </div>
+                </div>
+            `;
+        } else if (platform === 'whatsapp') {
+            phoneScreenContent.className = "h-full bg-[#efeae2] p-3 overflow-y-auto no-scrollbar relative flex flex-col justify-end pt-8";
+            phoneScreenContent.innerHTML = `
+                <div class="absolute inset-0 bg-opacity-5 pointer-events-none" style="background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 16px 16px;"></div>
+                <div class="bg-white rounded-lg shadow-xs p-2 max-w-[85%] self-start text-xs border border-gray-200/50 space-y-2 relative z-10 text-left">
+                    <div>${mediaHtml}</div>
+                    <p class="text-gray-900 whitespace-pre-line leading-relaxed">${contentVal}</p>
+                    <div class="text-[9px] text-gray-500 text-right">10:42 AM ✔✔</div>
+                </div>
+            `;
+        } else {
+            phoneScreenContent.className = "h-full bg-white flex flex-col items-center justify-center text-gray-400 text-xs pt-8";
+            phoneScreenContent.innerHTML = `
+                <span class="material-symbols-outlined text-4xl">mobile_screen_share</span>
+                <span class="mt-2">Select a platform to preview</span>
+            `;
+        }
     }
 
-    const scheduleInput = document.getElementById('scheduled-at');
-    if (scheduleInput) {
-        // Default to current time rounded up to nearest 5 minutes
-        const now = new Date();
-        const roundedNow = roundToNearest5Minutes(now);
-        
-        // Format to YYYY-MM-DDTHH:MM local time compatible with datetime-local value
-        const year = roundedNow.getFullYear();
-        const month = String(roundedNow.getMonth() + 1).padStart(2, '0');
-        const day = String(roundedNow.getDate()).padStart(2, '0');
-        const hours = String(roundedNow.getHours()).padStart(2, '0');
-        const minutes = String(roundedNow.getMinutes()).padStart(2, '0');
-        
-        const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-        scheduleInput.value = formattedDate;
-        scheduleInput.min = formattedDate;
-
-        // Automatically correct manual inputs to nearest 5-minute multiples
-        scheduleInput.addEventListener('change', function() {
-            if (!this.value) return;
-            const selectedDate = new Date(this.value);
-            const roundedSelected = roundToNearest5Minutes(selectedDate);
-            
-            const sYear = roundedSelected.getFullYear();
-            const sMonth = String(roundedSelected.getMonth() + 1).padStart(2, '0');
-            const sDay = String(roundedSelected.getDate()).padStart(2, '0');
-            const sHours = String(roundedSelected.getHours()).padStart(2, '0');
-            const sMinutes = String(roundedSelected.getMinutes()).padStart(2, '0');
-            
-            this.value = `${sYear}-${sMonth}-${sDay}T${sHours}:${sMinutes}`;
-        });
-    }
+    // Run initial state setup
+    updatePlatformStates();
 });

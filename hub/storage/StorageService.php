@@ -68,8 +68,10 @@ class StorageService {
         }
 
         $tempJpgCreated = false;
+        log_message('debug', "Before image conversion check: isImage=" . ($isImage?'yes':'no') . ", mimeType=" . $mimeType);
         // Auto convert images to JPEG if they are not already JPEG (for Instagram API compatibility)
         if ($isImage && $mimeType !== 'image/jpeg' && $mimeType !== 'image/jpg') {
+            log_message('debug', "Entering conversion block for mimeType=" . $mimeType);
             try {
                 $srcImg = null;
                 if ($mimeType === 'image/png' && function_exists('imagecreatefrompng')) {
@@ -96,10 +98,14 @@ class StorageService {
                         $mimeType = 'image/jpeg';
                         $fileSize = filesize($localPath);
                         $tempJpgCreated = true;
+                        log_message('debug', "Successfully converted to JPEG: " . $jpgPath);
                     } else {
                         imagedestroy($srcImg);
                         imagedestroy($bg);
+                        log_message('warning', "imagejpeg() call returned false.");
                     }
+                } else {
+                    log_message('warning', "Failed to create GdImage from source file.");
                 }
             } catch (Exception $e) {
                 log_message('warning', "Image conversion to JPEG failed: " . $e->getMessage());
@@ -183,6 +189,11 @@ class StorageService {
      */
     public static function deletePostMedia($mediaPath, $clientId = null) {
         if (empty($mediaPath)) return 0;
+
+        // Skip local file deletion if it is a remote HTTP/HTTPS URL
+        if (preg_match('/^https?:\/\//i', $mediaPath)) {
+            return 0;
+        }
 
         $baseName = basename($mediaPath);
         if (empty($baseName) || $baseName === '.' || $baseName === '..') return 0;

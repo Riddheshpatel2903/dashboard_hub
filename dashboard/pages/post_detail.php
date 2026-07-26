@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Resolve local cache post to Hub post ID and verify ownership
         $stmt = $pdo->prepare("
-            SELECT hub_post_id, platform, media_path 
+            SELECT hub_post_id, platform, media_path, external_post_id 
             FROM posts_cache 
             WHERE id = :post_id AND client_id = :client_id 
             LIMIT 1
@@ -43,15 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hubPostId = (int)$post['hub_post_id'];
         $platform = $post['platform'];
         $mediaPath = $post['media_path'] ?? '';
+        $externalPostId = $post['external_post_id'] ?? '';
         
         if ($action === 'delete') {
-            if ($hubPostId > 0) {
-                // Delete post on Hub
-                $res = hubDelete($client_id, $hubPostId);
-                if (empty($res['success'])) {
-                    // Log notice if Hub delete returns error, but proceed with local cleanup
-                    error_log("Hub post deletion notice: " . ($res['error'] ?? 'Unknown error'));
-                }
+            // Delete post on Hub
+            $res = hubDelete($client_id, $hubPostId, $platform, $externalPostId);
+            if (empty($res['success'])) {
+                throw new Exception("Platform Deletion Failure: " . ($res['error'] ?? 'Unknown error'));
             }
             
             // Delete media file from all upload folders if exists
@@ -59,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_once __DIR__ . '/../../hub/storage/StorageService.php';
                 StorageService::deletePostMedia($mediaPath, $client_id);
             }
-
+ 
             // Hard delete post from posts_cache table so no entry shows in Post History
             $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :post_id");
             $stmtDel->execute(['post_id' => $postId]);
@@ -108,7 +106,7 @@ $status = $post['status'];
 // Fetch live metrics from the Hub if post is published and has an external post ID
 $metrics = [];
 if ($status === 'published' && !empty($post['external_post_id'])) {
-    $analyticsRes = hubGetAnalytics($client_id, $platform, $hubPostId);
+    $analyticsRes = hubGetAnalytics($client_id, $platform, $hubPostId, $post['published_at'], null, $post['external_post_id']);
     if (!empty($analyticsRes['success'])) {
         if (!empty($analyticsRes['metrics'])) {
             $metrics = $analyticsRes['metrics'];
@@ -201,7 +199,11 @@ if ($status === 'published') {
     <!-- Media Attachment Preview -->
     <?php if ($post['media_path']): 
         // Build media path
-        $mediaUrl = HUB_BASE_URL . '/uploads/' . ltrim($post['media_path'], '/');
+        if (preg_match('/^https?:\/\//i', $post['media_path'])) {
+            $mediaUrl = $post['media_path'];
+        } else {
+            $mediaUrl = HUB_BASE_URL . '/uploads/' . ltrim($post['media_path'], '/');
+        }
         $ext = strtolower(pathinfo(parse_url($mediaUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
         $isVideo = in_array($ext, ['mp4', 'mov', 'avi']);
     ?>

@@ -29,43 +29,43 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
 // Full list of supported platforms
 $platformMetadata = [
     'facebook' => [
-        'name' => 'Facebook Page',
-        'desc' => 'Publish posts, track page engagement, and reply to comments.',
+        'name' => 'Facebook',
+        'desc' => 'Connect to publish posts and track page analytics.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=facebook',
         'icon' => 'public',
         'color' => '#1877F2'
     ],
     'instagram' => [
-        'name' => 'Instagram Business',
-        'desc' => 'Publish images/videos directly and read media feedback analytics.',
+        'name' => 'Instagram',
+        'desc' => 'Connect to share images and videos.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=instagram', // Shared OAuth
         'icon' => 'photo_camera',
         'color' => '#E1306C'
     ],
     'whatsapp' => [
-        'name' => 'WhatsApp Business Cloud API',
-        'desc' => 'Send text messages and templates, and run client conversations.',
+        'name' => 'WhatsApp',
+        'desc' => 'Connect to send messages and support clients.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_whatsapp.php?client_id=' . $client_id,
         'icon' => 'chat',
         'color' => '#25D366'
     ],
     'youtube' => [
-        'name' => 'YouTube Channel',
-        'desc' => 'Upload video files using resumable streaming and view video analytics.',
+        'name' => 'YouTube',
+        'desc' => 'Connect to publish video content.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_youtube.php?client_id=' . $client_id,
         'icon' => 'play_circle',
         'color' => '#FF0000'
     ],
     'linkedin' => [
-        'name' => 'LinkedIn Member Profile',
-        'desc' => 'Share articles, posts, and text updates on your personal feed.',
+        'name' => 'LinkedIn',
+        'desc' => 'Connect to share updates and posts.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_linkedin.php?client_id=' . $client_id,
         'icon' => 'work',
         'color' => '#0A66C2'
     ],
     'google_business' => [
-        'name' => 'Google Business Profile',
-        'desc' => 'Create local posts, update business listings, and reply to reviews.',
+        'name' => 'Google Profile',
+        'desc' => 'Connect to manage your local business profile.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_google_business.php?client_id=' . $client_id,
         'icon' => 'store',
         'color' => '#4285F4'
@@ -194,15 +194,7 @@ foreach ($platformMetadata as $key => $meta) {
                                 <p class="font-body-sm text-on-surface-variant mt-xs text-xs leading-relaxed"><?php echo htmlspecialchars($meta['desc']); ?></p>
                             </div>
 
-                            <!-- Token info if linked -->
-                            <?php if ($conn && $conn['external_account_id']): ?>
-                                <div class="bg-surface-container-low p-md rounded-lg text-[11px] font-data-label text-on-surface-variant space-y-xs">
-                                    <div class="truncate"><strong>Linked ID:</strong> <?php echo htmlspecialchars($conn['external_account_id']); ?></div>
-                                    <?php if ($conn['expires_at']): ?>
-                                        <div><strong>Expires:</strong> <?php echo date('Y-m-d H:i', strtotime($conn['expires_at'])); ?></div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
+
                         </div>
 
                         <!-- Action Button -->

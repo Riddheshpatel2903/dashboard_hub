@@ -160,6 +160,14 @@ class FacebookHandler {
     }
 
     /**
+     * Retrieves recent posts from Page feed with basic interaction stats.
+     */
+    public static function getRecentPosts($token, $pageId, $limit = 50) {
+        $endpoint = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields=id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)&limit={$limit}&access_token=" . urlencode($token);
+        return self::executeRequest('GET', $endpoint);
+    }
+
+    /**
      * Shared helper to handle cURL requests.
      */
     private static function executeRequest($method, $url, array $payload = []) {

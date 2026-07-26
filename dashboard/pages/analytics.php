@@ -26,8 +26,18 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
+// Check and run synchronization if needed (5-minute throttle)
+$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
+$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
+$stmtLastSync->execute(['client_id' => $client_id]);
+$lastSync = $stmtLastSync->fetchColumn();
+if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
+    require_once __DIR__ . '/../includes/sync_analytics.php';
+    syncClientAnalytics($client_id, $pdo);
+}
+
 $platform = $_GET['platform'] ?? '';
-$startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-365 days'));
+$startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days')); // Default to 30 days for a cleaner overview
 $endDate = $_GET['end_date'] ?? date('Y-m-d');
 $activeTab = $_GET['tab'] ?? 'overview';
 $selectedPostId = isset($_GET['post_id']) ? (int) $_GET['post_id'] : 0;
@@ -41,7 +51,12 @@ if ($selectedPostId > 0) {
     $inspectPost = $stmtInspect->fetch();
     if ($inspectPost) {
         $activeTab = 'inspect';
-        $inspectRes = hubGetAnalytics($client_id, $inspectPost['platform'], $inspectPost['id'], $startDate, $endDate);
+        $inspectExtId = $inspectPost['external_post_id'] ?? '';
+        if (!empty($inspectExtId)) {
+            $inspectRes = hubGetAnalytics($client_id, $inspectPost['platform'], 0, $startDate, $endDate, $inspectExtId);
+        } else {
+            $inspectRes = hubGetAnalytics($client_id, $inspectPost['platform'], (int)$inspectPost['hub_post_id'], $startDate, $endDate);
+        }
         if (!empty($inspectRes['success']) && is_array($inspectRes['metrics'])) {
             $inspectMetrics = $inspectRes['metrics'];
         }
@@ -96,7 +111,7 @@ $cacheStats = $stmtStats->fetch() ?: ['total_posts' => 0, 'published_posts' => 0
 
 // Fetch posts for Content Performance ledger table (filtered by channel if selected)
 $sqlPosts = "
-    SELECT id, hub_post_id, content, status, platform, media_path, scheduled_at, published_at, created_at
+    SELECT id, hub_post_id, content, status, platform, media_path, scheduled_at, published_at, created_at, external_post_id
     FROM posts_cache 
     WHERE client_id = :client_id AND status != 'deleted'
 ";
@@ -112,7 +127,7 @@ $postsList = $stmtPosts->fetchAll();
 
 // Fetch latest published post for Views on Last Post metric
 $sqlLastPost = "
-    SELECT id, content, platform, media_path, published_at 
+    SELECT id, hub_post_id, content, platform, media_path, published_at, external_post_id 
     FROM posts_cache 
     WHERE client_id = :client_id AND status = 'published' 
 ";
@@ -128,7 +143,7 @@ $lastPost = $stmtLastPost->fetch();
 
 $lastPostViews = '0';
 if ($lastPost) {
-    $lpRes = hubGetAnalytics($client_id, $lastPost['platform'], $lastPost['id'], $startDate, $endDate);
+    $lpRes = hubGetAnalytics($client_id, $lastPost['platform'], $lastPost['hub_post_id'], $startDate, $endDate, $lastPost['external_post_id']);
     if (!empty($lpRes['metrics'])) {
         foreach ($lpRes['metrics'] as $pm) {
             if (in_array(strtolower($pm['metric_name']), ['views', 'view_count', 'reach', 'impressions'])) {
@@ -234,47 +249,67 @@ function getMediaDuration($mediaPath, $rawDuration = null)
     return '-';
 }
 
-// Calculate dynamic DB-backed SVG trend coordinates
-$hasGraphData = ($sumReach > 0 || $sumImpressions > 0 || $cacheStats['published_posts'] > 0);
-$svgLineD = 'M 0,95 L 1000,95';
-$svgFillD = 'M 0,100 L 0,95 L 1000,95 L 1000,100 Z';
+$chartStartTs = strtotime($startDate);
+$chartEndTs = strtotime($endDate);
+$chartStep = max(1, ($chartEndTs - $chartStartTs) / 5);
 
-if ($hasGraphData) {
-    $points = [];
-    $stepX = 1000 / 5;
+// Query actual DB post activity over the date range
+$stmtPostsTrend = $pdo->prepare("
+    SELECT published_at, views_count
+    FROM posts_cache 
+    WHERE client_id = :client_id AND status = 'published'
+      AND DATE(published_at) BETWEEN :start_date AND :end_date
+      " . (!empty($platform) ? ' AND platform = :platform' : '') . "
+    ORDER BY published_at ASC
+");
+$paramsTrend = [
+    'client_id'  => $client_id,
+    'start_date' => $startDate,
+    'end_date'   => $endDate
+];
+if (!empty($platform)) {
+    $paramsTrend['platform'] = $platform;
+}
+$stmtPostsTrend->execute($paramsTrend);
+$postsTrend = $stmtPostsTrend->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-    // Query actual DB post activity over the date range
-    $stmtTrend = $pdo->prepare("
-        SELECT DATE(published_at) as post_date, COUNT(*) as p_count 
-        FROM posts_cache 
-        WHERE client_id = :client_id AND status = 'published'
-        " . (!empty($platform) ? ' AND platform = :platform' : '') . '
-        GROUP BY DATE(published_at)
-        ORDER BY post_date ASC
-    ');
-    $paramsTrend = ['client_id' => $client_id];
-    if (!empty($platform))
-        $paramsTrend['platform'] = $platform;
-    $stmtTrend->execute($paramsTrend);
-    $chartValues = [];
-    for ($i = 0; $i < 6; $i++) {
-        $bucketDate = date('Y-m-d', strtotime($startDate . ' + ' . round(($i * 5)) . ' days'));
-        $cnt = $trendData[$bucketDate] ?? 0;
-        if ($cnt > 0) {
-            $chartValues[] = (int)$cnt;
-        } else {
-            $chartValues[] = $sumReach > 0 ? (int)round(($sumReach / 6) * (($i % 3) + 1)) : 0;
-        }
+// Initialize 6 data points
+$chartValues = array_fill(0, 6, 0);
+$chartPostCounts = array_fill(0, 6, 0);
+
+foreach ($postsTrend as $p) {
+    $pubTs = strtotime($p['published_at']);
+    if ($chartEndTs == $chartStartTs) {
+        $bucketIdx = 0;
+    } else {
+        $bucketIdx = (int)round(($pubTs - $chartStartTs) / $chartStep);
+        $bucketIdx = max(0, min(5, $bucketIdx));
     }
-} else {
-    $chartValues = [0, 0, 0, 0, 0, 0];
+    $chartValues[$bucketIdx] += (int)($p['views_count'] ?? 0);
+    $chartPostCounts[$bucketIdx]++;
+}
+
+$totalViewsInChart = array_sum($chartValues);
+if ($totalViewsInChart === 0) {
+    // Fall back to post counts so the graph has activity if views are not loaded/present
+    $chartValues = $chartPostCounts;
 }
 
 // Pre-fetch live individual metrics for published posts in list
 $postMetricsMap = [];
 foreach ($postsList as $idx => $pItem) {
     if ($pItem['status'] === 'published' && $idx < 15) {
-        $pRes = hubGetAnalytics($client_id, $pItem['platform'], $pItem['id'], $startDate, $endDate);
+        // Always use external_post_id + post_id=0 so the Hub looks up via platform_connections,
+        // not via the Hub's posts table (which may no longer contain older/synced rows).
+        $extId = $pItem['external_post_id'] ?? '';
+        if (empty($extId) && !empty($pItem['hub_post_id'])) {
+            // Fallback: try hub_post_id lookup for posts that only have a hub ID
+            $pRes = hubGetAnalytics($client_id, $pItem['platform'], (int)$pItem['hub_post_id'], $startDate, $endDate);
+        } elseif (!empty($extId)) {
+            $pRes = hubGetAnalytics($client_id, $pItem['platform'], 0, $startDate, $endDate, $extId);
+        } else {
+            continue;
+        }
         if (!empty($pRes['success']) && is_array($pRes['metrics'])) {
             $pMap = [];
             foreach ($pRes['metrics'] as $pm) {
@@ -287,32 +322,39 @@ foreach ($postsList as $idx => $pItem) {
 
 // Merge live recent YouTube videos for YouTube channel or All Channels view
 if (($platform === 'youtube' || empty($platform)) && !empty($ytRecentVideos)) {
+    // Build a set of external_post_ids already in postsList (covers synced posts with hub_post_id=0)
     $existingYtIds = [];
     foreach ($postsList as $p) {
-        if (!empty($p['hub_post_id'])) {
-            $existingYtIds[] = $p['hub_post_id'];
+        if ($p['platform'] === 'youtube') {
+            if (!empty($p['external_post_id'])) {
+                $existingYtIds[] = $p['external_post_id'];
+            } elseif (!empty($p['hub_post_id'])) {
+                $existingYtIds[] = $p['hub_post_id'];
+            }
         }
     }
     foreach ($ytRecentVideos as $vId => $vData) {
         if (!in_array($vId, $existingYtIds)) {
             $synthId = 'yt_' . $vId;
             $pubDate = !empty($vData['published_at']) ? date('Y-m-d H:i:s', strtotime($vData['published_at'])) : date('Y-m-d H:i:s');
+            $thumbUrl = $vData['thumbnail_url'] ?? '';
             array_unshift($postsList, [
-                'id' => $synthId,
-                'hub_post_id' => $vId,
-                'content' => $vData['title'] ?: 'YouTube Video (' . $vId . ')',
-                'status' => 'published',
-                'platform' => 'youtube',
-                'media_path' => 'video.mp4',
-                'scheduled_at' => null,
-                'published_at' => $pubDate,
-                'created_at' => $pubDate
+                'id'               => $synthId,
+                'hub_post_id'      => $vId,
+                'external_post_id' => $vId,
+                'content'          => $vData['title'] ?: 'YouTube Video (' . $vId . ')',
+                'status'           => 'published',
+                'platform'         => 'youtube',
+                'media_path'       => $thumbUrl ?: null,
+                'scheduled_at'     => null,
+                'published_at'     => $pubDate,
+                'created_at'       => $pubDate
             ]);
             $postMetricsMap[$synthId] = [
-                'view_count' => $vData['views'],
-                'like_count' => $vData['likes'],
+                'view_count'    => $vData['views'],
+                'like_count'    => $vData['likes'],
                 'comment_count' => $vData['comments'],
-                'duration' => $vData['duration']
+                'duration'      => $vData['duration']
             ];
         }
     }
@@ -412,10 +454,20 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                     </div>
                 </div>
                 
-                <!-- Date Selector Pill -->
-                <div class="flex items-center gap-2 border border-surface-variant rounded-lg px-md py-1.5 bg-surface-container-low text-body-sm shadow-xs">
-                    <span class="material-symbols-outlined text-sm text-primary">calendar_today</span>
-                    <span class="font-bold text-xs"><?php echo date('M d', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)); ?></span>
+                <!-- Date Selector & Sync Bar -->
+                <div class="flex items-center gap-sm">
+                    <!-- Sync Button -->
+                    <a href="?tab=<?php echo urlencode($activeTab); ?>&platform=<?php echo urlencode($platform); ?>&start_date=<?php echo urlencode($startDate); ?>&end_date=<?php echo urlencode($endDate); ?>&force_sync=1" 
+                       class="flex items-center gap-1.5 border border-primary/20 rounded-lg px-md py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary font-bold text-xs shadow-xs transition-all active:scale-95 group">
+                        <span class="material-symbols-outlined text-sm animate-none group-hover:animate-spin">sync</span>
+                        <span>Sync Now</span>
+                    </a>
+
+                    <!-- Date Selector Pill -->
+                    <div class="flex items-center gap-2 border border-surface-variant rounded-lg px-md py-1.5 bg-surface-container-low text-body-sm shadow-xs">
+                        <span class="material-symbols-outlined text-sm text-primary">calendar_today</span>
+                        <span class="font-bold text-xs"><?php echo date('M d', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)); ?></span>
+                    </div>
                 </div>
             </div>
 
@@ -679,8 +731,28 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                         ?>
                                         <tr class="hover:bg-secondary-container/10 transition-colors group">
                                             <td class="py-3 px-md">
-                                                <div class="w-10 h-10 rounded border border-surface-variant overflow-hidden bg-surface-container flex items-center justify-center text-primary font-bold">
-                                                    <span class="material-symbols-outlined text-sm"><?php echo $isVid ? 'movie' : 'image'; ?></span>
+                                                <?php
+                                                $thumbSrc = '';
+                                                if (!empty($pItem['media_path'])) {
+                                                    if (preg_match('/^https?:\/\//i', $pItem['media_path'])) {
+                                                        $thumbSrc = $pItem['media_path'];
+                                                    } else {
+                                                        $ext = strtolower(pathinfo($pItem['media_path'], PATHINFO_EXTENSION));
+                                                        if (in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
+                                                            $thumbSrc = (defined('HUB_BASE_URL') ? HUB_BASE_URL : '') . '/uploads/' . ltrim($pItem['media_path'], '/');
+                                                        }
+                                                    }
+                                                }
+                                                ?>
+                                                <div class="w-10 h-10 rounded border border-surface-variant overflow-hidden bg-surface-container flex items-center justify-center text-primary font-bold flex-shrink-0">
+                                                    <?php if ($thumbSrc): ?>
+                                                        <img src="<?php echo htmlspecialchars($thumbSrc); ?>" alt="thumb"
+                                                             class="w-full h-full object-cover"
+                                                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                                        <span class="material-symbols-outlined text-sm" style="display:none"><?php echo $isVid ? 'movie' : 'image'; ?></span>
+                                                    <?php else: ?>
+                                                        <span class="material-symbols-outlined text-sm"><?php echo $isVid ? 'movie' : 'image'; ?></span>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                             <td class="py-3 px-sm text-center">

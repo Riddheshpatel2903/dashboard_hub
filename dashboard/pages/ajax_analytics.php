@@ -7,6 +7,16 @@ require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
 
+// Check and run synchronization if needed (5-minute throttle)
+$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
+$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
+$stmtLastSync->execute(['client_id' => $client_id]);
+$lastSync = $stmtLastSync->fetchColumn();
+if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
+    require_once __DIR__ . '/../includes/sync_analytics.php';
+    syncClientAnalytics($client_id, $pdo);
+}
+
 header('Content-Type: text/html; charset=utf-8');
 
 if ($client_id === null) {
@@ -88,28 +98,46 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
             </div>
             
             <?php
-            $chartValues = [];
-            $stmtTrend = $pdo->prepare("
-                SELECT DATE(published_at) as post_date, COUNT(*) as p_count 
+            // Query actual DB post activity over the date range
+            $stmtPostsTrend = $pdo->prepare("
+                SELECT published_at, views_count
                 FROM posts_cache 
                 WHERE client_id = :client_id AND status = 'published'
-                " . (!empty($activePlatform) ? " AND platform = :platform" : "") . "
-                GROUP BY DATE(published_at)
-                ORDER BY post_date ASC
+                  AND DATE(published_at) BETWEEN :start_date AND :end_date
+                  " . (!empty($activePlatform) ? ' AND platform = :platform' : '') . "
+                ORDER BY published_at ASC
             ");
-            $paramsTrend = ['client_id' => $client_id];
-            if (!empty($activePlatform)) $paramsTrend['platform'] = $activePlatform;
-            $stmtTrend->execute($paramsTrend);
-            $trendData = $stmtTrend->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+            $paramsTrend = [
+                'client_id'  => $client_id,
+                'start_date' => $startDate,
+                'end_date'   => $endDate
+            ];
+            if (!empty($activePlatform)) {
+                $paramsTrend['platform'] = $activePlatform;
+            }
+            $stmtPostsTrend->execute($paramsTrend);
+            $postsTrend = $stmtPostsTrend->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-            for ($i = 0; $i < 6; $i++) {
-                $bucketDate = date('Y-m-d', (int)($chartStartTs + ($i * $chartStep)));
-                $cnt = $trendData[$bucketDate] ?? 0;
-                if ($cnt > 0) {
-                    $chartValues[] = (int)$cnt;
+            // Initialize 6 data points
+            $chartValues = array_fill(0, 6, 0);
+            $chartPostCounts = array_fill(0, 6, 0);
+
+            foreach ($postsTrend as $p) {
+                $pubTs = strtotime($p['published_at']);
+                if ($chartEndTs == $chartStartTs) {
+                    $bucketIdx = 0;
                 } else {
-                    $chartValues[] = $chartViews > 0 ? (int)round(($chartViews / 6) * (($i % 3) + 1)) : 0;
+                    $bucketIdx = (int)round(($pubTs - $chartStartTs) / $chartStep);
+                    $bucketIdx = max(0, min(5, $bucketIdx));
                 }
+                $chartValues[$bucketIdx] += (int)($p['views_count'] ?? 0);
+                $chartPostCounts[$bucketIdx]++;
+            }
+
+            $totalViewsInChart = array_sum($chartValues);
+            if ($totalViewsInChart === 0) {
+                // Fall back to post counts so the graph has activity if views are not loaded/present
+                $chartValues = $chartPostCounts;
             }
             ?>
             <div class="relative h-64 w-full rounded-xl border border-surface-variant/50 overflow-hidden bg-surface-container-lowest shadow-xs p-2">

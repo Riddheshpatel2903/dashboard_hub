@@ -104,6 +104,10 @@ $recentPosts = $stmtRecent->fetchAll();
                             <span class="material-symbols-outlined text-sm">filter_list</span>
                             <span>Filter</span>
                         </button>
+                        <button type="button" onclick="reloadDashboardData(true);" class="h-10 px-md border border-primary/20 bg-primary/10 text-primary rounded-lg font-body-sm font-bold hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-xs group">
+                            <span class="material-symbols-outlined text-sm group-hover:animate-spin">sync</span>
+                            <span>Sync Now</span>
+                        </button>
                         <button type="button" onclick="clearDashboardFilters();" class="h-10 px-lg bg-surface-container text-on-surface-variant rounded-lg font-body-sm font-bold hover:bg-surface-container-high transition-all flex items-center justify-center">
                             Clear
                         </button>
@@ -298,7 +302,7 @@ $recentPosts = $stmtRecent->fetchAll();
     </main>
 
     <script>
-    function reloadDashboardData() {
+    function reloadDashboardData(force = false) {
         const platform = document.getElementById('filter-platform').value;
         const startDate = document.getElementById('filter-start-date').value;
         const endDate = document.getElementById('filter-end-date').value;
@@ -318,11 +322,15 @@ $recentPosts = $stmtRecent->fetchAll();
         badge.textContent = platform ? platform.replace('_', ' ') : 'All Channels';
 
         // 2. Fetch statistics counts
-        const queryParams = new URLSearchParams({
+        const params = {
             platform: platform,
             start_date: startDate,
             end_date: endDate
-        }).toString();
+        };
+        if (force) {
+            params.force_sync = 1;
+        }
+        const queryParams = new URLSearchParams(params).toString();
 
         fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_stats.php?${queryParams}`)
             .then(res => res.json())

@@ -187,6 +187,20 @@ class InstagramHandler {
     }
 
     /**
+     * Retrieves recent media from Instagram.
+     */
+    public static function getRecentMedia($token, $igUserId, $limit = 50) {
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/%s/media?fields=id,caption,media_type,media_url,timestamp,like_count,comments_count&limit=%d&access_token=%s",
+            self::$version,
+            urlencode($igUserId),
+            $limit,
+            urlencode($token)
+        );
+        return self::executeRequest('GET', $endpoint);
+    }
+
+    /**
      * Helper request executor.
      */
     private static function executeRequest($method, $url, array $payload = []) {

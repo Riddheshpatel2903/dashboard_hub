@@ -18,10 +18,11 @@ $platformInput = $_GET['platform'] ?? '';
 $postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
 $startDate = $_GET['start_date'] ?? null;
 $endDate = $_GET['end_date'] ?? null;
+$externalPostIdInput = $_GET['external_post_id'] ?? '';
 
-if (empty($platformInput) && $postId <= 0) {
+if (empty($platformInput) && $postId <= 0 && empty($externalPostIdInput)) {
     header('Content-Type: application/json', true, 400);
-    echo json_encode(['success' => false, 'error' => 'Missing platform or post_id parameter']);
+    echo json_encode(['success' => false, 'error' => 'Missing platform, post_id, or external_post_id parameter']);
     exit();
 }
 
@@ -30,7 +31,30 @@ try {
     $externalId = null;
     $token = null;
 
-    if ($postId > 0) {
+    if (!empty($externalPostIdInput)) {
+        $platform = $platformInput;
+        $externalId = $externalPostIdInput;
+        // Find token for this platform
+        $stmt = $pdo->prepare("
+            SELECT pc.external_account_id, pt.access_token_encrypted
+            FROM platform_connections pc
+            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+            WHERE pc.client_id = :client_id AND pc.platform = :platform AND pc.status = 'connected'
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'client_id' => $client_id,
+            'platform'  => $platform
+        ]);
+        $connData = $stmt->fetch();
+        if (!$connData) {
+            header('Content-Type: application/json', true, 404);
+            echo json_encode(['success' => false, 'error' => 'No active connection found for ' . $platform]);
+            exit();
+        }
+        $token = !empty($connData['access_token_encrypted']) ? decrypt($connData['access_token_encrypted']) : '';
+        $postId = 1; // Treat as post-level metrics fetching
+    } elseif ($postId > 0) {
         // Resolve post's external account / platform
         $stmt = $pdo->prepare("
             SELECT p.external_post_id, pc.platform, pc.external_account_id, pt.access_token_encrypted
@@ -100,6 +124,41 @@ try {
                         $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'fan_count', 'value' => (int)$accInfo['fan_count'], 'period' => 'lifetime'];
                     }
                 } catch (Exception $e) {}
+                // Fetch recent posts
+                try {
+                    $recentPostsRaw = FacebookHandler::getRecentPosts($token, $externalId, 50);
+                    if (!empty($recentPostsRaw['data'])) {
+                        foreach ($recentPostsRaw['data'] as $pItem) {
+                            $pId = $pItem['id'] ?? '';
+                            if ($pId) {
+                                $mediaUrl = '';
+                                if (!empty($pItem['attachments']['data'][0]['media']['image']['src'])) {
+                                    $mediaUrl = $pItem['attachments']['data'][0]['media']['image']['src'];
+                                }
+                                $likes = $pItem['likes']['summary']['total_count'] ?? 0;
+                                $comments = $pItem['comments']['summary']['total_count'] ?? 0;
+                                $shares = $pItem['shares']['count'] ?? 0;
+                                
+                                $normalizedMetrics[] = [
+                                    'platform'    => 'facebook',
+                                    'metric_name' => 'fb_post_' . $pId,
+                                    'value'       => json_encode([
+                                        'post_id'      => $pId,
+                                        'message'      => $pItem['message'] ?? '',
+                                        'published_at' => $pItem['created_time'] ?? '',
+                                        'media_url'    => $mediaUrl,
+                                        'likes'        => (int)$likes,
+                                        'comments'     => (int)$comments,
+                                        'shares'       => (int)$shares
+                                    ]),
+                                    'period'      => 'lifetime'
+                                ];
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Facebook recent posts: " . $e->getMessage());
+                }
             }
             
             // Map FB metrics to standard structure
@@ -143,6 +202,33 @@ try {
                         $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'media_count', 'value' => (int)$accInfo['media_count'], 'period' => 'lifetime'];
                     }
                 } catch (Exception $e) {}
+                // Fetch recent media
+                try {
+                    $recentMediaRaw = InstagramHandler::getRecentMedia($token, $externalId, 50);
+                    if (!empty($recentMediaRaw['data'])) {
+                        foreach ($recentMediaRaw['data'] as $mItem) {
+                            $mId = $mItem['id'] ?? '';
+                            if ($mId) {
+                                $normalizedMetrics[] = [
+                                    'platform'    => 'instagram',
+                                    'metric_name' => 'ig_post_' . $mId,
+                                    'value'       => json_encode([
+                                        'media_id'     => $mId,
+                                        'caption'      => $mItem['caption'] ?? '',
+                                        'published_at' => $mItem['timestamp'] ?? '',
+                                        'media_url'    => $mItem['media_url'] ?? '',
+                                        'media_type'   => $mItem['media_type'] ?? 'IMAGE',
+                                        'likes'        => (int)($mItem['like_count'] ?? 0),
+                                        'comments'     => (int)($mItem['comments_count'] ?? 0)
+                                    ]),
+                                    'period'      => 'lifetime'
+                                ];
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Instagram recent media: " . $e->getMessage());
+                }
             }
             
             if (!empty($raw['data'])) {
@@ -242,19 +328,29 @@ try {
                             $vStat = $vItem['statistics'] ?? [];
                             $vDur = $vItem['contentDetails']['duration'] ?? '';
                             $vPublishedAt = $vItem['snippet']['publishedAt'] ?? '';
+                            $vTitle = $vItem['snippet']['title'] ?? '';
 
                             if ($vId) {
+                                // Pick best thumbnail resolution (maxres > high > medium > default)
+                                $thumbs = $vItem['snippet']['thumbnails'] ?? [];
+                                $thumbUrl = $thumbs['maxres']['url']
+                                    ?? $thumbs['high']['url']
+                                    ?? $thumbs['medium']['url']
+                                    ?? $thumbs['default']['url']
+                                    ?? '';
+
                                 $normalizedMetrics[] = [
                                     'platform'    => 'youtube',
                                     'metric_name' => 'yt_video_' . $vId,
                                     'value'       => json_encode([
-                                        'video_id'     => $vId,
-                                        'title'        => $vTitle,
-                                        'published_at' => $vPublishedAt,
-                                        'views'        => (int)($vStat['viewCount'] ?? 0),
-                                        'likes'        => (int)($vStat['likeCount'] ?? 0),
-                                        'comments'     => (int)($vStat['commentCount'] ?? 0),
-                                        'duration'     => $vDur
+                                        'video_id'      => $vId,
+                                        'title'         => $vTitle,
+                                        'published_at'  => $vPublishedAt,
+                                        'thumbnail_url' => $thumbUrl,
+                                        'views'         => (int)($vStat['viewCount'] ?? 0),
+                                        'likes'         => (int)($vStat['likeCount'] ?? 0),
+                                        'comments'      => (int)($vStat['commentCount'] ?? 0),
+                                        'duration'      => $vDur
                                     ]),
                                     'period'      => 'lifetime'
                                 ];
@@ -304,6 +400,41 @@ try {
                             ];
                         }
                     }
+                }
+            }
+            // Fetch recent local posts
+            if ($postId == 0) {
+                try {
+                    $recentPostsRaw = GoogleBusinessHandler::getRecentPosts($token, $externalId, 50);
+                    if (!empty($recentPostsRaw['localPosts'])) {
+                        foreach ($recentPostsRaw['localPosts'] as $pItem) {
+                            $pName = $pItem['name'] ?? '';
+                            $parts = explode('/', $pName);
+                            $pId = end($parts);
+                            if ($pId) {
+                                $mediaUrl = '';
+                                if (!empty($pItem['media'][0]['googleUrl'])) {
+                                    $mediaUrl = $pItem['media'][0]['googleUrl'];
+                                } elseif (!empty($pItem['media'][0]['sourceUrl'])) {
+                                    $mediaUrl = $pItem['media'][0]['sourceUrl'];
+                                }
+                                
+                                $normalizedMetrics[] = [
+                                    'platform'    => 'google_business',
+                                    'metric_name' => 'gbp_post_' . $pId,
+                                    'value'       => json_encode([
+                                        'post_id'      => $pName,
+                                        'summary'      => $pItem['summary'] ?? '',
+                                        'published_at' => $pItem['createTime'] ?? '',
+                                        'media_url'    => $mediaUrl
+                                    ]),
+                                    'period'      => 'lifetime'
+                                ];
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Google Business recent posts: " . $e->getMessage());
                 }
             }
             break;

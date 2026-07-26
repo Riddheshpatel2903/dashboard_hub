@@ -39,6 +39,9 @@ function ensureAnalyticsDatabaseTables($pdo) {
         if (!in_array('duration', $cols)) {
             $pdo->exec("ALTER TABLE `posts_cache` ADD COLUMN `duration` VARCHAR(50) DEFAULT NULL");
         }
+        if (!in_array('external_post_id', $cols)) {
+            $pdo->exec("ALTER TABLE `posts_cache` ADD COLUMN `external_post_id` VARCHAR(255) DEFAULT NULL");
+        }
     } catch (Exception $e) {
         error_log("Analytics schema sync warning: " . $e->getMessage());
     }
@@ -77,33 +80,161 @@ function syncClientAnalytics($clientId, $pdo) {
                             'period'      => $m['period'] ?? 'lifetime'
                         ]);
                     }
-                    // Auto-import historical channel videos & posts into posts_cache table
-                    $stmtCheck = $pdo->prepare("SELECT id FROM posts_cache WHERE client_id = :client_id AND hub_post_id = :hId LIMIT 1");
+
+                    // Auto-import historical platform posts/videos into posts_cache table
+                    $stmtCheck = $pdo->prepare("
+                        SELECT id FROM posts_cache 
+                        WHERE client_id = :client_id 
+                          AND (
+                            (hub_post_id = :hId AND hub_post_id > 0) 
+                            OR (external_post_id = :extId AND external_post_id IS NOT NULL AND external_post_id != '')
+                          ) 
+                        LIMIT 1
+                    ");
                     $stmtIns = $pdo->prepare("
-                        INSERT INTO posts_cache (hub_post_id, client_id, content, status, platform, media_path, published_at, created_at, views_count, likes_count, comments_count, duration)
-                        VALUES (:hId, :client_id, :content, 'published', :platform, :media_path, :pubDate, :pubDate, :v, :l, :c, :d)
+                        INSERT INTO posts_cache (hub_post_id, client_id, content, status, platform, media_path, published_at, created_at, views_count, likes_count, comments_count, duration, external_post_id)
+                        VALUES (:hId, :client_id, :content, 'published', :platform, :media_path, :pubDate, :pubDate, :v, :l, :c, :d, :extId)
+                    ");
+                    $stmtUpdStats = $pdo->prepare("
+                        UPDATE posts_cache
+                        SET views_count = :v, likes_count = :l, comments_count = :c
+                        WHERE id = :id
                     ");
 
                     foreach ($aRes['metrics'] as $m) {
                         $mName = strtolower($m['metric_name']);
+                        
+                        // 1. YouTube Video
                         if (strpos($mName, 'yt_video_') === 0 && !empty($m['value'])) {
                             $vData = json_decode($m['value'], true);
                             if (!empty($vData['video_id'])) {
                                 $vId = $vData['video_id'];
-                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => $vId]);
-                                if (!$stmtCheck->fetch()) {
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $vId]);
+                                $existing = $stmtCheck->fetch();
+                                // Use YouTube thumbnail URL as media_path (high quality > medium > default)
+                                $thumbUrl = !empty($vData['thumbnail_url']) ? $vData['thumbnail_url'] : null;
+                                if (!$existing) {
                                     $pubDate = !empty($vData['published_at']) ? date('Y-m-d H:i:s', strtotime($vData['published_at'])) : date('Y-m-d H:i:s');
                                     $stmtIns->execute([
-                                        'hId'       => $vId,
+                                        'hId'       => 0,
                                         'client_id' => $clientId,
                                         'content'   => $vData['title'] ?? ('YouTube Video ' . $vId),
                                         'platform'  => 'youtube',
-                                        'media_path'=> 'video.mp4',
+                                        'media_path'=> $thumbUrl,
                                         'pubDate'   => $pubDate,
                                         'v'         => (int)($vData['views'] ?? 0),
                                         'l'         => (int)($vData['likes'] ?? 0),
                                         'c'         => (int)($vData['comments'] ?? 0),
-                                        'd'         => $vData['duration'] ?? null
+                                        'd'         => $vData['duration'] ?? null,
+                                        'extId'     => $vId
+                                    ]);
+                                } else {
+                                    // Update stats AND thumbnail if it changed
+                                    $stmtUpdYt = $pdo->prepare("
+                                        UPDATE posts_cache
+                                        SET views_count = :v, likes_count = :l, comments_count = :c,
+                                            media_path = COALESCE(NULLIF(media_path, 'video.mp4'), :thumb, media_path)
+                                        WHERE id = :id
+                                    ");
+                                    $stmtUpdYt->execute([
+                                        'v'     => (int)($vData['views'] ?? 0),
+                                        'l'     => (int)($vData['likes'] ?? 0),
+                                        'c'     => (int)($vData['comments'] ?? 0),
+                                        'thumb' => $thumbUrl,
+                                        'id'    => $existing['id']
+                                    ]);
+                                }
+                            }
+                        }
+
+                        // 2. Facebook Post
+                        if (strpos($mName, 'fb_post_') === 0 && !empty($m['value'])) {
+                            $pData = json_decode($m['value'], true);
+                            if (!empty($pData['post_id'])) {
+                                $pId = $pData['post_id'];
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $pId]);
+                                $existing = $stmtCheck->fetch();
+                                if (!$existing) {
+                                    $pubDate = !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s');
+                                    $stmtIns->execute([
+                                        'hId'       => 0,
+                                        'client_id' => $clientId,
+                                        'content'   => !empty($pData['message']) ? $pData['message'] : 'Facebook Post',
+                                        'platform'  => 'facebook',
+                                        'media_path'=> !empty($pData['media_url']) ? $pData['media_url'] : null,
+                                        'pubDate'   => $pubDate,
+                                        'v'         => 0,
+                                        'l'         => (int)($pData['likes'] ?? 0),
+                                        'c'         => (int)($pData['comments'] ?? 0),
+                                        'd'         => null,
+                                        'extId'     => $pId
+                                    ]);
+                                } else {
+                                    $stmtUpdStats->execute([
+                                        'v'  => 0,
+                                        'l'  => (int)($pData['likes'] ?? 0),
+                                        'c'  => (int)($pData['comments'] ?? 0),
+                                        'id' => $existing['id']
+                                    ]);
+                                }
+                            }
+                        }
+
+                        // 3. Instagram Post
+                        if (strpos($mName, 'ig_post_') === 0 && !empty($m['value'])) {
+                            $pData = json_decode($m['value'], true);
+                            if (!empty($pData['media_id'])) {
+                                $mId = $pData['media_id'];
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $mId]);
+                                $existing = $stmtCheck->fetch();
+                                if (!$existing) {
+                                    $pubDate = !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s');
+                                    $isVid = (strtoupper($pData['media_type'] ?? '') === 'VIDEO');
+                                    $stmtIns->execute([
+                                        'hId'       => 0,
+                                        'client_id' => $clientId,
+                                        'content'   => !empty($pData['caption']) ? $pData['caption'] : 'Instagram Post',
+                                        'platform'  => 'instagram',
+                                        'media_path'=> !empty($pData['media_url']) ? $pData['media_url'] : null,
+                                        'pubDate'   => $pubDate,
+                                        'v'         => 0,
+                                        'l'         => (int)($pData['likes'] ?? 0),
+                                        'c'         => (int)($pData['comments'] ?? 0),
+                                        'd'         => $isVid ? '00:00' : 'Image',
+                                        'extId'     => $mId
+                                    ]);
+                                } else {
+                                    $stmtUpdStats->execute([
+                                        'v'  => 0,
+                                        'l'  => (int)($pData['likes'] ?? 0),
+                                        'c'  => (int)($pData['comments'] ?? 0),
+                                        'id' => $existing['id']
+                                    ]);
+                                }
+                            }
+                        }
+
+                        // 4. Google Business Profile Post
+                        if (strpos($mName, 'gbp_post_') === 0 && !empty($m['value'])) {
+                            $pData = json_decode($m['value'], true);
+                            if (!empty($pData['post_id'])) {
+                                $pId = $pData['post_id'];
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $pId]);
+                                $existing = $stmtCheck->fetch();
+                                if (!$existing) {
+                                    $pubDate = !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s');
+                                    $stmtIns->execute([
+                                        'hId'       => 0,
+                                        'client_id' => $clientId,
+                                        'content'   => !empty($pData['summary']) ? $pData['summary'] : 'Google Profile Post',
+                                        'platform'  => 'google_business',
+                                        'media_path'=> !empty($pData['media_url']) ? $pData['media_url'] : null,
+                                        'pubDate'   => $pubDate,
+                                        'v'         => 0,
+                                        'l'         => 0,
+                                        'c'         => 0,
+                                        'd'         => null,
+                                        'extId'     => $pId
                                     ]);
                                 }
                             }
@@ -115,7 +246,7 @@ function syncClientAnalytics($clientId, $pdo) {
 
         // 2. Fetch and store live metrics for top published posts in posts_cache
         $stmtPosts = $pdo->prepare("
-            SELECT id, platform, hub_post_id 
+            SELECT id, platform, hub_post_id, external_post_id 
             FROM posts_cache 
             WHERE client_id = :client_id AND status = 'published'
             ORDER BY created_at DESC LIMIT 20
@@ -125,7 +256,16 @@ function syncClientAnalytics($clientId, $pdo) {
 
         if (!empty($pubPosts)) {
             foreach ($pubPosts as $p) {
-                $pRes = hubGetAnalytics($clientId, $p['platform'], $p['id']);
+                // Prefer external_post_id with post_id=0 so the Hub queries via platform_connections
+                // rather than the Hub posts table (rows there may be deleted for old/synced posts)
+                $extId = $p['external_post_id'] ?? '';
+                if (!empty($extId)) {
+                    $pRes = hubGetAnalytics($clientId, $p['platform'], 0, null, null, $extId);
+                } elseif (!empty($p['hub_post_id'])) {
+                    $pRes = hubGetAnalytics($clientId, $p['platform'], (int)$p['hub_post_id']);
+                } else {
+                    continue;
+                }
                 if (!empty($pRes['success']) && is_array($pRes['metrics'])) {
                     $pViews = 0; $pLikes = 0; $pComments = 0; $pDur = null;
                     foreach ($pRes['metrics'] as $pm) {
@@ -148,6 +288,37 @@ function syncClientAnalytics($clientId, $pdo) {
                         'd'  => $pDur,
                         'id' => $p['id']
                     ]);
+                }
+            }
+        }
+
+        // 2.5 Automatically delete database posts and remove from platform if media is missing from upload folder
+        $stmtMediaCheck = $pdo->prepare("
+            SELECT id, hub_post_id, platform, media_path, external_post_id 
+            FROM posts_cache 
+            WHERE client_id = :client_id 
+              AND media_path IS NOT NULL 
+              AND media_path != '' 
+              AND status != 'deleted'
+        ");
+        $stmtMediaCheck->execute(['client_id' => $clientId]);
+        $postsToCheck = $stmtMediaCheck->fetchAll();
+
+        foreach ($postsToCheck as $post) {
+            $mPath = $post['media_path'];
+            if (!preg_match('/^https?:\/\//i', $mPath)) {
+                $localPath = __DIR__ . '/../../hub/uploads/' . ltrim(str_replace('uploads/', '', $mPath), '/');
+                if (!file_exists($localPath)) {
+                    $hubPostId = (int)$post['hub_post_id'];
+                    $platform = $post['platform'];
+                    $externalPostId = $post['external_post_id'] ?? '';
+                    
+                    // Call the Hub's delete API to remove from social networks and Hub DB
+                    hubDelete($clientId, $hubPostId, $platform, $externalPostId);
+                    
+                    // Remove from posts_cache table
+                    $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :id");
+                    $stmtDel->execute(['id' => $post['id']]);
                 }
             }
         }

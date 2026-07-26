@@ -49,11 +49,11 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
             <span class="font-body-md text-body-md">Connections</span>
         </a>
 
-        <!-- Composer -->
+        <!-- Create Post -->
         <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('composer.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php">
             <span class="material-symbols-outlined text-xl">edit_note</span>
-            <span class="font-body-md text-body-md">Composer</span>
+            <span class="font-body-md text-body-md">Create Post</span>
         </a>
 
         <!-- Calendar -->

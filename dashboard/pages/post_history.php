@@ -57,7 +57,7 @@ if ($totalPages < 1)
 
 // Fetch posts
 $stmtPosts = $pdo->prepare("
-    SELECT id, hub_post_id, content, status, platform, scheduled_at, published_at, created_at
+    SELECT id, hub_post_id, content, status, platform, scheduled_at, published_at, created_at, media_path, views_count, likes_count, comments_count
     FROM posts_cache 
     {$sql} 
     ORDER BY created_at DESC 
@@ -147,100 +147,120 @@ $posts = $stmtPosts->fetchAll();
                 </form>
             </div>
 
-            <!-- Data Table Card -->
+            <!-- Card Grid & Pagination Section -->
             <div class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
                 <?php if (empty($posts)): ?>
                     <div class="p-xl text-center text-on-surface-variant font-body-md">
                         No matching posts found in history.
                     </div>
                 <?php else: ?>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-surface-container-low border-b border-surface-variant">
-                                    <th class="px-lg py-md font-data-label text-data-label text-on-surface-variant uppercase tracking-wider w-[120px]">PLATFORM</th>
-                                    <th class="px-lg py-md font-data-label text-data-label text-on-surface-variant uppercase tracking-wider min-w-[300px]">CONTENT PREVIEW</th>
-                                    <th class="px-lg py-md font-data-label text-data-label text-on-surface-variant uppercase tracking-wider w-[140px]">STATUS</th>
-                                    <th class="px-lg py-md font-data-label text-data-label text-on-surface-variant uppercase tracking-wider w-[180px]">TARGET TIME</th>
-                                    <th class="px-lg py-md font-data-label text-data-label text-on-surface-variant uppercase tracking-wider text-right w-[100px]">ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-surface-variant">
-                                <?php
-                                foreach ($posts as $post):
-                                    // Resolve Platform Specific colors and icons
-                                    $platIcon = 'face';
-                                    $platColorClass = 'bg-surface-container text-on-surface-variant';
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter p-md">
+                        <?php foreach ($posts as $post):
+                            // Resolve Platform Icon/Color
+                            $platIcon = 'face';
+                            $platColorClass = 'bg-surface-container text-on-surface-variant';
+                            $platLabel = $post['platform'];
 
-                                    if ($post['platform'] === 'facebook') {
-                                        $platIcon = 'public';
-                                        $platColorClass = 'bg-[#EFF6FF] text-[#1877F2] border border-[#DBEAFE]';
-                                    } elseif ($post['platform'] === 'instagram') {
-                                        $platIcon = 'photo_camera';
-                                        $platColorClass = 'bg-[#FDF2F8] text-[#E1306C] border border-[#FBCFE8]';
-                                    } elseif ($post['platform'] === 'youtube') {
-                                        $platIcon = 'play_circle';
-                                        $platColorClass = 'bg-[#FEF2F2] text-[#FF0000] border border-[#FEE2E2]';
-                                    } elseif ($post['platform'] === 'whatsapp') {
-                                        $platIcon = 'chat';
-                                        $platColorClass = 'bg-[#F0FDF4] text-[#25D366] border border-[#DCFCE7]';
-                                    } elseif ($post['platform'] === 'linkedin') {
-                                        $platIcon = 'work';
-                                        $platColorClass = 'bg-[#EFF6FF] text-[#0A66C2] border border-[#DBEAFE]';
-                                    } elseif ($post['platform'] === 'google_business') {
-                                        $platIcon = 'store';
-                                        $platColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
-                                    }
+                            if ($post['platform'] === 'facebook') {
+                                $platIcon = 'public';
+                                $platColorClass = 'bg-[#EFF6FF] text-[#1877F2] border border-[#DBEAFE]';
+                            } elseif ($post['platform'] === 'instagram') {
+                                $platIcon = 'photo_camera';
+                                $platColorClass = 'bg-[#FDF2F8] text-[#E1306C] border border-[#FBCFE8]';
+                            } elseif ($post['platform'] === 'youtube') {
+                                $platIcon = 'play_circle';
+                                $platColorClass = 'bg-[#FEF2F2] text-[#FF0000] border border-[#FEE2E2]';
+                            } elseif ($post['platform'] === 'whatsapp') {
+                                $platIcon = 'chat';
+                                $platColorClass = 'bg-[#F0FDF4] text-[#25D366] border border-[#DCFCE7]';
+                            } elseif ($post['platform'] === 'linkedin') {
+                                $platIcon = 'work';
+                                $platColorClass = 'bg-[#EFF6FF] text-[#0A66C2] border border-[#DBEAFE]';
+                            } elseif ($post['platform'] === 'google_business') {
+                                $platIcon = 'store';
+                                $platColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
+                                $platLabel = 'Google Profile';
+                            }
 
-                                    $statusClass = 'bg-surface-container text-on-surface-variant border border-outline-variant/30';
-                                    if ($post['status'] === 'published') {
-                                        $statusClass = 'bg-[#E4F6EE] text-[#1F9D6B] border border-green-200';
-                                    } elseif ($post['status'] === 'scheduled') {
-                                        $statusClass = 'bg-primary-container/20 text-primary border border-primary-fixed';
-                                    } elseif ($post['status'] === 'failed') {
-                                        $statusClass = 'bg-error-container text-error border border-error/20';
-                                    }
+                            // Status style
+                            $statusClass = 'bg-surface-container text-on-surface-variant border border-outline-variant/30';
+                            if ($post['status'] === 'published') {
+                                $statusClass = 'bg-[#E4F6EE] text-[#1F9D6B] border border-green-200';
+                            } elseif ($post['status'] === 'scheduled') {
+                                $statusClass = 'bg-primary-container/20 text-primary border border-primary-fixed';
+                            } elseif ($post['status'] === 'failed') {
+                                $statusClass = 'bg-error-container text-error border border-error/20';
+                            }
 
-                                    $targetTime = $post['status'] === 'published' ? $post['published_at'] : ($post['scheduled_at'] ?: $post['created_at']);
-                                    ?>
-                                    <tr class="group hover:bg-secondary-container/10 transition-colors">
-                                        <!-- Platform Column -->
-                                        <td class="px-lg py-md">
-                                            <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none truncate <?php echo $platColorClass; ?>">
-                                                <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
-                                                <span class="truncate capitalize"><?php echo htmlspecialchars($post['platform'] === 'google_business' ? 'Google' : $post['platform']); ?></span>
-                                            </div>
-                                        </td>
-                                        
-                                        <!-- Content Preview Column -->
-                                        <td class="px-lg py-md font-body-md text-on-surface truncate max-w-md">
+                            $targetTime = $post['status'] === 'published' ? $post['published_at'] : ($post['scheduled_at'] ?: $post['created_at']);
+                            
+                            // Media thumbnail
+                            $hasMedia = !empty($post['media_path']);
+                            $mediaUrl = '';
+                            $isVideo = false;
+                            if ($hasMedia) {
+                                if (preg_match('/^https?:\/\//i', $post['media_path'])) {
+                                    $mediaUrl = $post['media_path'];
+                                } else {
+                                    $mediaUrl = HUB_BASE_URL . '/uploads/' . ltrim($post['media_path'], '/');
+                                }
+                                $ext = strtolower(pathinfo(parse_url($mediaUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
+                                $isVideo = in_array($ext, ['mp4', 'mov', 'avi']);
+                            }
+                        ?>
+                            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md shadow-sm hover:border-primary transition-all duration-200 flex flex-col justify-between space-y-md">
+                                <div class="space-y-sm">
+                                    <!-- Card Header -->
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none border <?php echo $platColorClass; ?>">
+                                            <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
+                                            <span class="capitalize"><?php echo htmlspecialchars($platLabel); ?></span>
+                                        </div>
+                                        <span class="px-sm py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tight <?php echo $statusClass; ?>">
+                                            <?php echo htmlspecialchars($post['status']); ?>
+                                        </span>
+                                    </div>
+
+                                    <!-- Card Content (with media thumbnail side-by-side if exists) -->
+                                    <div class="flex gap-sm items-start">
+                                        <p class="text-xs text-on-surface line-clamp-4 flex-grow leading-relaxed text-left">
                                             <?php echo htmlspecialchars($post['content']); ?>
-                                        </td>
-                                        
-                                        <!-- Status Column -->
-                                        <td class="px-lg py-md">
-                                            <span class="inline-flex items-center px-sm py-xs rounded-full text-xs font-bold uppercase tracking-tight <?php echo $statusClass; ?>">
-                                                <?php echo htmlspecialchars($post['status']); ?>
+                                        </p>
+                                        <?php if ($hasMedia): ?>
+                                            <div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 flex items-center justify-center border border-surface-variant relative">
+                                                <?php if ($isVideo): ?>
+                                                    <span class="material-symbols-outlined text-on-surface-variant text-xl">play_circle</span>
+                                                <?php else: ?>
+                                                    <img src="<?php echo htmlspecialchars($mediaUrl); ?>" class="w-full h-full object-cover" />
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <!-- Card Footer -->
+                                <div class="pt-sm border-t border-surface-variant/60 flex justify-between items-center">
+                                    <!-- Interaction metrics -->
+                                    <div class="flex gap-sm text-[10px] font-bold text-on-surface-variant">
+                                        <?php if ($post['status'] === 'published'): ?>
+                                            <div class="flex items-center gap-0.5" title="Views"><span class="material-symbols-outlined text-[13px]">visibility</span> <?php echo number_format($post['views_count'] ?? 0); ?></div>
+                                            <div class="flex items-center gap-0.5" title="Likes"><span class="material-symbols-outlined text-[13px]">favorite</span> <?php echo number_format($post['likes_count'] ?? 0); ?></div>
+                                            <div class="flex items-center gap-0.5" title="Comments"><span class="material-symbols-outlined text-[13px]">chat</span> <?php echo number_format($post['comments_count'] ?? 0); ?></div>
+                                        <?php else: ?>
+                                            <span class="text-[9px] text-on-surface-variant/60 uppercase font-data-label flex items-center gap-0.5">
+                                                <span class="material-symbols-outlined text-[11px]">calendar_today</span>
+                                                <?php echo date('M d, H:i', strtotime($targetTime)); ?>
                                             </span>
-                                        </td>
-                                        
-                                        <!-- Time Column -->
-                                        <td class="px-lg py-md font-data-label text-data-label text-on-surface-variant">
-                                            <?php echo date('Y-m-d H:i', strtotime($targetTime)); ?>
-                                        </td>
-                                        
-                                        <!-- Actions Column -->
-                                        <td class="px-lg py-md text-right">
-                                            <button class="btn-view-detail px-sm h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center gap-xs" 
-                                                    data-id="<?php echo $post['id']; ?>">
-                                                <span class="material-symbols-outlined text-sm">visibility</span>
-                                                <span>Inspect</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                        <?php endif; ?>
+                                    </div>
+                                    <button class="btn-view-detail px-sm h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center gap-xs text-xs" 
+                                            data-id="<?php echo $post['id']; ?>">
+                                        <span class="material-symbols-outlined text-sm">visibility</span>
+                                        <span>Inspect</span>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
 
                     <!-- Pagination -->

@@ -27,8 +27,11 @@ $connectedPlatforms = array_unique($connectedPlatforms);
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Post Composer | Command Center</title>
+    <title>Create Post | Command Center</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
+    <!-- Cropper.js CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
     <!-- Sidebar Navigation -->
@@ -42,7 +45,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
         <div class="max-w-[1440px] mx-auto space-y-lg">
             <!-- Page Header -->
             <div>
-                <h2 class="font-display-lg text-display-lg text-on-surface">Post Composer</h2>
+                <h2 class="font-display-lg text-display-lg text-on-surface">Create Post</h2>
                 <p class="font-body-md text-on-surface-variant">Draft, schedule, and publish posts to your connected channels.</p>
             </div>
 
@@ -152,13 +155,29 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                         </div>
                         
                         <div id="schedule-container" class="hidden animate-in fade-in slide-in-from-top-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-md bg-surface-container-low p-md rounded-lg border border-surface-variant">
+                            <div class="grid grid-cols-3 gap-sm bg-surface-container-low p-md rounded-lg border border-surface-variant">
                                 <div class="space-y-xs">
-                                    <label class="font-data-label text-data-label text-on-surface-variant block" for="scheduled-at">Select Date & Time</label>
-                                    <input class="w-full bg-surface-container-lowest border border-surface-variant rounded-md px-md py-sm focus:ring-1 focus:ring-primary focus:outline-none" 
-                                           id="scheduled-at" name="scheduled_at" type="datetime-local" step="300"/>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase block">Release Date</label>
+                                    <input type="date" id="sched-date" class="w-full h-10 px-md bg-surface-container-lowest border border-surface-variant rounded-lg text-xs focus:ring-1 focus:ring-primary focus:outline-none" />
+                                </div>
+                                <div class="space-y-xs">
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase block">Hour</label>
+                                    <select id="sched-hour" class="w-full h-10 px-md bg-surface-container-lowest border border-surface-variant rounded-lg text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+                                        <?php for ($h = 0; $h < 24; $h++): ?>
+                                            <option value="<?php echo sprintf('%02d', $h); ?>"><?php echo sprintf('%02d', $h); ?></option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                                <div class="space-y-xs">
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase block">Minute (5-min Interval)</label>
+                                    <select id="sched-minute" class="w-full h-10 px-md bg-surface-container-lowest border border-surface-variant rounded-lg text-xs focus:ring-1 focus:ring-primary focus:outline-none">
+                                        <?php for ($m = 0; $m < 60; $m += 5): ?>
+                                            <option value="<?php echo sprintf('%02d', $m); ?>"><?php echo sprintf('%02d', $m); ?></option>
+                                        <?php endfor; ?>
+                                    </select>
                                 </div>
                             </div>
+                            <input type="hidden" id="scheduled-at" name="scheduled_at" />
                         </div>
                     </div>
 
@@ -181,46 +200,25 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                 </form>
 
                 <!-- Right Column: Preview Column -->
-                <div class="col-span-12 lg:col-span-5 space-y-lg">
-                    <h3 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider px-md">Live Preview</h3>
+                <div class="col-span-12 lg:col-span-5 space-y-md">
+                    <div class="flex justify-between items-center px-md">
+                        <h3 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider">Live Preview</h3>
+                    </div>
+
+                    <!-- Platform Tab Selector Bar -->
+                    <div id="preview-tab-bar" class="flex flex-wrap gap-xs justify-center bg-surface-container-low p-xs rounded-lg border border-surface-variant hidden">
+                        <!-- Dynamic buttons will render here -->
+                    </div>
+
                     <!-- Mobile Preview Container -->
                     <div class="bg-[#E2E8F0] p-md rounded-[3rem] border-[8px] border-[#1E293B] aspect-[9/18.5] max-w-[340px] mx-auto shadow-2xl relative overflow-hidden">
                         <!-- Phone Notch -->
                         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-[#1E293B] rounded-b-2xl z-20"></div>
                         <!-- Screen Content -->
-                        <div class="h-full bg-white rounded-[2rem] overflow-y-auto no-scrollbar pt-8">
-                            <div class="px-md pb-md flex items-center justify-between border-b border-gray-100">
-                                <div class="flex items-center gap-sm">
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 p-[2px]">
-                                        <div class="w-full h-full rounded-full bg-white p-[2px]">
-                                            <div class="w-full h-full rounded-full bg-gray-200"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="font-body-sm font-bold text-xs">acmecorporate</p>
-                                        <p class="text-[10px] text-gray-500" id="preview-platform-label">No Platform Selected</p>
-                                    </div>
-                                </div>
-                                <span class="material-symbols-outlined text-gray-400">more_horiz</span>
-                            </div>
-
-                            <!-- Post Image Placeholder / Attachment Preview -->
-                            <div class="w-full aspect-square bg-gray-100 relative overflow-hidden flex items-center justify-center">
-                                <div id="preview-media" class="w-full h-full hidden items-center justify-center [&>img]:w-full [&>img]:h-full [&>img]:object-cover [&>video]:w-full [&>video]:h-full [&>video]:object-cover"></div>
-                                <div id="preview-placeholder-icon" class="absolute inset-0 bg-black/5 flex flex-col items-center justify-center text-outline">
-                                    <span class="material-symbols-outlined text-4xl">add_a_photo</span>
-                                    <span class="text-xs mt-xs">No media attached</span>
-                                </div>
-                            </div>
-
-                            <!-- Caption -->
-                            <div class="px-md space-y-xs py-md">
-                                <p class="text-[12px] font-bold">1,248 likes</p>
-                                <div class="text-[12px] leading-snug">
-                                    <span class="font-bold">acmecorporate</span>
-                                    <span class="text-gray-800" id="preview-text-content">Post caption preview will render here...</span>
-                                </div>
-                                <p class="text-[10px] text-gray-400 uppercase mt-xs">Just now</p>
+                        <div id="phone-screen-content" class="h-full bg-white rounded-[2rem] overflow-y-auto no-scrollbar pt-8">
+                            <div class="h-full bg-white flex flex-col items-center justify-center text-gray-400 text-xs">
+                                <span class="material-symbols-outlined text-4xl">mobile_screen_share</span>
+                                <span class="mt-2">Select a platform to preview</span>
                             </div>
                         </div>
                     </div>
@@ -228,6 +226,29 @@ $connectedPlatforms = array_unique($connectedPlatforms);
             </div>
         </div>
     </main>
+
+    <!-- Cropper Modal -->
+    <div id="cropper-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[100] hidden">
+        <div class="bg-surface-container-lowest rounded-xl max-w-lg w-full p-md space-y-md border border-surface-variant shadow-2xl m-md">
+            <div class="flex justify-between items-center pb-xs border-b border-surface-variant">
+                <h3 class="font-headline-sm font-bold text-on-surface">Crop Media</h3>
+                <button type="button" onclick="closeCropperModal()" class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="max-h-[350px] overflow-hidden flex items-center justify-center bg-gray-900 rounded-lg">
+                <img id="cropper-image" class="max-w-full max-h-[350px]" src="" alt="To Crop" />
+            </div>
+            <div class="flex flex-wrap gap-xs justify-center py-xs">
+                <button type="button" onclick="setCropAspect(1)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">1:1 (Square)</button>
+                <button type="button" onclick="setCropAspect(0.8)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">4:5 (Portrait)</button>
+                <button type="button" onclick="setCropAspect(1.777)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">16:9 (Landscape)</button>
+                <button type="button" onclick="setCropAspect(NaN)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">Free</button>
+            </div>
+            <div class="flex justify-end gap-md pt-xs border-t border-surface-variant">
+                <button type="button" onclick="closeCropperModal()" class="px-md py-2 text-on-surface-variant font-bold hover:bg-surface-container-high rounded-lg text-xs">Cancel</button>
+                <button type="button" onclick="applyCrop()" class="px-lg py-2 bg-primary text-on-primary font-bold rounded-lg text-xs hover:brightness-110">Apply Crop</button>
+            </div>
+        </div>
+    </div>
 
     <script src="<?php echo DASHBOARD_BASE_URL; ?>/assets/js/composer.js"></script>
 </body>

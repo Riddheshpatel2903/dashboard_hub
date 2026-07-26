@@ -64,23 +64,30 @@ function hubEdit($clientId, $postId, $content, $title = '') {
 /**
  * Deletes a post from the Hub.
  */
-function hubDelete($clientId, $postId) {
+function hubDelete($clientId, $postId, $platform = null, $externalPostId = null) {
     $payload = [
         'post_id' => (int)$postId
     ];
+    if ($platform) {
+        $payload['platform'] = $platform;
+    }
+    if ($externalPostId) {
+        $payload['external_post_id'] = $externalPostId;
+    }
     return hubRequest($clientId, '/api/delete.php', 'POST', $payload);
 }
 
 /**
  * Gets analytics for a client.
  */
-function hubGetAnalytics($clientId, $platform, $postId = 0, $startDate = null, $endDate = null) {
+function hubGetAnalytics($clientId, $platform, $postId = 0, $startDate = null, $endDate = null, $externalPostId = null) {
     $params = [
         'platform' => $platform,
         'post_id'  => (int)$postId
     ];
     if ($startDate) $params['start_date'] = $startDate;
     if ($endDate) $params['end_date'] = $endDate;
+    if ($externalPostId) $params['external_post_id'] = $externalPostId;
 
     $endpoint = '/api/analytics.php?' . http_build_query($params);
     return hubRequest($clientId, $endpoint, 'GET');
@@ -215,9 +222,18 @@ function hubDisconnectConnection($clientId, $platform) {
  * Base Curl dispatcher.
  */
 function executeCurl($url, $method, array $data = [], array $headers = [], $jsonEncode = true) {
+    // Bypass local IPv4 port conflict with Herd/Nginx by rewriting localhost to [::1] for server-to-server requests
+    $url = preg_replace('/^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?\//i', '$1[::1]$3/', $url);
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    // Disable SSL verification for local loopback requests to avoid self-signed cert errors
+    if (preg_match('/^(https?:\/\/)(?:localhost|127\.0\.0\.1|\[::1\])/i', $url)) {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    }
     
     if (strtoupper($method) === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);

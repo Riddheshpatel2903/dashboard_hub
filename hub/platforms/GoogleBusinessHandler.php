@@ -150,6 +150,14 @@ class GoogleBusinessHandler {
     }
 
     /**
+     * Lists recent Local Posts.
+     */
+    public static function getRecentPosts($token, $locationId, $limit = 50) {
+        $url = "https://mybusinesslocalpost.googleapis.com/v1/" . ltrim($locationId, '/') . "/localPosts?pageSize=" . (int)$limit;
+        return self::executeRequest('GET', $token, $url);
+     }
+
+    /**
      * Shared helper to handle Google API requests.
      */
     private static function executeRequest($method, $token, $url, array $payload = []) {
