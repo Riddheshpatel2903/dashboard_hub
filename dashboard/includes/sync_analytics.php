@@ -102,7 +102,7 @@ function syncClientAnalytics($clientId, $pdo) {
                     ");
                     $stmtUpdStats = $pdo->prepare("
                         UPDATE posts_cache
-                        SET views_count = :v, likes_count = :l, comments_count = :c
+                        SET views_count = :v, likes_count = :l, comments_count = :c, status = 'published'
                         WHERE id = :id
                     ");
 
@@ -138,7 +138,8 @@ function syncClientAnalytics($clientId, $pdo) {
                                     $stmtUpdYt = $pdo->prepare("
                                         UPDATE posts_cache
                                         SET views_count = :v, likes_count = :l, comments_count = :c,
-                                            media_path = COALESCE(NULLIF(media_path, 'video.mp4'), :thumb, media_path)
+                                            media_path = COALESCE(NULLIF(media_path, 'video.mp4'), :thumb, media_path),
+                                            status = 'published'
                                         WHERE id = :id
                                     ");
                                     $stmtUpdYt->execute([

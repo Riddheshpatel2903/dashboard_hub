@@ -118,7 +118,7 @@ foreach ($platformsInput as $platform) {
                     }
                 }
                 $res = FacebookHandler::publishPost($token, $externalAccountId, $content, $mediaPublicUrl, $localPath);
-                $externalPostId = $res['id'] ?? null;
+                $externalPostId = $res['post_id'] ?? $res['id'] ?? null;
                 $responseBody = json_encode($res);
                 $success = true;
                 break;

@@ -91,7 +91,16 @@ try {
         try {
             switch ($platform) {
                 case 'facebook':
-                    $response = FacebookHandler::deletePost($token, $externalPostId);
+                    // If the post ID is just a numeric media/photo ID (no page_id prefix),
+                    // prefix it with the page ID (external_account_id) so Facebook knows the context.
+                    $fbPostId = $externalPostId;
+                    if (strpos($fbPostId, '_') === false) {
+                        $pageId = $post['external_account_id'] ?? $conn['external_account_id'] ?? '';
+                        if (!empty($pageId)) {
+                            $fbPostId = $pageId . '_' . $fbPostId;
+                        }
+                    }
+                    $response = FacebookHandler::deletePost($token, $fbPostId);
                     break;
                     
                 case 'instagram':
