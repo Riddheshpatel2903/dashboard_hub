@@ -76,7 +76,7 @@ try {
         $isSuccess = !empty($res['success']) && !empty($platformRes) && !empty($platformRes['success']);
         
         if ($platformRes) {
-            $hubPostId = (int)($platformRes['post_id'] ?? 0);
+            $hubPostId = !empty($platformRes['post_id']) ? (int)$platformRes['post_id'] : null;
             $status = $isSuccess ? ($platformRes['status'] ?? 'published') : 'failed';
             $externalPostId = $platformRes['external_id'] ?? null;
             $publishedAt = ($status === 'published') ? date('Y-m-d H:i:s') : null;

@@ -14,6 +14,16 @@ if ($client_id === null && ($user_role === 'staff' || $user_role === 'admin')) {
     exit();
 }
 
+// Synchronize platform data (posts, analytics) on page load with a 5-minute throttle
+$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
+$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
+$stmtLastSync->execute(['client_id' => $client_id]);
+$lastSync = $stmtLastSync->fetchColumn();
+if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
+    require_once __DIR__ . '/../includes/sync_analytics.php';
+    syncClientAnalytics($client_id, $pdo);
+}
+
 $connectedPlatforms = [];
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
@@ -64,11 +74,18 @@ $recentPosts = $stmtRecent->fetchAll();
                     <h1 class="font-display-lg text-display-lg text-on-surface">Dashboard Home</h1>
                     <p class="font-body-md text-on-surface-variant">Here's what's happening across your social landscape today.</p>
                 </div>
-                <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
-                   class="px-lg h-12 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-sm hover:opacity-90 transition-all shadow-sm active:scale-95">
-                    <span class="material-symbols-outlined">add_box</span>
-                    <span>Create Post</span>
-                </a>
+                <div class="flex gap-sm">
+                    <a href="?force_sync=1" 
+                       class="px-md h-12 bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-bold flex items-center gap-sm transition-all shadow-sm active:scale-95">
+                        <span class="material-symbols-outlined">sync</span>
+                        <span>Sync Channels</span>
+                    </a>
+                    <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
+                       class="px-lg h-12 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-sm hover:opacity-90 transition-all shadow-sm active:scale-95">
+                        <span class="material-symbols-outlined">add_box</span>
+                        <span>Create Post</span>
+                    </a>
+                </div>
             </div>
 
             <!-- Filter Bar Card -->

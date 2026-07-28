@@ -8,6 +8,16 @@ if ($client_id === null) {
     exit();
 }
 
+// Synchronize platform data (posts, analytics) on page load with a 5-minute throttle
+$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
+$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
+$stmtLastSync->execute(['client_id' => $client_id]);
+$lastSync = $stmtLastSync->fetchColumn();
+if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
+    require_once __DIR__ . '/../includes/sync_analytics.php';
+    syncClientAnalytics($client_id, $pdo);
+}
+
 $platformFilter = $_GET['platform'] ?? '';
 $dateFilter = $_GET['date'] ?? '';
 $startDate = $_GET['start_date'] ?? '';
@@ -98,6 +108,11 @@ $posts = $stmtPosts->fetchAll();
                     </div>
                 </div>
                 <div class="flex gap-sm">
+                    <a href="?force_sync=1" 
+                       class="flex items-center gap-sm px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-body-md font-bold transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-sm">sync</span>
+                        <span>Sync Channels</span>
+                    </a>
                     <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                        class="flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg font-body-md font-bold hover:opacity-90 transition-opacity">
                         <span class="material-symbols-outlined text-sm">add</span>

@@ -42,6 +42,11 @@ function ensureAnalyticsDatabaseTables($pdo) {
         if (!in_array('external_post_id', $cols)) {
             $pdo->exec("ALTER TABLE `posts_cache` ADD COLUMN `external_post_id` VARCHAR(255) DEFAULT NULL");
         }
+
+        // Migration: Make hub_post_id nullable to support imported posts (which do not have a hub post ID)
+        // without violating the UNIQUE constraint
+        $pdo->exec("ALTER TABLE `posts_cache` MODIFY `hub_post_id` INT NULL");
+        $pdo->exec("UPDATE `posts_cache` SET `hub_post_id` = NULL WHERE `hub_post_id` = 0");
     } catch (Exception $e) {
         error_log("Analytics schema sync warning: " . $e->getMessage());
     }
@@ -109,14 +114,14 @@ function syncClientAnalytics($clientId, $pdo) {
                             $vData = json_decode($m['value'], true);
                             if (!empty($vData['video_id'])) {
                                 $vId = $vData['video_id'];
-                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $vId]);
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => null, 'extId' => $vId]);
                                 $existing = $stmtCheck->fetch();
                                 // Use YouTube thumbnail URL as media_path (high quality > medium > default)
                                 $thumbUrl = !empty($vData['thumbnail_url']) ? $vData['thumbnail_url'] : null;
                                 if (!$existing) {
                                     $pubDate = !empty($vData['published_at']) ? date('Y-m-d H:i:s', strtotime($vData['published_at'])) : date('Y-m-d H:i:s');
                                     $stmtIns->execute([
-                                        'hId'       => 0,
+                                        'hId'       => null,
                                         'client_id' => $clientId,
                                         'content'   => $vData['title'] ?? ('YouTube Video ' . $vId),
                                         'platform'  => 'youtube',
@@ -152,12 +157,12 @@ function syncClientAnalytics($clientId, $pdo) {
                             $pData = json_decode($m['value'], true);
                             if (!empty($pData['post_id'])) {
                                 $pId = $pData['post_id'];
-                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $pId]);
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => null, 'extId' => $pId]);
                                 $existing = $stmtCheck->fetch();
                                 if (!$existing) {
                                     $pubDate = !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s');
                                     $stmtIns->execute([
-                                        'hId'       => 0,
+                                        'hId'       => null,
                                         'client_id' => $clientId,
                                         'content'   => !empty($pData['message']) ? $pData['message'] : 'Facebook Post',
                                         'platform'  => 'facebook',
@@ -185,13 +190,13 @@ function syncClientAnalytics($clientId, $pdo) {
                             $pData = json_decode($m['value'], true);
                             if (!empty($pData['media_id'])) {
                                 $mId = $pData['media_id'];
-                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $mId]);
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => null, 'extId' => $mId]);
                                 $existing = $stmtCheck->fetch();
                                 if (!$existing) {
                                     $pubDate = !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s');
                                     $isVid = (strtoupper($pData['media_type'] ?? '') === 'VIDEO');
                                     $stmtIns->execute([
-                                        'hId'       => 0,
+                                        'hId'       => null,
                                         'client_id' => $clientId,
                                         'content'   => !empty($pData['caption']) ? $pData['caption'] : 'Instagram Post',
                                         'platform'  => 'instagram',
@@ -219,12 +224,12 @@ function syncClientAnalytics($clientId, $pdo) {
                             $pData = json_decode($m['value'], true);
                             if (!empty($pData['post_id'])) {
                                 $pId = $pData['post_id'];
-                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => 0, 'extId' => $pId]);
+                                $stmtCheck->execute(['client_id' => $clientId, 'hId' => null, 'extId' => $pId]);
                                 $existing = $stmtCheck->fetch();
                                 if (!$existing) {
                                     $pubDate = !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s');
                                     $stmtIns->execute([
-                                        'hId'       => 0,
+                                        'hId'       => null,
                                         'client_id' => $clientId,
                                         'content'   => !empty($pData['summary']) ? $pData['summary'] : 'Google Profile Post',
                                         'platform'  => 'google_business',
@@ -292,40 +297,55 @@ function syncClientAnalytics($clientId, $pdo) {
             }
         }
 
-        // 2.5 Automatically delete database posts and remove from platform if media is missing from upload folder
-        $stmtMediaCheck = $pdo->prepare("
-            SELECT id, hub_post_id, platform, media_path, external_post_id 
-            FROM posts_cache 
-            WHERE client_id = :client_id 
-              AND media_path IS NOT NULL 
-              AND media_path != '' 
-              AND status != 'deleted'
-        ");
-        $stmtMediaCheck->execute(['client_id' => $clientId]);
-        $postsToCheck = $stmtMediaCheck->fetchAll();
+        // 2.5 Check for posts with missing media and remove them.
+        // IMPORTANT: Only delete if the Hub is running locally (same machine as Dashboard).
+        // When Hub is on a remote server (Hostinger), file_exists() on a local path will ALWAYS
+        // return false even though the file exists remotely — causing all posts to be wrongly deleted.
+        $hubUrl = defined('HUB_BASE_URL') ? HUB_BASE_URL : '';
+        $hubIsLocal = (
+            strpos($hubUrl, 'localhost') !== false ||
+            strpos($hubUrl, '127.0.0.1') !== false ||
+            strpos($hubUrl, '::1') !== false
+        );
 
-        foreach ($postsToCheck as $post) {
-            $mPath = $post['media_path'];
-            if (!preg_match('/^https?:\/\//i', $mPath)) {
-                $localPath = __DIR__ . '/../../hub/uploads/' . ltrim(str_replace('uploads/', '', $mPath), '/');
-                if (!file_exists($localPath)) {
-                    $hubPostId = (int)$post['hub_post_id'];
-                    $platform = $post['platform'];
-                    $externalPostId = $post['external_post_id'] ?? '';
-                    
-                    // Call the Hub's delete API to remove from social networks and Hub DB
-                    hubDelete($clientId, $hubPostId, $platform, $externalPostId);
-                    
-                    // Remove from posts_cache table
-                    $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :id");
-                    $stmtDel->execute(['id' => $post['id']]);
+        if ($hubIsLocal) {
+            // Hub is local — safe to check file system directly
+            $stmtMediaCheck = $pdo->prepare("
+                SELECT id, hub_post_id, platform, media_path, external_post_id
+                FROM posts_cache
+                WHERE client_id = :client_id
+                  AND media_path IS NOT NULL
+                  AND media_path != ''
+                  AND status != 'deleted'
+            ");
+            $stmtMediaCheck->execute(['client_id' => $clientId]);
+            $postsToCheck = $stmtMediaCheck->fetchAll();
+
+            foreach ($postsToCheck as $post) {
+                $mPath = $post['media_path'];
+                // Only check local relative paths, not full HTTP URLs
+                if (!preg_match('/^https?:\/\//i', $mPath)) {
+                    $localPath = __DIR__ . '/../../hub/uploads/' . ltrim(str_replace('uploads/', '', $mPath), '/');
+                    if (!file_exists($localPath)) {
+                        $hubPostId = (int)$post['hub_post_id'];
+                        $platform  = $post['platform'];
+                        $externalPostId = $post['external_post_id'] ?? '';
+                        hubDelete($clientId, $hubPostId, $platform, $externalPostId);
+                        $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :id");
+                        $stmtDel->execute(['id' => $post['id']]);
+                    }
                 }
             }
         }
+        // When Hub is remote: media files live on the remote server.
+        // Do NOT delete posts based on local file checks — the files exist remotely.
 
-        // 3. Automatically purge any orphan files from upload folders that belong to deleted posts
-        require_once __DIR__ . '/../../hub/storage/StorageService.php';
-        StorageService::cleanOrphanUploads($pdo);
+
+        // 3. Purge orphan local upload files — only when Hub runs on the same machine as Dashboard.
+        if ($hubIsLocal) {
+            require_once __DIR__ . '/../../hub/storage/StorageService.php';
+            StorageService::cleanOrphanUploads($pdo);
+        }
 
     } catch (Exception $e) {
         error_log("syncClientAnalytics warning: " . $e->getMessage());
