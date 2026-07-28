@@ -104,9 +104,7 @@ try {
                     break;
                     
                 case 'instagram':
-                    // Meta Graph API does NOT support deleting Instagram posts/reels.
-                    // We must log a warning and proceed with local cleanup.
-                    $platformError = "Instagram does not support post deletion via API. Please delete the post in the Instagram app.";
+                    $response = InstagramHandler::deletePost($token, $externalPostId);
                     break;
                     
                 case 'linkedin':

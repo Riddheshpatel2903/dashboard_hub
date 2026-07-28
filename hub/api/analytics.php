@@ -170,7 +170,7 @@ try {
 
                 // Fetch recent posts
                 try {
-                    $recentPostsRaw = FacebookHandler::getRecentPosts($token, $externalId, 50);
+                    $recentPostsRaw = FacebookHandler::getRecentPosts($token, $externalId, 200);
                     if (!empty($recentPostsRaw['data'])) {
                         foreach ($recentPostsRaw['data'] as $pItem) {
                             $pId = $pItem['id'] ?? '';

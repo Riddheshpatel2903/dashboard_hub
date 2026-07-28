@@ -161,10 +161,33 @@ class FacebookHandler {
 
     /**
      * Retrieves recent posts from Page feed with basic interaction stats.
+     * Supports cursor pagination to retrieve older posts when needed.
      */
     public static function getRecentPosts($token, $pageId, $limit = 50) {
-        $endpoint = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields=id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)&limit={$limit}&access_token=" . urlencode($token);
-        return self::executeRequest('GET', $endpoint);
+        $limit = max(1, min(500, $limit));
+        $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)';
+        $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
+        $allData = [];
+        $maxPages = 10;
+
+        while ($pageUrl && count($allData) < $limit && $maxPages-- > 0) {
+            $raw = self::executeRequest('GET', $pageUrl);
+            if (!empty($raw['data']) && is_array($raw['data'])) {
+                $allData = array_merge($allData, $raw['data']);
+            }
+
+            if (count($allData) >= $limit) {
+                break;
+            }
+
+            $pageUrl = $raw['paging']['next'] ?? null;
+        }
+
+        if (count($allData) > $limit) {
+            $allData = array_slice($allData, 0, $limit);
+        }
+
+        return ['data' => $allData];
     }
 
     /**

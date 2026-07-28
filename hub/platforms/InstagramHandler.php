@@ -215,16 +215,40 @@ class InstagramHandler {
 
     /**
      * Retrieves recent media from Instagram.
+     * Supports cursor pagination for older media items.
      */
     public static function getRecentMedia($token, $igUserId, $limit = 50) {
-        $endpoint = sprintf(
-            "https://graph.facebook.com/%s/%s/media?fields=id,caption,media_type,media_url,timestamp,like_count,comments_count&limit=%d&access_token=%s",
+        $limit = max(1, min(500, $limit));
+        $fields = 'id,caption,media_type,media_url,timestamp,like_count,comments_count';
+        $pageUrl = sprintf(
+            "https://graph.facebook.com/%s/%s/media?fields=%s&limit=%d&access_token=%s",
             self::$version,
             urlencode($igUserId),
-            $limit,
+            $fields,
+            min($limit, 100),
             urlencode($token)
         );
-        return self::executeRequest('GET', $endpoint);
+        $allData = [];
+        $maxPages = 10;
+
+        while ($pageUrl && count($allData) < $limit && $maxPages-- > 0) {
+            $raw = self::executeRequest('GET', $pageUrl);
+            if (!empty($raw['data']) && is_array($raw['data'])) {
+                $allData = array_merge($allData, $raw['data']);
+            }
+
+            if (count($allData) >= $limit) {
+                break;
+            }
+
+            $pageUrl = $raw['paging']['next'] ?? null;
+        }
+
+        if (count($allData) > $limit) {
+            $allData = array_slice($allData, 0, $limit);
+        }
+
+        return ['data' => $allData];
     }
 
     /**
