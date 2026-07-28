@@ -24,11 +24,12 @@ $_SESSION['oauth_state_nonce'] = $nonce;
 
 $platform = $_GET['platform'] ?? 'facebook';
 
-// Base64 encode JSON containing client_id, nonce, and target platform
+// Base64 encode JSON containing client_id, nonce, target platform, and dashboard_url
 $stateData = [
-    'client_id' => $clientId,
-    'nonce'     => $nonce,
-    'platform'  => $platform
+    'client_id'     => $clientId,
+    'nonce'         => $nonce,
+    'platform'      => $platform,
+    'dashboard_url' => $_GET['dashboard_url'] ?? ''
 ];
 $state = base64_encode(json_encode($stateData));
 

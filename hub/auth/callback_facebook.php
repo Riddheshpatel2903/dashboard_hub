@@ -302,7 +302,8 @@ try {
     log_message('info', "OAuth Page connections successful", ['client_id' => $clientId, 'pages_count' => count($pages)]);
 
     // Redirect to success URL
-    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=" . urlencode($targetPlatform));
+    $dashboardUrl = !empty($stateData['dashboard_url']) ? $stateData['dashboard_url'] : '';
+    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=" . urlencode($targetPlatform) . "&dashboard_url=" . urlencode($dashboardUrl));
     exit();
 
 } catch (Exception $e) {

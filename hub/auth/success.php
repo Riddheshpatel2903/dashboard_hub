@@ -15,7 +15,11 @@
     <div class="card">
         <h2>Connection Successful!</h2>
         <p>Your <span class="platform"><?php echo htmlspecialchars($_GET['platform'] ?? 'platform'); ?></span> account has been successfully linked to the Hub.</p>
-        <a href="../../dashboard/pages/connections.php" style="display:inline-block; background:#2e7d32; color:white; border:none; padding:0.6rem 1.2rem; font-size:0.95rem; font-weight:bold; border-radius:6px; cursor:pointer; text-decoration:none; transition:background 0.2s; margin-bottom: 1rem;">Return to Dashboard</a>
+        <?php
+        $dashboardUrl = !empty($_GET['dashboard_url']) ? $_GET['dashboard_url'] : '../../dashboard';
+        $returnUrl = rtrim($dashboardUrl, '/') . '/pages/connections.php';
+        ?>
+        <a href="<?php echo htmlspecialchars($returnUrl); ?>" style="display:inline-block; background:#2e7d32; color:white; border:none; padding:0.6rem 1.2rem; font-size:0.95rem; font-weight:bold; border-radius:6px; cursor:pointer; text-decoration:none; transition:background 0.2s; margin-bottom: 1rem;">Return to Dashboard</a>
         <p style="font-size:0.8rem; color:#888; margin-top: 0;">You can close this window now.</p>
     </div>
 </body>

@@ -202,7 +202,8 @@ try {
     $pdo->commit();
     log_message('info', "Google Business Profile connection successful", ['client_id' => $clientId, 'locations_count' => count($locationsFound)]);
 
-    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=google_business");
+    $dashboardUrl = !empty($stateData['dashboard_url']) ? $stateData['dashboard_url'] : '';
+    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=google_business&dashboard_url=" . urlencode($dashboardUrl));
     exit();
 
 } catch (Exception $e) {

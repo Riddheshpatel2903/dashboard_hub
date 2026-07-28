@@ -144,7 +144,8 @@ try {
     $pdo->commit();
     log_message('info', "LinkedIn connection successful", ['client_id' => $clientId, 'urn' => $authorUrn]);
 
-    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=linkedin");
+    $dashboardUrl = !empty($stateData['dashboard_url']) ? $stateData['dashboard_url'] : '';
+    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=linkedin&dashboard_url=" . urlencode($dashboardUrl));
     exit();
 
 } catch (Exception $e) {

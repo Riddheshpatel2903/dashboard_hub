@@ -20,10 +20,11 @@ $googleConfig = $platforms['google'];
 $nonce = bin2hex(random_bytes(16));
 $_SESSION['oauth_state_nonce'] = $nonce;
 
-// Base64 encode JSON containing client_id and nonce
+// Base64 encode JSON containing client_id, nonce, and dashboard_url
 $stateData = [
-    'client_id' => $clientId,
-    'nonce'     => $nonce
+    'client_id'     => $clientId,
+    'nonce'         => $nonce,
+    'dashboard_url' => $_GET['dashboard_url'] ?? ''
 ];
 $state = base64_encode(json_encode($stateData));
 

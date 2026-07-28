@@ -26,47 +26,52 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
+// Compute absolute Dashboard URL to pass to the Hub for OAuth callback redirection
+$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$absoluteDashboardUrl = "{$httpScheme}://{$httpHost}" . DASHBOARD_BASE_URL;
+
 // Full list of supported platforms
 $platformMetadata = [
     'facebook' => [
         'name' => 'Facebook',
         'desc' => 'Connect to publish posts and track page analytics.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=facebook',
+        'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=facebook&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'public',
         'color' => '#1877F2'
     ],
     'instagram' => [
         'name' => 'Instagram',
         'desc' => 'Connect to share images and videos.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=instagram', // Shared OAuth
+        'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=instagram&dashboard_url=' . urlencode($absoluteDashboardUrl), // Shared OAuth
         'icon' => 'photo_camera',
         'color' => '#E1306C'
     ],
     'whatsapp' => [
         'name' => 'WhatsApp',
         'desc' => 'Connect to send messages and support clients.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_whatsapp.php?client_id=' . $client_id,
+        'auth_url' => HUB_BASE_URL . '/auth/connect_whatsapp.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'chat',
         'color' => '#25D366'
     ],
     'youtube' => [
         'name' => 'YouTube',
         'desc' => 'Connect to publish video content.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_youtube.php?client_id=' . $client_id,
+        'auth_url' => HUB_BASE_URL . '/auth/connect_youtube.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'play_circle',
         'color' => '#FF0000'
     ],
     'linkedin' => [
         'name' => 'LinkedIn',
         'desc' => 'Connect to share updates and posts.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_linkedin.php?client_id=' . $client_id,
+        'auth_url' => HUB_BASE_URL . '/auth/connect_linkedin.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'work',
         'color' => '#0A66C2'
     ],
     'google_business' => [
         'name' => 'Google Profile',
         'desc' => 'Connect to manage your local business profile.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_google_business.php?client_id=' . $client_id,
+        'auth_url' => HUB_BASE_URL . '/auth/connect_google_business.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'store',
         'color' => '#4285F4'
     ]

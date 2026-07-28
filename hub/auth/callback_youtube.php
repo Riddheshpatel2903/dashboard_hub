@@ -166,7 +166,8 @@ try {
     $pdo->commit();
     log_message('info', "YouTube Channel connection successful", ['client_id' => $clientId, 'channel_count' => count($channelsData['items'])]);
 
-    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=youtube");
+    $dashboardUrl = !empty($stateData['dashboard_url']) ? $stateData['dashboard_url'] : '';
+    header("Location: " . HUB_BASE_URL . "/auth/success.php?platform=youtube&dashboard_url=" . urlencode($dashboardUrl));
     exit();
 
 } catch (Exception $e) {
