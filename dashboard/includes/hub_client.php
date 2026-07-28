@@ -250,10 +250,20 @@ function executeCurl($url, $method, array $data = [], array $headers = [], $json
     curl_close($ch);
 
     $parsed = json_decode($response, true);
-    if ($httpCode >= 400 || !$parsed) {
+    if ($httpCode >= 400) {
         return [
             'success' => false,
             'error'   => $parsed['error'] ?? 'HTTP request failed with status code ' . $httpCode,
+            'code'    => $httpCode,
+            'raw'     => $response
+        ];
+    }
+
+    // Treat 2xx as success even if JSON can't be parsed (e.g. empty body)
+    if (!$parsed) {
+        return [
+            'success' => false,
+            'error'   => 'Invalid or empty JSON response from Hub (HTTP ' . $httpCode . ')',
             'code'    => $httpCode,
             'raw'     => $response
         ];

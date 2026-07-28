@@ -67,9 +67,14 @@ class StorageService {
             return false;
         }
 
-        $tempJpgCreated = false;
+        // Track the original temp file separately so we can clean it up regardless of conversion
+        $originalTempPath = $localPath;
+        $convertedTempPath = null; // Will be set if we create a converted file
+
         log_message('debug', "Before image conversion check: isImage=" . ($isImage?'yes':'no') . ", mimeType=" . $mimeType);
-        // Auto convert images to JPEG if they are not already JPEG (for Instagram API compatibility)
+
+        // Auto convert non-JPEG images to JPEG for Instagram API compatibility.
+        // BUG FIX: Save converted file with a CLEAN .jpg extension (not double-extension like photo.png.jpg)
         if ($isImage && $mimeType !== 'image/jpeg' && $mimeType !== 'image/jpg') {
             log_message('debug', "Entering conversion block for mimeType=" . $mimeType);
             try {
@@ -81,40 +86,45 @@ class StorageService {
                 } elseif ($mimeType === 'image/gif' && function_exists('imagecreatefromgif')) {
                     $srcImg = imagecreatefromgif($localPath);
                 }
-                
+
                 if ($srcImg) {
-                    $jpgPath = $localPath . '.jpg';
+                    // Build a clean JPEG path: strip original extension, append .jpg
+                    $baseWithoutExt = preg_replace('/\.[^.]+$/', '', $localPath);
+                    $jpgPath = $baseWithoutExt . '.jpg';
+
                     // Convert transparency to white background
                     $bg = imagecreatetruecolor(imagesx($srcImg), imagesy($srcImg));
                     $white = imagecolorallocate($bg, 255, 255, 255);
                     imagefill($bg, 0, 0, $white);
                     imagecopy($bg, $srcImg, 0, 0, 0, 0, imagesx($srcImg), imagesy($srcImg));
-                    
+
                     if (imagejpeg($bg, $jpgPath, 90)) {
                         imagedestroy($srcImg);
                         imagedestroy($bg);
-                        // Point localPath to the newly converted JPG
+                        // Point $localPath to the clean JPEG — this is what gets copied to uploads
                         $localPath = $jpgPath;
+                        $convertedTempPath = $jpgPath; // remember for cleanup
                         $mimeType = 'image/jpeg';
                         $fileSize = filesize($localPath);
-                        $tempJpgCreated = true;
                         log_message('debug', "Successfully converted to JPEG: " . $jpgPath);
                     } else {
                         imagedestroy($srcImg);
                         imagedestroy($bg);
-                        log_message('warning', "imagejpeg() call returned false.");
+                        log_message('warning', "imagejpeg() call returned false — proceeding with original file.");
                     }
                 } else {
-                    log_message('warning', "Failed to create GdImage from source file.");
+                    log_message('warning', "Failed to create GdImage from source file — proceeding with original file.");
                 }
             } catch (Exception $e) {
-                log_message('warning', "Image conversion to JPEG failed: " . $e->getMessage());
+                log_message('warning', "Image conversion to JPEG failed: " . $e->getMessage() . " — proceeding with original file.");
             }
         }
 
-        // Target path: clients/{client_id}/{timestamp}_{filename}
-        $fileName = 'clients/' . $clientId . '/' . time() . '_' . basename($localPath);
-        
+        // Build the final storage filename. The incoming temp file already carries a timestamp
+        // prefix (added by upload.php), so we just use its clean basename as-is.
+        $cleanBasename = basename($localPath);
+        $fileName = 'clients/' . $clientId . '/' . $cleanBasename;
+
         $destDir = __DIR__ . '/../uploads/clients/' . $clientId;
         if (!is_dir($destDir)) {
             mkdir($destDir, 0755, true);
@@ -124,9 +134,13 @@ class StorageService {
 
         $copied = copy($localPath, $destPath);
 
-        // If we created a temp converted JPG, clean it up from the temp folder
-        if ($tempJpgCreated && file_exists($localPath)) {
-            @unlink($localPath);
+        // Clean up temp files: always delete the converted JPEG temp (if created),
+        // and also delete the original source temp if it differs from the converted path.
+        if ($convertedTempPath && file_exists($convertedTempPath)) {
+            @unlink($convertedTempPath);
+        }
+        if ($originalTempPath !== $convertedTempPath && file_exists($originalTempPath)) {
+            @unlink($originalTempPath);
         }
 
         if (!$copied) {
@@ -145,8 +159,9 @@ class StorageService {
      * @return string Local URL
      */
     public static function getPublicUrl($storagePath) {
-        $prefix = defined('PUBLIC_TUNNEL_URL') && !empty(PUBLIC_TUNNEL_URL) ? PUBLIC_TUNNEL_URL : HUB_BASE_URL;
-        return rtrim($prefix, '/') . '/uploads/' . ltrim($storagePath, '/');
+        // HUB_BASE_URL auto-detects to the live domain on Hostinger (e.g. https://yourdomain.com/hub)
+        // No tunnel needed — Instagram/Facebook fetch media directly from live HTTPS URL.
+        return rtrim(trim(HUB_BASE_URL), '/') . '/uploads/' . ltrim($storagePath, '/');
     }
 
     /**

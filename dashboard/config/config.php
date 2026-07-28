@@ -19,9 +19,11 @@ $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https'
 $httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
 if (empty($httpHost)) {
     $httpHost = 'localhost';
-}   
-$defaultBaseUrl = "{$httpScheme}://{$httpHost}/dashboard_hub/hub";
-define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
+}
+// Hub API URL — point this to wherever the Hub is deployed.
+// On Hostinger: set HUB_BASE_URL env var in hPanel OR update the hardcoded fallback below.
+// IMPORTANT: Replace 'https://yourdomain.com/hub' with your actual Hostinger domain.
+define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: 'https://rbfitness.in/new-site/hub', '/'));
 define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
 define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 // Dynamically compute base URL path relative to the server document root

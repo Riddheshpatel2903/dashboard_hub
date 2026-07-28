@@ -27,9 +27,11 @@ $hubSubpath = str_replace('\\', '/', $hubSubpath);
 $hubSubpath = '/' . ltrim($hubSubpath, '/');
 
 $defaultBaseUrl = "{$httpScheme}://{$httpHost}{$hubSubpath}";
+// On live server (Hostinger): HUB_BASE_URL auto-detects from HTTP_HOST — no manual config needed.
+// Media URLs will be: https://yourdomain.com/hub/uploads/clients/{id}/filename.jpg
+// Instagram/Facebook can fetch these directly without any tunnel.
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultBaseUrl, '/'));
-// Public HTTPS Tunnel URL (used exclusively to serve media files to external platform APIs during local dev)
-define('PUBLIC_TUNNEL_URL', 'https://e052c6c49f42c7.lhr.life/dashboard_hub/hub');
+// PUBLIC_TUNNEL_URL removed — only needed for local dev with tunnels. Not required on live server.
 
 // 256-bit key for AES-256-CBC encryption (should be 32 bytes)
 define('ENCRYPTION_KEY', getenv('HUB_ENCRYPTION_KEY') ?: 'd41d8cd98f00b204e9800998ecf8427e');

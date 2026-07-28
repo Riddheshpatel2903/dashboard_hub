@@ -24,26 +24,38 @@ class InstagramHandler {
             throw new Exception("Instagram requires a valid media URL for posting (text-only posts are not supported).");
         }
 
-        // Soft pre-flight check for public media URL reachability (prevents free tunnel loopback restrictions from blocking Instagram API)
+        // Pre-flight: verify the media URL is publicly reachable before sending to Instagram.
+        // Use HEAD request (no body download) and force TLS 1.2 to match tunnel requirements.
         $ch = curl_init($mediaUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-        curl_setopt($ch, CURLOPT_RANGE, '0-100');
+        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2); // Force TLS 1.2 (fixes XAMPP OpenSSL mismatch)
+        curl_setopt($ch, CURLOPT_NOBODY, true); // HEAD request — no body, just headers
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; InstagramBot/1.0)');
         curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
+        $preflightCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $preflightContentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $preflightError = curl_error($ch);
         curl_close($ch);
 
-        if (!empty($curlError) && $httpCode === 0) {
-            log_message('warning', "Local pre-flight tunnel reachability notice: {$curlError} for {$mediaUrl}. Proceeding with Instagram API container creation.");
+        log_message('debug', "Instagram pre-flight URL check", [
+            'url'          => $mediaUrl,
+            'http_code'    => $preflightCode,
+            'content_type' => $preflightContentType,
+            'curl_error'   => $preflightError,
+        ]);
+
+        if ($preflightCode === 0) {
+            log_message('warning', "Instagram pre-flight: URL unreachable from this server. Instagram may still be able to reach it via public internet. Error: {$preflightError}");
+        } elseif ($preflightCode >= 400) {
+            throw new Exception("Instagram media URL returned HTTP {$preflightCode}. Ensure the tunnel is running and the file exists at: {$mediaUrl}");
         }
 
         $ext = strtolower(pathinfo(parse_url($mediaUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
-        $isVideo = in_array($ext, ['mp4', 'mov', 'avi']);
+        $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v']);
 
         // Step 1: Create the media container
         $containerUrl = "https://graph.facebook.com/" . self::$version . "/{$igUserId}/media";
@@ -54,12 +66,24 @@ class InstagramHandler {
 
         if ($isVideo) {
             $containerPayload['media_type'] = 'VIDEO';
-            $containerPayload['video_url'] = $mediaUrl;
+            $containerPayload['video_url']  = $mediaUrl;
         } else {
-            $containerPayload['image_url'] = $mediaUrl;
+            // Explicitly declare IMAGE type — required by Meta Graph API to avoid error 9004
+            $containerPayload['media_type'] = 'IMAGE';
+            $containerPayload['image_url']  = $mediaUrl;
         }
 
+        log_message('debug', "Instagram container create request", [
+            'ig_user_id'   => $igUserId,
+            'media_type'   => $containerPayload['media_type'],
+            'media_url'    => $mediaUrl,
+            'url_ext'      => $ext,
+        ]);
+
         $containerRes = self::executeRequest('POST', $containerUrl, $containerPayload);
+
+        log_message('debug', "Instagram container create response", ['response' => $containerRes]);
+
         if (empty($containerRes['id'])) {
             throw new Exception("Failed to retrieve creation container ID from Instagram.");
         }
@@ -83,7 +107,7 @@ class InstagramHandler {
             }
         } else {
             // Give Instagram a brief moment to download the image
-            sleep(1);
+            sleep(2);
         }
 
         // Step 2: Publish the media container using the creation ID
@@ -93,7 +117,10 @@ class InstagramHandler {
             'creation_id'  => $creationId
         ];
 
-        return self::executeRequest('POST', $publishUrl, $publishPayload);
+        $publishRes = self::executeRequest('POST', $publishUrl, $publishPayload);
+        log_message('debug', "Instagram publish response", ['response' => $publishRes]);
+
+        return $publishRes;
     }
 
     /**
