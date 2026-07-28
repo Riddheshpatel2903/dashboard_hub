@@ -127,6 +127,20 @@ class LinkedInHandler {
     }
 
     /**
+     * Retrieves recent posts for a member from LinkedIn.
+     *
+     * @param string $token     LinkedIn access token
+     * @param string $authorUrn Member URN (format: urn:li:person:MEMBER_ID)
+     * @param int $count        Number of posts to retrieve
+     * @return array
+     * @throws Exception
+     */
+    public static function getRecentPosts($token, $authorUrn, $count = 50) {
+        $url = "https://api.linkedin.com/v2/posts?author=" . urlencode($authorUrn) . "&count=" . (int)$count;
+        return self::executeRequestNoHeader('GET', $token, $url);
+    }
+
+    /**
      * Helper request executor.
      */
     private static function executeRequest($method, $token, $url, array $payload = []) {

@@ -218,6 +218,26 @@ function loadAllLivePosts($clientId) {
                                 'duration'         => null
                             ];
                         }
+                    } elseif ($platform === 'linkedin' && strpos($mName, 'linkedin_post_') === 0 && !empty($m['value'])) {
+                        $pData = json_decode($m['value'], true);
+                        if (!empty($pData['post_id'])) {
+                            $allPosts[] = [
+                                'id'               => 0,
+                                'hub_post_id'      => null,
+                                'content'          => $pData['message'] ?? 'LinkedIn Post',
+                                'status'           => 'published',
+                                'platform'         => 'linkedin',
+                                'media_path'       => $pData['media_url'] ?? null,
+                                'scheduled_at'     => null,
+                                'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
+                                'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
+                                'external_post_id' => $pData['post_id'],
+                                'views_count'      => 0,
+                                'likes_count'      => 0,
+                                'comments_count'   => 0,
+                                'duration'         => null
+                            ];
+                        }
                     }
                 }
             }
@@ -370,11 +390,9 @@ function executeCurl($url, $method, array $data = [], array $headers = [], $json
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
-    // Disable SSL verification for local loopback requests to avoid self-signed cert errors
-    if (preg_match('/^(https?:\/\/)(?:localhost|127\.0\.0\.1|\[::1\])/i', $url)) {
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    }
+    // Disable SSL verification to avoid self-signed cert / local issuer issues in local XAMPP environments
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     
     if (strtoupper($method) === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);

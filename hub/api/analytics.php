@@ -110,11 +110,52 @@ try {
     switch ($platform) {
         case 'facebook':
             if ($postId > 0) {
-                $metrics = ['post_engaged_users', 'post_reactions_by_type_total'];
-                $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
+                try {
+                    $metrics = ['post_engaged_users', 'post_reactions_by_type_total'];
+                    $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
+                    if (!empty($raw['data'])) {
+                        foreach ($raw['data'] as $item) {
+                            $name = $item['name'];
+                            $period = $item['period'] ?? 'lifetime';
+                            $val = 0;
+                            if (!empty($item['values'])) {
+                                $val = end($item['values'])['value'] ?? 0;
+                            }
+                            $normalizedMetrics[] = [
+                                'platform'    => 'facebook',
+                                'metric_name' => $name,
+                                'value'       => is_array($val) ? json_encode($val) : $val,
+                                'period'      => $period
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Facebook post insights: " . $e->getMessage());
+                }
             } else {
-                $metrics = ['page_post_engagements', 'page_views_total'];
-                $raw = FacebookHandler::getInsights($token, $externalId, $metrics, 'day');
+                try {
+                    $metrics = ['page_post_engagements', 'page_views_total'];
+                    $raw = FacebookHandler::getInsights($token, $externalId, $metrics, 'day');
+                    if (!empty($raw['data'])) {
+                        foreach ($raw['data'] as $item) {
+                            $name = $item['name'];
+                            $period = $item['period'] ?? 'lifetime';
+                            $val = 0;
+                            if (!empty($item['values'])) {
+                                $val = end($item['values'])['value'] ?? 0;
+                            }
+                            $normalizedMetrics[] = [
+                                'platform'    => 'facebook',
+                                'metric_name' => $name,
+                                'value'       => is_array($val) ? json_encode($val) : $val,
+                                'period'      => $period
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Facebook page insights: " . $e->getMessage());
+                }
+
                 try {
                     $accInfo = FacebookHandler::getAccountInfo($token, $externalId);
                     if (!empty($accInfo['followers_count'])) {
@@ -123,7 +164,10 @@ try {
                     if (!empty($accInfo['fan_count'])) {
                         $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'fan_count', 'value' => (int)$accInfo['fan_count'], 'period' => 'lifetime'];
                     }
-                } catch (Exception $e) {}
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Facebook account info: " . $e->getMessage());
+                }
+
                 // Fetch recent posts
                 try {
                     $recentPostsRaw = FacebookHandler::getRecentPosts($token, $externalId, 50);
@@ -160,36 +204,56 @@ try {
                     log_message('warning', "Failed to fetch Facebook recent posts: " . $e->getMessage());
                 }
             }
-            
-            // Map FB metrics to standard structure
-            if (!empty($raw['data'])) {
-                foreach ($raw['data'] as $item) {
-                    $name = $item['name'];
-                    $period = $item['period'] ?? 'lifetime';
-                    $val = 0;
-                    if (!empty($item['values'])) {
-                        $val = end($item['values'])['value'] ?? 0;
-                    }
-                    
-                    $normalizedMetrics[] = [
-                        'platform'    => 'facebook',
-                        'metric_name' => $name,
-                        'value'       => is_array($val) ? json_encode($val) : $val,
-                        'period'      => $period
-                    ];
-                }
-            }
             break;
 
         case 'instagram':
             if ($postId > 0) {
-                // Post/Media specific metrics
-                $metrics = ['impressions', 'reach', 'engagement', 'saved', 'video_views'];
-                $raw = InstagramHandler::getInsights($token, $externalId, $metrics);
+                try {
+                    $metrics = ['impressions', 'reach', 'engagement', 'saved', 'video_views'];
+                    $raw = InstagramHandler::getInsights($token, $externalId, $metrics);
+                    if (!empty($raw['data'])) {
+                        foreach ($raw['data'] as $item) {
+                            $name = $item['name'];
+                            $period = $item['period'] ?? 'lifetime';
+                            $val = 0;
+                            if (!empty($item['values'])) {
+                                $val = end($item['values'])['value'] ?? 0;
+                            }
+                            $normalizedMetrics[] = [
+                                'platform'    => 'instagram',
+                                'metric_name' => $name,
+                                'value'       => $val,
+                                'period'      => $period
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Instagram post insights: " . $e->getMessage());
+                }
             } else {
-                // Account level metrics
-                $metrics = ['impressions', 'reach', 'profile_views'];
-                $raw = InstagramHandler::getInsights($token, $externalId, $metrics, 'day');
+                try {
+                    $metrics = ['impressions', 'reach', 'profile_views'];
+                    $raw = InstagramHandler::getInsights($token, $externalId, $metrics, 'day');
+                    if (!empty($raw['data'])) {
+                        foreach ($raw['data'] as $item) {
+                            $name = $item['name'];
+                            $period = $item['period'] ?? 'lifetime';
+                            $val = 0;
+                            if (!empty($item['values'])) {
+                                $val = end($item['values'])['value'] ?? 0;
+                            }
+                            $normalizedMetrics[] = [
+                                'platform'    => 'instagram',
+                                'metric_name' => $name,
+                                'value'       => $val,
+                                'period'      => $period
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Instagram insights: " . $e->getMessage());
+                }
+
                 try {
                     $accInfo = InstagramHandler::getAccountInfo($token, $externalId);
                     if (!empty($accInfo['followers_count'])) {
@@ -201,7 +265,10 @@ try {
                     if (!empty($accInfo['media_count'])) {
                         $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'media_count', 'value' => (int)$accInfo['media_count'], 'period' => 'lifetime'];
                     }
-                } catch (Exception $e) {}
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Instagram account info: " . $e->getMessage());
+                }
+
                 // Fetch recent media
                 try {
                     $recentMediaRaw = InstagramHandler::getRecentMedia($token, $externalId, 50);
@@ -228,24 +295,6 @@ try {
                     }
                 } catch (Exception $e) {
                     log_message('warning', "Failed to fetch Instagram recent media: " . $e->getMessage());
-                }
-            }
-            
-            if (!empty($raw['data'])) {
-                foreach ($raw['data'] as $item) {
-                    $name = $item['name'];
-                    $period = $item['period'] ?? 'lifetime';
-                    $val = 0;
-                    if (!empty($item['values'])) {
-                        $val = end($item['values'])['value'] ?? 0;
-                    }
-                    
-                    $normalizedMetrics[] = [
-                        'platform'    => 'instagram',
-                        'metric_name' => $name,
-                        'value'       => $val,
-                        'period'      => $period
-                    ];
                 }
             }
             break;
@@ -297,26 +346,30 @@ try {
                     }
                 }
             } else {
-                $raw = YouTubeHandler::getChannelStats($token, $externalId);
-                if (empty($raw['items'])) {
-                    $raw = YouTubeHandler::getChannelStats($token, 'mine');
-                }
-                if (!empty($raw['items'][0]['statistics'])) {
-                    $stats = $raw['items'][0]['statistics'];
-                    foreach ($stats as $name => $val) {
-                        if ($name === 'hiddenSubscriberCount') {
-                            continue;
-                        }
-                        
-                        $snakeName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
-
-                        $normalizedMetrics[] = [
-                            'platform'    => 'youtube',
-                            'metric_name' => $snakeName,
-                            'value'       => (int)$val,
-                            'period'      => 'lifetime'
-                        ];
+                try {
+                    $raw = YouTubeHandler::getChannelStats($token, $externalId);
+                    if (empty($raw['items'])) {
+                        $raw = YouTubeHandler::getChannelStats($token, 'mine');
                     }
+                    if (!empty($raw['items'][0]['statistics'])) {
+                        $stats = $raw['items'][0]['statistics'];
+                        foreach ($stats as $name => $val) {
+                            if ($name === 'hiddenSubscriberCount') {
+                                continue;
+                            }
+                            
+                            $snakeName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+
+                            $normalizedMetrics[] = [
+                                'platform'    => 'youtube',
+                                'metric_name' => $snakeName,
+                                'value'       => (int)$val,
+                                'period'      => 'lifetime'
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch YouTube channel stats: " . $e->getMessage());
                 }
 
                 // ALSO fetch recent videos live stats & durations directly from YouTube channel
@@ -377,7 +430,12 @@ try {
                 ];
             }
             
-            $raw = GoogleBusinessHandler::getPerformanceMetrics($token, $externalId, $range);
+            try {
+                $raw = GoogleBusinessHandler::getPerformanceMetrics($token, $externalId, $range);
+            } catch (Exception $e) {
+                log_message('warning', "Failed to fetch Google Business performance metrics: " . $e->getMessage());
+                $raw = [];
+            }
             
             // Standardize Performance metrics
             if (!empty($raw['multiDailyMetricTimeSeries'])) {
@@ -447,6 +505,39 @@ try {
                 'value'       => 'Requires LinkedIn Marketing Developer Platform approval. Personal profile analytics not accessible via standard posts API.',
                 'period'      => 'n/a'
             ];
+            
+            // Fetch recent posts
+            if ($postId == 0) {
+                try {
+                    $recentPostsRaw = LinkedInHandler::getRecentPosts($token, $externalId, 50);
+                    if (!empty($recentPostsRaw['elements'])) {
+                        foreach ($recentPostsRaw['elements'] as $pItem) {
+                            $pId = $pItem['id'] ?? '';
+                            if ($pId) {
+                                $message = $pItem['commentary'] ?? '';
+                                $pubTime = $pItem['createdAt'] ?? ''; // Milliseconds timestamp
+                                $publishedAt = $pubTime ? date('Y-m-d H:i:s', $pubTime / 1000) : '';
+                                
+                                $normalizedMetrics[] = [
+                                    'platform'    => 'linkedin',
+                                    'metric_name' => 'linkedin_post_' . $pId,
+                                    'value'       => json_encode([
+                                        'post_id'      => $pId,
+                                        'message'      => $message,
+                                        'published_at' => $publishedAt,
+                                        'media_url'    => '',
+                                        'likes'        => 0,
+                                        'comments'     => 0
+                                    ]),
+                                    'period'      => 'lifetime'
+                                ];
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch LinkedIn recent posts: " . $e->getMessage());
+                }
+            }
             break;
 
         default:

@@ -227,7 +227,13 @@ try {
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-surface-variant">
-                                <?php if (empty($recentPosts)): ?>
+                                <?php if (!empty($recentPostsError)): ?>
+                                    <tr>
+                                        <td colspan="5" class="px-lg py-md text-center text-error font-body-md">
+                                            ⚠️ Failed to load recent posts: <?php echo htmlspecialchars($recentPostsError); ?>
+                                        </td>
+                                    </tr>
+                                <?php elseif (empty($recentPosts)): ?>
                                     <tr>
                                         <td colspan="5" class="px-lg py-md text-center text-on-surface-variant font-body-md">
                                             No posts recorded in history yet. Start by creating a campaign post!

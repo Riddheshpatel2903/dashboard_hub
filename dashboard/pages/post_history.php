@@ -144,7 +144,13 @@ $posts = array_slice($filteredPosts, $offset, $limit);
 
             <!-- Card Grid & Pagination Section -->
             <div class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
-                <?php if (empty($posts)): ?>
+                <?php if (!empty($postsError)): ?>
+                    <div class="p-xl text-center text-error font-body-md space-y-sm">
+                        <span class="material-symbols-outlined text-3xl">error</span>
+                        <p class="font-bold">Failed to load posts from API</p>
+                        <p class="text-xs text-on-surface-variant bg-error-container/20 p-sm rounded-lg border border-error/10 max-w-lg mx-auto"><?php echo htmlspecialchars($postsError); ?></p>
+                    </div>
+                <?php elseif (empty($posts)): ?>
                     <div class="p-xl text-center text-on-surface-variant font-body-md">
                         No matching posts found in history.
                     </div>
