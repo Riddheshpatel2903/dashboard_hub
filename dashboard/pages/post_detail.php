@@ -62,7 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :post_id");
             $stmtDel->execute(['post_id' => $postId]);
             
-            echo json_encode(['success' => true, 'message' => 'Post and associated media deleted successfully.']);
+            $msg = 'Post and associated media deleted successfully.';
+            if (!empty($res['warning'])) {
+                $msg .= ' Note: ' . $res['warning'];
+            }
+            echo json_encode(['success' => true, 'message' => $msg]);
             exit();
         } else {
             throw new Exception("Invalid action.");

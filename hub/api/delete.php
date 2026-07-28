@@ -86,6 +86,7 @@ try {
     $response = [];
     
     // 2. Dispatch Delete request if external ID is present
+    $platformError = null;
     if (!empty($externalPostId)) {
         try {
             switch ($platform) {
@@ -94,7 +95,9 @@ try {
                     break;
                     
                 case 'instagram':
-                    $response = InstagramHandler::deletePost($token, $externalPostId);
+                    // Meta Graph API does NOT support deleting Instagram posts/reels.
+                    // We must log a warning and proceed with local cleanup.
+                    $platformError = "Instagram does not support post deletion via API. Please delete the post in the Instagram app.";
                     break;
                     
                 case 'linkedin':
@@ -110,7 +113,7 @@ try {
                     break;
         
                 default:
-                    throw new Exception("Deletion is not supported for {$platform} posts.");
+                    $platformError = "Deletion is not supported for {$platform} posts.";
             }
         } catch (Exception $platEx) {
             $err = $platEx->getMessage();
@@ -125,7 +128,8 @@ try {
             if ($alreadyDeleted) {
                 $response = ['message' => 'Post already deleted on platform.'];
             } else {
-                throw $platEx;
+                // Record platform error but proceed with local deletion to avoid orphan posts on dashboard
+                $platformError = $err;
             }
         }
     } else {
@@ -150,6 +154,7 @@ try {
     echo json_encode([
         'success'  => true,
         'message'  => 'Post deleted successfully',
+        'warning'  => $platformError,
         'response' => $response
     ]);
 
