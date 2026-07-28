@@ -7,15 +7,7 @@ require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
 
-// Check and run synchronization if needed (5-minute throttle)
-$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
-$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
-$stmtLastSync->execute(['client_id' => $client_id]);
-$lastSync = $stmtLastSync->fetchColumn();
-if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
-    require_once __DIR__ . '/../includes/sync_analytics.php';
-    syncClientAnalytics($client_id, $pdo);
-}
+// Check and run synchronization if needed - sync_analytics is removed, so we don't call it.
 
 header('Content-Type: text/html; charset=utf-8');
 
@@ -29,7 +21,7 @@ $connectedPlatforms = [];
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
-        if ($conn['status'] === 'connected') {
+        if ($conn['status'] === 'connected' && $conn['platform'] !== 'whatsapp') {
             $connectedPlatforms[] = $conn['platform'];
         }
     }
@@ -98,25 +90,32 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
             </div>
             
             <?php
-            // Query actual DB post activity over the date range
-            $stmtPostsTrend = $pdo->prepare("
-                SELECT published_at, views_count
-                FROM posts_cache 
-                WHERE client_id = :client_id AND status = 'published'
-                  AND DATE(published_at) BETWEEN :start_date AND :end_date
-                  " . (!empty($activePlatform) ? ' AND platform = :platform' : '') . "
-                ORDER BY published_at ASC
-            ");
-            $paramsTrend = [
-                'client_id'  => $client_id,
-                'start_date' => $startDate,
-                'end_date'   => $endDate
-            ];
-            if (!empty($activePlatform)) {
-                $paramsTrend['platform'] = $activePlatform;
+            // Fetch live posts
+            $allLivePosts = [];
+            try {
+                $allLivePosts = loadAllLivePosts($client_id);
+            } catch (Exception $e) {
+                // Gracefully fallback
             }
-            $stmtPostsTrend->execute($paramsTrend);
-            $postsTrend = $stmtPostsTrend->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // Filter posts in PHP to build trend
+            $postsTrend = [];
+            foreach ($allLivePosts as $p) {
+                if ($p['status'] !== 'published') {
+                    continue;
+                }
+                if (!empty($activePlatform) && $p['platform'] !== $activePlatform) {
+                    continue;
+                }
+                $pubDate = date('Y-m-d', strtotime($p['published_at']));
+                if ($pubDate < $startDate || $pubDate > $endDate) {
+                    continue;
+                }
+                $postsTrend[] = [
+                    'published_at' => $p['published_at'],
+                    'views_count' => $p['views_count']
+                ];
+            }
 
             // Initialize 6 data points
             $chartValues = array_fill(0, 6, 0);

@@ -14,37 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
     
     $action = $input['action'] ?? '';
-    $postId = isset($input['post_id']) ? (int)$input['post_id'] : 0;
+    $hubPostId = isset($input['hub_post_id']) ? (int)$input['hub_post_id'] : 0;
+    $platform = $input['platform'] ?? null;
+    $externalPostId = $input['external_post_id'] ?? null;
+    $mediaPath = $input['media_path'] ?? '';
     
-    if ($postId <= 0 || empty($action)) {
+    if (empty($action)) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Missing post_id or action.']);
+        echo json_encode(['success' => false, 'error' => 'Missing action.']);
         exit();
     }
     
     try {
-        // Resolve local cache post to Hub post ID and verify ownership
-        $stmt = $pdo->prepare("
-            SELECT hub_post_id, platform, media_path, external_post_id 
-            FROM posts_cache 
-            WHERE id = :post_id AND client_id = :client_id 
-            LIMIT 1
-        ");
-        $stmt->execute([
-            'post_id'   => $postId,
-            'client_id' => $client_id
-        ]);
-        $post = $stmt->fetch();
-        
-        if (!$post) {
-            throw new Exception("Post not found or unauthorized.");
-        }
-        
-        $hubPostId = (int)$post['hub_post_id'];
-        $platform = $post['platform'];
-        $mediaPath = $post['media_path'] ?? '';
-        $externalPostId = $post['external_post_id'] ?? '';
-        
         if ($action === 'delete') {
             // Delete post on Hub
             $res = hubDelete($client_id, $hubPostId, $platform, $externalPostId);
@@ -53,14 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // Delete media file from all upload folders if exists
-            if (!empty($mediaPath)) {
+            if (!empty($mediaPath) && !preg_match('/^https?:\/\//i', $mediaPath)) {
                 require_once __DIR__ . '/../../hub/storage/StorageService.php';
                 StorageService::deletePostMedia($mediaPath, $client_id);
             }
- 
-            // Hard delete post from posts_cache table so no entry shows in Post History
-            $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE id = :post_id");
-            $stmtDel->execute(['post_id' => $postId]);
             
             $msg = 'Post and associated media deleted successfully.';
             if (!empty($res['warning'])) {
@@ -79,78 +56,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // GET Request: Render details view (for modal inclusion)
-$postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
-if ($postId <= 0) {
-    echo '<p class="text-error text-center font-bold">Invalid Post ID.</p>';
-    exit();
+$hubPostId = isset($_GET['hub_post_id']) ? (int)$_GET['hub_post_id'] : 0;
+$platform = $_GET['platform'] ?? '';
+$externalPostId = $_GET['external_post_id'] ?? '';
+
+$post = null;
+
+// 1. Try to load local post (scheduled/failed/queued) if hubPostId > 0
+if ($hubPostId > 0) {
+    $localRes = hubGetLocalPostDetails($client_id, $hubPostId);
+    if (!empty($localRes['success']) && !empty($localRes['post'])) {
+        $post = $localRes['post'];
+    }
 }
 
-// Fetch cached post metadata
-$stmt = $pdo->prepare("
-    SELECT id, hub_post_id, content, status, platform, media_path, scheduled_at, published_at, external_post_id, created_at
-    FROM posts_cache 
-    WHERE id = :post_id AND client_id = :client_id
-    LIMIT 1
-");
-$stmt->execute([
-    'post_id'   => $postId,
-    'client_id' => $client_id
-]);
-$post = $stmt->fetch();
+// 2. If not a local post, it must be a published live post. Search live posts.
+if (!$post && !empty($platform) && !empty($externalPostId)) {
+    $allLivePosts = loadAllLivePosts($client_id);
+    foreach ($allLivePosts as $p) {
+        if ($p['platform'] === $platform && $p['external_post_id'] === $externalPostId) {
+            $post = $p;
+            break;
+        }
+    }
+}
 
 if (!$post) {
     echo '<p class="text-error text-center font-bold">Post not found or access denied.</p>';
     exit();
 }
 
-$hubPostId = (int)$post['hub_post_id'];
-$platform = $post['platform'];
 $status = $post['status'];
+$platform = $post['platform'];
+$hubPostId = $post['hub_post_id'] ?: 0;
+$externalPostId = $post['external_post_id'];
 
-// Fetch live metrics from the Hub if post is published and has an external post ID
+// Fetch live metrics from the Hub if post is published
 $metrics = [];
-if ($status === 'published' && !empty($post['external_post_id'])) {
-    $analyticsRes = hubGetAnalytics($client_id, $platform, $hubPostId, $post['published_at'], null, $post['external_post_id']);
-    if (!empty($analyticsRes['success'])) {
-        if (!empty($analyticsRes['metrics'])) {
-            $metrics = $analyticsRes['metrics'];
-        }
-    } else {
-        $err = $analyticsRes['error'] ?? '';
-        
-        // Check if the error indicates that the post was deleted on the platform
-        $isDeletedOnPlatform = false;
-        $deletedPhrases = [
-            'does not exist',
-            'do not exist',
-            'unsupported get request',
-            'invalid object',
-            'not found',
-            'object identifier'
-        ];
-        foreach ($deletedPhrases as $phrase) {
-            if (stripos($err, $phrase) !== false) {
-                $isDeletedOnPlatform = true;
-                break;
-            }
-        }
-        
-        if ($isDeletedOnPlatform) {
-            // Mark as deleted locally
-            $stmt = $pdo->prepare("UPDATE posts_cache SET status = 'deleted' WHERE id = :post_id");
-            $stmt->execute(['post_id' => $postId]);
-            
-            // Also notify the Hub to mark it deleted
-            hubDelete($client_id, $hubPostId);
-            
-            echo '<div class="p-lg text-center space-y-md text-on-surface">
-                <span class="material-symbols-outlined text-4xl text-error">warning</span>
-                <p class="font-bold text-sm">This post was deleted manually on the social media platform.</p>
-                <p class="text-xs text-on-surface-variant">It has been removed from your dashboard database.</p>
-                <button class="px-md py-sm bg-surface-container hover:bg-surface-container-high rounded-lg font-bold text-xs" onclick="window.location.reload();">Close</button>
-            </div>';
-            exit();
-        }
+if ($status === 'published' && $platform !== 'google_business') {
+    if (isset($post['views_count'])) {
+        $metrics[] = ['metric_name' => 'views', 'value' => $post['views_count']];
+    }
+    if (isset($post['likes_count'])) {
+        $metrics[] = ['metric_name' => 'likes', 'value' => $post['likes_count']];
+    }
+    if (isset($post['comments_count'])) {
+        $metrics[] = ['metric_name' => 'comments', 'value' => $post['comments_count']];
     }
 }
 
@@ -166,9 +117,6 @@ if ($platform === 'facebook') {
 } elseif ($platform === 'youtube') {
     $platIcon = 'play_circle';
     $platColorClass = 'bg-[#FEF2F2] text-[#FF0000] border border-[#FEE2E2]';
-} elseif ($platform === 'whatsapp') {
-    $platIcon = 'chat';
-    $platColorClass = 'bg-[#F0FDF4] text-[#25D366] border border-[#DCFCE7]';
 } elseif ($platform === 'linkedin') {
     $platIcon = 'work';
     $platColorClass = 'bg-[#EFF6FF] text-[#0A66C2] border border-[#DBEAFE]';
@@ -201,7 +149,7 @@ if ($status === 'published') {
     </div>
 
     <!-- Media Attachment Preview -->
-    <?php if ($post['media_path']): 
+    <?php if (!empty($post['media_path'])): 
         // Build media path
         if (preg_match('/^https?:\/\//i', $post['media_path'])) {
             $mediaUrl = $post['media_path'];
@@ -243,12 +191,12 @@ if ($status === 'published') {
 
     <!-- Metadata Details -->
     <div class="text-[11px] font-data-label text-on-surface-variant grid grid-cols-2 gap-md border-t border-surface-variant pt-md leading-relaxed">
-        <div><strong>Post ID:</strong> #<?php echo $post['id']; ?> (Hub #<?php echo $hubPostId; ?>)</div>
+        <div><strong>Hub Post ID:</strong> #<?php echo $hubPostId; ?></div>
         <div><strong>External ID:</strong> <?php echo htmlspecialchars($post['external_post_id'] ?? 'n/a'); ?></div>
         <div><strong>Created At:</strong> <?php echo date('Y-m-d H:i', strtotime($post['created_at'])); ?></div>
         <div>
             <strong><?php echo $status === 'published' ? 'Published' : 'Scheduled'; ?> At:</strong> 
-            <?php echo $status === 'published' ? date('Y-m-d H:i', strtotime($post['published_at'])) : ($post['scheduled_at'] ? date('Y-m-d H:i', strtotime($post['scheduled_at'])) : 'n/a'); ?>
+            <?php echo $status === 'published' ? date('Y-m-d H:i', strtotime($post['published_at'])) : (!empty($post['scheduled_at']) ? date('Y-m-d H:i', strtotime($post['scheduled_at'])) : 'n/a'); ?>
         </div>
     </div>
 
@@ -257,7 +205,12 @@ if ($status === 'published') {
         <div></div>
         
         <?php if ($status !== 'deleted'): ?>
-            <button class="px-md py-sm bg-error-container text-error hover:opacity-90 font-bold rounded-lg text-xs transition-all flex items-center gap-xs" id="btn-delete-post" data-id="<?php echo $post['id']; ?>">
+            <button class="px-md py-sm bg-error-container text-error hover:opacity-90 font-bold rounded-lg text-xs transition-all flex items-center gap-xs" 
+                    id="btn-delete-post" 
+                    data-hub-id="<?php echo $hubPostId; ?>"
+                    data-platform="<?php echo htmlspecialchars($platform); ?>"
+                    data-external-id="<?php echo htmlspecialchars($externalPostId); ?>"
+                    data-media-path="<?php echo htmlspecialchars($post['media_path'] ?? ''); ?>">
                 <span class="material-symbols-outlined text-sm">delete</span>
                 <span>Delete Post</span>
             </button>

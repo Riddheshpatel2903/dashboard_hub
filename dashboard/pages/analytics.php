@@ -26,29 +26,47 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
-// Check and run synchronization if needed (5-minute throttle)
-$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
-$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
-$stmtLastSync->execute(['client_id' => $client_id]);
-$lastSync = $stmtLastSync->fetchColumn();
-if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
-    require_once __DIR__ . '/../includes/sync_analytics.php';
-    syncClientAnalytics($client_id, $pdo);
-}
+// Check and run synchronization if needed - sync_analytics is removed, so we don't call it.
 
 $platform = $_GET['platform'] ?? '';
 $startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days')); // Default to 30 days for a cleaner overview
 $endDate = $_GET['end_date'] ?? date('Y-m-d');
 $activeTab = $_GET['tab'] ?? 'overview';
-$selectedPostId = isset($_GET['post_id']) ? (int) $_GET['post_id'] : 0;
+
+$selectedHubPostId = isset($_GET['hub_post_id']) ? (int)$_GET['hub_post_id'] : 0;
+$selectedPlatform = $_GET['platform_inspect'] ?? '';
+$selectedExternalPostId = $_GET['external_post_id'] ?? '';
+
+// Load all live posts dynamically
+$allLivePosts = [];
+try {
+    $allLivePosts = loadAllLivePosts($client_id);
+} catch (Exception $e) {
+    $allLivePostsError = $e->getMessage();
+}
 
 $inspectPost = null;
 $inspectMetrics = [];
 
-if ($selectedPostId > 0) {
-    $stmtInspect = $pdo->prepare("SELECT * FROM posts_cache WHERE id = :id AND client_id = :client_id AND status != 'deleted'");
-    $stmtInspect->execute(['id' => $selectedPostId, 'client_id' => $client_id]);
-    $inspectPost = $stmtInspect->fetch();
+if ($selectedHubPostId > 0 || (!empty($selectedPlatform) && !empty($selectedExternalPostId))) {
+    // 1. Try to load local post (scheduled/failed/queued)
+    if ($selectedHubPostId > 0) {
+        $localRes = hubGetLocalPostDetails($client_id, $selectedHubPostId);
+        if (!empty($localRes['success']) && !empty($localRes['post'])) {
+            $inspectPost = $localRes['post'];
+        }
+    }
+    
+    // 2. If not found, search live posts
+    if (!$inspectPost && !empty($selectedPlatform) && !empty($selectedExternalPostId)) {
+        foreach ($allLivePosts as $p) {
+            if ($p['platform'] === $selectedPlatform && $p['external_post_id'] === $selectedExternalPostId) {
+                $inspectPost = $p;
+                break;
+            }
+        }
+    }
+    
     if ($inspectPost) {
         $activeTab = 'inspect';
         $inspectExtId = $inspectPost['external_post_id'] ?? '';
@@ -89,61 +107,60 @@ if (empty($platform)) {
     }
 }
 
-// Query local posts_cache stats
-$sqlStats = "
-    SELECT 
-        COUNT(*) as total_posts,
-        SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) as published_posts,
-        SUM(CASE WHEN status = 'scheduled' THEN 1 ELSE 0 END) as scheduled_posts,
-        SUM(CASE WHEN platform = 'youtube' OR media_path LIKE '%.mp4' OR media_path LIKE '%.mov' THEN 1 ELSE 0 END) as video_posts,
-        SUM(CASE WHEN media_path LIKE '%.jpg' OR media_path LIKE '%.png' THEN 1 ELSE 0 END) as image_posts
-    FROM posts_cache 
-    WHERE client_id = :client_id AND status != 'deleted'
-";
-$paramsStats = ['client_id' => $client_id];
-if (!empty($platform)) {
-    $sqlStats .= ' AND platform = :platform';
-    $paramsStats['platform'] = $platform;
-}
-$stmtStats = $pdo->prepare($sqlStats);
-$stmtStats->execute($paramsStats);
-$cacheStats = $stmtStats->fetch() ?: ['total_posts' => 0, 'published_posts' => 0, 'scheduled_posts' => 0, 'video_posts' => 0, 'image_posts' => 0];
+// Calculate live posts stats from all live posts
+$totalPosts = 0;
+$publishedPosts = 0;
+$scheduledPosts = 0;
+$videoPosts = 0;
+$imagePosts = 0;
 
-// Fetch posts for Content Performance ledger table (filtered by channel if selected)
-$sqlPosts = "
-    SELECT id, hub_post_id, content, status, platform, media_path, scheduled_at, published_at, created_at, external_post_id
-    FROM posts_cache 
-    WHERE client_id = :client_id AND status != 'deleted'
-";
-$paramsPosts = ['client_id' => $client_id];
-if (!empty($platform)) {
-    $sqlPosts .= ' AND platform = :platform';
-    $paramsPosts['platform'] = $platform;
-}
-$sqlPosts .= ' ORDER BY created_at DESC LIMIT 50';
-$stmtPosts = $pdo->prepare($sqlPosts);
-$stmtPosts->execute($paramsPosts);
-$postsList = $stmtPosts->fetchAll();
+$postsList = [];
+$lastPost = null;
 
-// Fetch latest published post for Views on Last Post metric
-$sqlLastPost = "
-    SELECT id, hub_post_id, content, platform, media_path, published_at, external_post_id 
-    FROM posts_cache 
-    WHERE client_id = :client_id AND status = 'published' 
-";
-$paramsLastPost = ['client_id' => $client_id];
-if (!empty($platform)) {
-    $sqlLastPost .= ' AND platform = :platform';
-    $paramsLastPost['platform'] = $platform;
+foreach ($allLivePosts as $post) {
+    if (!empty($platform) && $post['platform'] !== $platform) {
+        continue;
+    }
+    
+    $totalPosts++;
+    if ($post['status'] === 'published') {
+        $publishedPosts++;
+        if (!$lastPost) {
+            $lastPost = $post;
+        }
+    } elseif ($post['status'] === 'scheduled') {
+        $scheduledPosts++;
+    }
+    
+    $hasMedia = !empty($post['media_path']);
+    if ($hasMedia) {
+        $ext = strtolower(pathinfo(parse_url($post['media_path'], PHP_URL_PATH), PATHINFO_EXTENSION));
+        $isVid = in_array($ext, ['mp4', 'mov', 'avi']) || $post['platform'] === 'youtube';
+        if ($isVid) {
+            $videoPosts++;
+        } else {
+            $imagePosts++;
+        }
+    }
+    
+    // Add to ledger list (limit 50)
+    if (count($postsList) < 50) {
+        $postsList[] = $post;
+    }
 }
-$sqlLastPost .= ' ORDER BY published_at DESC LIMIT 1';
-$stmtLastPost = $pdo->prepare($sqlLastPost);
-$stmtLastPost->execute($paramsLastPost);
-$lastPost = $stmtLastPost->fetch();
+
+$cacheStats = [
+    'total_posts' => $totalPosts,
+    'published_posts' => $publishedPosts,
+    'scheduled_posts' => $scheduledPosts,
+    'video_posts' => $videoPosts,
+    'image_posts' => $imagePosts
+];
 
 $lastPostViews = '0';
 if ($lastPost) {
-    $lpRes = hubGetAnalytics($client_id, $lastPost['platform'], $lastPost['hub_post_id'], $startDate, $endDate, $lastPost['external_post_id']);
+    $hubPostId = $lastPost['hub_post_id'] ?: 0;
+    $lpRes = hubGetAnalytics($client_id, $lastPost['platform'], $hubPostId, $startDate, $endDate, $lastPost['external_post_id']);
     if (!empty($lpRes['metrics'])) {
         foreach ($lpRes['metrics'] as $pm) {
             if (in_array(strtolower($pm['metric_name']), ['views', 'view_count', 'reach', 'impressions'])) {
@@ -717,17 +734,11 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                     <?php
                                     foreach ($postsList as $pItem):
                                         $isVid = ($pItem['platform'] === 'youtube' || strpos($pItem['media_path'] ?? '', '.mp4') !== false || strpos($pItem['media_path'] ?? '', '.mov') !== false);
-                                        $pmData = $postMetricsMap[$pItem['id']] ?? [];
-
-                                        $rawViews = $pmData['view_count'] ?? $pmData['views'] ?? $pmData['reach'] ?? $pmData['impressions'] ?? null;
-                                        $rawLikes = $pmData['like_count'] ?? $pmData['likes'] ?? $pmData['engagement'] ?? $pmData['post_reactions_by_type_total'] ?? null;
-                                        $rawComments = $pmData['comment_count'] ?? $pmData['comments'] ?? null;
-                                        $rawDuration = $pmData['duration'] ?? null;
-
-                                        $pViews = ($pItem['status'] === 'published') ? ($rawViews !== null ? formatCompactNumber($rawViews) : ($kpiReach !== '0' ? $kpiReach : '0')) : ucfirst($pItem['status']);
-                                        $pLikes = ($pItem['status'] === 'published') ? ($rawLikes !== null ? formatCompactNumber($rawLikes) : ($kpiEngagement !== '0' ? $kpiEngagement : '0')) : '-';
-                                        $pComments = ($pItem['status'] === 'published') ? ($rawComments !== null ? formatCompactNumber($rawComments) : '0') : '-';
-                                        $pDuration = $isVid ? getMediaDuration($pItem['media_path'] ?? '', $rawDuration) : 'Image';
+                                        
+                                        $pViews = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['views_count'] ?? 0) : ucfirst($pItem['status']);
+                                        $pLikes = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['likes_count'] ?? 0) : '-';
+                                        $pComments = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['comments_count'] ?? 0) : '-';
+                                        $pDuration = $isVid ? getMediaDuration($pItem['media_path'] ?? '', $pItem['duration'] ?? null) : 'Image';
                                         ?>
                                         <tr class="hover:bg-secondary-container/10 transition-colors group">
                                             <td class="py-3 px-md">
@@ -779,7 +790,7 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                                 <?php echo date('M d, H:i', strtotime($pItem['published_at'] ?: $pItem['scheduled_at'] ?: $pItem['created_at'])); ?>
                                             </td>
                                             <td class="py-3 px-md text-center">
-                                                <a href="?tab=inspect&post_id=<?php echo $pItem['id']; ?>&platform=<?php echo urlencode($platform); ?>" 
+                                                <a href="?tab=inspect&hub_post_id=<?php echo $pItem['hub_post_id'] ?? ''; ?>&platform_inspect=<?php echo urlencode($pItem['platform']); ?>&external_post_id=<?php echo urlencode($pItem['external_post_id'] ?? ''); ?>&platform=<?php echo urlencode($platform); ?>" 
                                                    class="px-3 py-1 bg-primary-container/30 text-primary hover:bg-primary hover:text-on-primary rounded text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1">
                                                     <span class="material-symbols-outlined text-[12px]">search</span>
                                                     <span>Inspect</span>

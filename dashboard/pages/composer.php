@@ -17,7 +17,7 @@ $connectedPlatforms = [];
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
-        if ($conn['status'] === 'connected') {
+        if ($conn['status'] === 'connected' && $conn['platform'] !== 'whatsapp') {
             $connectedPlatforms[] = $conn['platform'];
         }
     }

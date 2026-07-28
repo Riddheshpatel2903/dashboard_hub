@@ -14,36 +14,24 @@ if ($client_id === null && ($user_role === 'staff' || $user_role === 'admin')) {
     exit();
 }
 
-// Synchronize platform data (posts, analytics) on page load with a 5-minute throttle
-$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
-$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
-$stmtLastSync->execute(['client_id' => $client_id]);
-$lastSync = $stmtLastSync->fetchColumn();
-if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
-    require_once __DIR__ . '/../includes/sync_analytics.php';
-    syncClientAnalytics($client_id, $pdo);
-}
-
 $connectedPlatforms = [];
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
-        if ($conn['status'] === 'connected') {
+        if ($conn['status'] === 'connected' && $conn['platform'] !== 'whatsapp') {
             $connectedPlatforms[] = $conn['platform'];
         }
     }
 }
 
-// Fetch 5 most recent posts
-$stmtRecent = $pdo->prepare("
-    SELECT id, hub_post_id, content, status, platform, media_path, scheduled_at, published_at, created_at 
-    FROM posts_cache 
-    WHERE client_id = :client_id AND status != 'deleted'
-    ORDER BY created_at DESC 
-    LIMIT 5
-");
-$stmtRecent->execute(['client_id' => $client_id]);
-$recentPosts = $stmtRecent->fetchAll();
+// Fetch 5 most recent posts directly from APIs
+$recentPosts = [];
+try {
+    $allLivePosts = loadAllLivePosts($client_id);
+    $recentPosts = array_slice($allLivePosts, 0, 5);
+} catch (Exception $e) {
+    $recentPostsError = $e->getMessage();
+}
 ?>
 <!DOCTYPE html>
 <html class="light" lang="en">
@@ -75,10 +63,10 @@ $recentPosts = $stmtRecent->fetchAll();
                     <p class="font-body-md text-on-surface-variant">Here's what's happening across your social landscape today.</p>
                 </div>
                 <div class="flex gap-sm">
-                    <a href="?force_sync=1" 
+                    <a href="dashboard_home.php" 
                        class="px-md h-12 bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-bold flex items-center gap-sm transition-all shadow-sm active:scale-95">
                         <span class="material-symbols-outlined">sync</span>
-                        <span>Sync Channels</span>
+                        <span>Refresh Data</span>
                     </a>
                     <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                        class="px-lg h-12 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-sm hover:opacity-90 transition-all shadow-sm active:scale-95">

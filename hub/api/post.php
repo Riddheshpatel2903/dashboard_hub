@@ -13,7 +13,6 @@ require_once __DIR__ . '/../storage/StorageService.php';
 // Include all platform handlers
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
 require_once __DIR__ . '/../platforms/InstagramHandler.php';
-require_once __DIR__ . '/../platforms/WhatsAppHandler.php';
 require_once __DIR__ . '/../platforms/YouTubeHandler.php';
 require_once __DIR__ . '/../platforms/LinkedInHandler.php';
 require_once __DIR__ . '/../platforms/GoogleBusinessHandler.php';
@@ -133,23 +132,6 @@ foreach ($platformsInput as $platform) {
                 $success = true;
                 break;
 
-            case 'whatsapp':
-                if (empty($recipient)) {
-                    throw new Exception("WhatsApp requires a recipient phone number ('to') in the payload.");
-                }
-                // Text vs template selection based on input configuration
-                if (!empty($input['template_name'])) {
-                    $templateName = $input['template_name'];
-                    $lang = $input['language_code'] ?? 'en_US';
-                    $comp = $input['template_components'] ?? [];
-                    $res = WhatsAppHandler::sendTemplateMessage($token, $externalAccountId, $recipient, $templateName, $lang, $comp);
-                } else {
-                    $res = WhatsAppHandler::sendTextMessage($token, $externalAccountId, $recipient, $content);
-                }
-                $externalPostId = $res['messages'][0]['id'] ?? null;
-                $responseBody = json_encode($res);
-                $success = true;
-                break;
 
             case 'youtube':
                 // YouTube resumable upload requires local absolute path
@@ -169,7 +151,17 @@ foreach ($platformsInput as $platform) {
                 break;
 
             case 'linkedin':
-                $res = LinkedInHandler::publishPost($token, $externalAccountId, $content);
+                $localPath = null;
+                if ($mediaTempPath) {
+                    $localPath = __DIR__ . '/../uploads/' . ltrim($mediaTempPath, '/');
+                    if (!file_exists($localPath)) {
+                        $localPath = __DIR__ . '/../storage/temp/' . basename($mediaTempPath);
+                        if (!file_exists($localPath) && $mediaTempPath && file_exists($mediaTempPath)) {
+                            $localPath = $mediaTempPath;
+                        }
+                    }
+                }
+                $res = LinkedInHandler::publishPost($token, $externalAccountId, $content, $localPath);
                 $externalPostId = $res['id'] ?? null;
                 $responseBody = json_encode($res);
                 $success = true;

@@ -47,13 +47,6 @@ $platformMetadata = [
         'icon' => 'photo_camera',
         'color' => '#E1306C'
     ],
-    'whatsapp' => [
-        'name' => 'WhatsApp',
-        'desc' => 'Connect to send messages and support clients.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_whatsapp.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
-        'icon' => 'chat',
-        'color' => '#25D366'
-    ],
     'youtube' => [
         'name' => 'YouTube',
         'desc' => 'Connect to publish video content.',

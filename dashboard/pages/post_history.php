@@ -8,78 +8,59 @@ if ($client_id === null) {
     exit();
 }
 
-// Synchronize platform data (posts, analytics) on page load with a 5-minute throttle
-$forceSync = (isset($_GET['force_sync']) && $_GET['force_sync'] == 1);
-$stmtLastSync = $pdo->prepare("SELECT MAX(updated_at) FROM analytics_cache WHERE client_id = :client_id");
-$stmtLastSync->execute(['client_id' => $client_id]);
-$lastSync = $stmtLastSync->fetchColumn();
-if ($forceSync || !$lastSync || (time() - strtotime($lastSync)) > 300) {
-    require_once __DIR__ . '/../includes/sync_analytics.php';
-    syncClientAnalytics($client_id, $pdo);
-}
+require_once __DIR__ . '/../includes/hub_client.php';
 
 $platformFilter = $_GET['platform'] ?? '';
 $dateFilter = $_GET['date'] ?? '';
 $startDate = $_GET['start_date'] ?? '';
 $endDate = $_GET['end_date'] ?? '';
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-if ($page < 1)
+if ($page < 1) {
     $page = 1;
-$limit = 10;
+}
+$limit = 9; // Grid has 3 columns, 9 posts per page looks better
 $offset = ($page - 1) * $limit;
 
-// Build Query
-$sql = "WHERE client_id = :client_id AND status != 'deleted'";
-$params = ['client_id' => $client_id];
-
-if (!empty($platformFilter)) {
-    $sql .= ' AND platform = :platform';
-    $params['platform'] = $platformFilter;
+// Load all live posts dynamically
+$allLivePosts = [];
+try {
+    $allLivePosts = loadAllLivePosts($client_id);
+} catch (Exception $e) {
+    $postsError = $e->getMessage();
 }
 
-if (!empty($dateFilter)) {
-    $sql .= ' AND (DATE(published_at) = :date_pub OR DATE(scheduled_at) = :date_sched)';
-    $params['date_pub'] = $dateFilter;
-    $params['date_sched'] = $dateFilter;
+// Apply filters in PHP
+$filteredPosts = [];
+foreach ($allLivePosts as $post) {
+    if ($post['platform'] === 'whatsapp') {
+        continue;
+    }
+    if (!empty($platformFilter) && $post['platform'] !== $platformFilter) {
+        continue;
+    }
+    if (!empty($dateFilter)) {
+        $postDate = $post['published_at'] ?: ($post['scheduled_at'] ?: $post['created_at']);
+        if (date('Y-m-d', strtotime($postDate)) !== $dateFilter) {
+            continue;
+        }
+    }
+    if (!empty($startDate) && !empty($endDate)) {
+        $postDate = $post['published_at'] ?: ($post['scheduled_at'] ?: $post['created_at']);
+        $postDay = date('Y-m-d', strtotime($postDate));
+        if ($postDay < $startDate || $postDay > $endDate) {
+            continue;
+        }
+    }
+    $filteredPosts[] = $post;
 }
 
-if (!empty($startDate) && !empty($endDate)) {
-    $sql .= " AND (
-        (status = 'published' AND DATE(published_at) BETWEEN :start_pub AND :end_pub)
-        OR (status = 'scheduled' AND DATE(scheduled_at) BETWEEN :start_sched AND :end_sched)
-        OR (status = 'failed' AND DATE(created_at) BETWEEN :start_fail AND :end_fail)
-    )";
-    $params['start_pub'] = $startDate;
-    $params['end_pub'] = $endDate;
-    $params['start_sched'] = $startDate;
-    $params['end_sched'] = $endDate;
-    $params['start_fail'] = $startDate;
-    $params['end_fail'] = $endDate;
-}
-
-// Get Count
-$stmtCount = $pdo->prepare("SELECT COUNT(*) FROM posts_cache {$sql}");
-$stmtCount->execute($params);
-$totalPosts = $stmtCount->fetchColumn();
+$totalPosts = count($filteredPosts);
 $totalPages = ceil($totalPosts / $limit);
-if ($totalPages < 1)
+if ($totalPages < 1) {
     $totalPages = 1;
-
-// Fetch posts
-$stmtPosts = $pdo->prepare("
-    SELECT id, hub_post_id, content, status, platform, scheduled_at, published_at, created_at, media_path, views_count, likes_count, comments_count
-    FROM posts_cache 
-    {$sql} 
-    ORDER BY created_at DESC 
-    LIMIT :offset, :limit
-");
-$stmtPosts->bindValue(':offset', $offset, PDO::PARAM_INT);
-$stmtPosts->bindValue(':limit', $limit, PDO::PARAM_INT);
-foreach ($params as $key => $val) {
-    $stmtPosts->bindValue(':' . $key, $val);
 }
-$stmtPosts->execute();
-$posts = $stmtPosts->fetchAll();
+
+$posts = array_slice($filteredPosts, $offset, $limit);
 ?>
 <!DOCTYPE html>
 <html class="light" lang="en">
@@ -108,10 +89,10 @@ $posts = $stmtPosts->fetchAll();
                     </div>
                 </div>
                 <div class="flex gap-sm">
-                    <a href="?force_sync=1" 
+                    <a href="post_history.php" 
                        class="flex items-center gap-sm px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-body-md font-bold transition-all active:scale-95">
                         <span class="material-symbols-outlined text-sm">sync</span>
-                        <span>Sync Channels</span>
+                        <span>Refresh Data</span>
                     </a>
                     <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                        class="flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg font-body-md font-bold hover:opacity-90 transition-opacity">
@@ -131,7 +112,6 @@ $posts = $stmtPosts->fetchAll();
                             <option value="">All Platforms</option>
                             <option value="facebook" <?php echo $platformFilter === 'facebook' ? 'selected' : ''; ?>>Facebook</option>
                             <option value="instagram" <?php echo $platformFilter === 'instagram' ? 'selected' : ''; ?>>Instagram</option>
-                            <option value="whatsapp" <?php echo $platformFilter === 'whatsapp' ? 'selected' : ''; ?>>WhatsApp</option>
                             <option value="youtube" <?php echo $platformFilter === 'youtube' ? 'selected' : ''; ?>>YouTube</option>
                             <option value="linkedin" <?php echo $platformFilter === 'linkedin' ? 'selected' : ''; ?>>LinkedIn</option>
                             <option value="google_business" <?php echo $platformFilter === 'google_business' ? 'selected' : ''; ?>>Google Business</option>
@@ -269,7 +249,10 @@ $posts = $stmtPosts->fetchAll();
                                         <?php endif; ?>
                                     </div>
                                     <button class="btn-view-detail px-sm h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center gap-xs text-xs" 
-                                            data-id="<?php echo $post['id']; ?>">
+                                            data-id="<?php echo $post['id']; ?>"
+                                            data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                            data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                            data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>">
                                         <span class="material-symbols-outlined text-sm">visibility</span>
                                         <span>Inspect</span>
                                     </button>
@@ -340,12 +323,22 @@ $posts = $stmtPosts->fetchAll();
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     const id = this.getAttribute('data-id');
+                    const hubId = this.getAttribute('data-hub-id');
+                    const platform = this.getAttribute('data-platform');
+                    const extId = this.getAttribute('data-external-id');
                     
                     modal.classList.remove('hidden');
                     modal.style.display = 'flex';
                     modalBody.innerHTML = '<p class="text-on-surface-variant text-center py-lg">Loading post details...</p>';
                     
-                    fetch(`post_detail.php?post_id=${id}`, {
+                    const queryParams = new URLSearchParams({
+                        post_id: id,
+                        hub_post_id: hubId,
+                        platform: platform,
+                        external_post_id: extId
+                    }).toString();
+                    
+                    fetch(`post_detail.php?${queryParams}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
                         }
@@ -367,7 +360,11 @@ $posts = $stmtPosts->fetchAll();
                 const deleteBtn = modalBody.querySelector('#btn-delete-post');
                 if (deleteBtn) {
                     deleteBtn.addEventListener('click', function() {
-                        const postId = this.getAttribute('data-id');
+                        const hubId = this.getAttribute('data-hub-id');
+                        const platform = this.getAttribute('data-platform');
+                        const extId = this.getAttribute('data-external-id');
+                        const mediaPath = this.getAttribute('data-media-path');
+                        
                         const confirmed = confirm("Are you sure you want to delete this post? This is irreversible.");
                         if (confirmed) {
                             deleteBtn.disabled = true;
@@ -379,12 +376,18 @@ $posts = $stmtPosts->fetchAll();
                                     'Content-Type': 'application/json',
                                     'X-Requested-With': 'XMLHttpRequest'
                                 },
-                                body: JSON.stringify({ action: 'delete', post_id: postId })
+                                body: JSON.stringify({ 
+                                    action: 'delete', 
+                                    hub_post_id: hubId,
+                                    platform: platform,
+                                    external_post_id: extId,
+                                    media_path: mediaPath
+                                })
                             })
                             .then(res => res.json())
                             .then(data => {
                                 if (data.success) {
-                                    alert('Deleted successfully.');
+                                    alert(data.message);
                                     window.location.reload();
                                 } else {
                                     alert('Failed: ' + data.error);

@@ -5337,3 +5337,5 @@
 [2026-07-28 14:30:53] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1785222917_1785222917_cropped_image.jpg (180689 bytes)
 [2026-07-28 14:30:53] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1785222937_1785222937_cropped_image.jpg (174616 bytes)
 [2026-07-28 14:30:53] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1785223107_1785223107_cropped_image.jpg (167848 bytes)
+[2026-07-28 15:42:32] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784972937_1784972937_ChatGPT Image Jul 22, 2026, 06_03_15 PM.png
+[2026-07-28 15:57:35] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784972431_1784972431_ChatGPT Image Jul 22, 2026, 06_03_15 PM.png

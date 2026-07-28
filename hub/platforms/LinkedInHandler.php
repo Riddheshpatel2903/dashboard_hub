@@ -18,8 +18,49 @@ class LinkedInHandler {
      * @return array            Contains response data (including post URN ID in x-linkedin-id header or body)
      * @throws Exception
      */
-    public static function publishPost($token, $authorUrn, $content) {
+    public static function publishPost($token, $authorUrn, $content, $localFilePath = null) {
         $url = "https://api.linkedin.com/v2/posts";
+        
+        $assetUrn = null;
+        if ($localFilePath && file_exists($localFilePath)) {
+            // Step A: Register the image asset upload
+            $registerUrl = "https://api.linkedin.com/v2/assets?action=registerUpload";
+            $registerPayload = [
+                'registerUploadRequest' => [
+                    'recipes' => [
+                        'urn:li:digitalmediaRecipe:feedshare-image'
+                    ],
+                    'owner' => $authorUrn,
+                    'supportedUploadMechanisms' => [
+                        'SYNCHRONOUS_UPLOAD'
+                    ]
+                ]
+            ];
+            
+            $regRes = self::executeRequestNoHeader('POST', $token, $registerUrl, $registerPayload);
+            
+            if (!empty($regRes['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadMechanism']['uploadUrl'])) {
+                $uploadUrl = $regRes['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadMechanism']['uploadUrl'];
+                $assetUrn = $regRes['value']['asset'] ?? null;
+                
+                // Step B: Upload the binary file to the uploadUrl via PUT
+                $ch = curl_init($uploadUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($localFilePath));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . $token,
+                    'Content-Type: application/octet-stream'
+                ]);
+                $uploadRes = curl_exec($ch);
+                $uploadCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                
+                if ($uploadCode < 200 || $uploadCode >= 300) {
+                    throw new Exception("LinkedIn binary asset upload failed with HTTP Code {$uploadCode}. Response: {$uploadRes}");
+                }
+            }
+        }
         
         $payload = [
             'author'         => $authorUrn,
@@ -31,6 +72,17 @@ class LinkedInHandler {
             ],
             'lifecycleState' => 'PUBLISHED'
         ];
+
+        if ($assetUrn) {
+            // Convert digitalmediaAsset to image URN:
+            // urn:li:digitalmediaAsset:C5522AQ... -> urn:li:image:C5522AQ...
+            $imageUrn = str_replace('urn:li:digitalmediaAsset:', 'urn:li:image:', $assetUrn);
+            $payload['content'] = [
+                'media' => [
+                    'id' => $imageUrn
+                ]
+            ];
+        }
 
         // The Posts API returns the created resource URN in the "x-linkedin-id" header.
         // We will parse headers to retrieve it.
@@ -119,6 +171,39 @@ class LinkedInHandler {
                 }
             }
         }
+
+        if ($httpCode >= 400) {
+            $msg = $data['message'] ?? 'LinkedIn REST API Error';
+            throw new Exception("LinkedIn API Exception (Code {$httpCode}): {$msg}", $httpCode);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Helper request executor without response headers.
+     */
+    private static function executeRequestNoHeader($method, $token, $url, array $payload = []) {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        $headers = [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json',
+            'X-Restli-Protocol-Version: 2.0.0'
+        ];
+
+        if (strtoupper($method) === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        }
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $data = json_decode($response, true) ?: [];
 
         if ($httpCode >= 400) {
             $msg = $data['message'] ?? 'LinkedIn REST API Error';
