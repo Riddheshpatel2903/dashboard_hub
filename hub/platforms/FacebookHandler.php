@@ -165,7 +165,7 @@ class FacebookHandler {
      */
     public static function getRecentPosts($token, $pageId, $limit = 50) {
         $limit = max(1, min(500, $limit));
-        $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)';
+        $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0),insights.metric(post_impressions,post_video_views).period(lifetime)';
         $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/posts?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
         $allData = [];
         $maxPages = 10;
@@ -181,6 +181,14 @@ class FacebookHandler {
             }
 
             $pageUrl = $raw['paging']['next'] ?? null;
+        }
+
+        if (count($allData) === 0) {
+            $fallbackUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
+            $raw = self::executeRequest('GET', $fallbackUrl);
+            if (!empty($raw['data']) && is_array($raw['data'])) {
+                $allData = $raw['data'];
+            }
         }
 
         if (count($allData) > $limit) {

@@ -219,6 +219,8 @@ class YouTubeHandler
      */
     public static function getRecentChannelVideos($token, $maxResults = 50)
     {
+        $maxResults = max(1, min(500, $maxResults));
+
         // 1. Get uploads playlist ID
         $chRes = self::getChannelStats($token, 'mine');
         if (empty($chRes['items'][0]['contentDetails']['relatedPlaylists']['uploads'])) {
@@ -226,18 +228,33 @@ class YouTubeHandler
         }
         $uploadsPlaylistId = $chRes['items'][0]['contentDetails']['relatedPlaylists']['uploads'];
 
-        // 2. Get playlist items
-        $plUrl = 'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=' . (int)$maxResults . '&playlistId=' . urlencode($uploadsPlaylistId);
-        $plRes = self::executeRequest('GET', $token, $plUrl);
-
-        if (empty($plRes['items'])) {
-            return [];
-        }
-
+        // 2. Collect playlist video IDs with pagination
         $videoIds = [];
-        foreach ($plRes['items'] as $item) {
-            if (!empty($item['contentDetails']['videoId'])) {
-                $videoIds[] = $item['contentDetails']['videoId'];
+        $nextPageToken = null;
+        while (count($videoIds) < $maxResults) {
+            $pageSize = min(50, $maxResults - count($videoIds));
+            $plUrl = 'https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=' . $pageSize . '&playlistId=' . urlencode($uploadsPlaylistId);
+            if ($nextPageToken) {
+                $plUrl .= '&pageToken=' . urlencode($nextPageToken);
+            }
+
+            $plRes = self::executeRequest('GET', $token, $plUrl);
+            if (empty($plRes['items']) || !is_array($plRes['items'])) {
+                break;
+            }
+
+            foreach ($plRes['items'] as $item) {
+                if (!empty($item['contentDetails']['videoId'])) {
+                    $videoIds[] = $item['contentDetails']['videoId'];
+                    if (count($videoIds) >= $maxResults) {
+                        break 2;
+                    }
+                }
+            }
+
+            $nextPageToken = $plRes['nextPageToken'] ?? null;
+            if (empty($nextPageToken)) {
+                break;
             }
         }
 
@@ -245,9 +262,17 @@ class YouTubeHandler
             return [];
         }
 
-        // 3. Batch fetch live video stats & ISO duration
-        $vUrl = 'https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails&id=' . implode(',', array_map('urlencode', $videoIds));
-        return self::executeRequest('GET', $token, $vUrl);
+        // 3. Batch fetch live video stats & ISO duration for all collected IDs
+        $allVideoData = ['items' => []];
+        foreach (array_chunk($videoIds, 50) as $chunk) {
+            $vUrl = 'https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails,status&id=' . implode(',', array_map('urlencode', $chunk));
+            $videoRes = self::executeRequest('GET', $token, $vUrl);
+            if (!empty($videoRes['items']) && is_array($videoRes['items'])) {
+                $allVideoData['items'] = array_merge($allVideoData['items'], $videoRes['items']);
+            }
+        }
+
+        return $allVideoData;
     }
 
     /**

@@ -177,6 +177,9 @@ try {
                 // Fetch recent posts
                 try {
                     $recentPostsRaw = FacebookHandler::getRecentPosts($token, $externalId, 200);
+                    if (empty($recentPostsRaw['data'])) {
+                        log_message('warning', "Facebook recent posts fetch returned no items", ['platform_id' => $externalId, 'token_masked' => substr($token, 0, 8) . '...']);
+                    }
                     if (!empty($recentPostsRaw['data'])) {
                         foreach ($recentPostsRaw['data'] as $pItem) {
                             $pId = $pItem['id'] ?? '';
@@ -550,8 +553,13 @@ try {
                         foreach ($recentPostsRaw['elements'] as $pItem) {
                             $pId = $pItem['id'] ?? '';
                             if ($pId) {
-                                $message = $pItem['commentary'] ?? '';
-                                $pubTime = $pItem['createdAt'] ?? ''; // Milliseconds timestamp
+                                $message = '';
+                                $shareContent = $pItem['specificContent']['com.linkedin.ugc.ShareContent'] ?? [];
+                                if (!empty($shareContent['shareCommentary']['text'])) {
+                                    $message = $shareContent['shareCommentary']['text'];
+                                }
+
+                                $pubTime = $pItem['created']['time'] ?? $pItem['createdAt'] ?? 0; // Milliseconds timestamp
                                 $publishedAt = $pubTime ? date('Y-m-d H:i:s', $pubTime / 1000) : '';
                                 
                                 $normalizedMetrics[] = [

@@ -136,7 +136,9 @@ class LinkedInHandler {
      * @throws Exception
      */
     public static function getRecentPosts($token, $authorUrn, $count = 50) {
-        $url = "https://api.linkedin.com/v2/posts?author=" . urlencode($authorUrn) . "&count=" . (int)$count;
+        $count = max(1, min(50, $count));
+        $authors = 'List(' . $authorUrn . ')';
+        $url = "https://api.linkedin.com/v2/ugcPosts?q=authors&authors=" . rawurlencode($authors) . "&count=" . (int)$count . "&fields=id,specificContent,created";
         return self::executeRequestNoHeader('GET', $token, $url);
     }
 

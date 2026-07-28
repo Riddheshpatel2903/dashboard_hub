@@ -84,6 +84,7 @@ try {
     }
 
     $response = [];
+    $externalDeleteSucceeded = true;
     
     // 2. Dispatch Delete request if external ID is present
     $platformError = null;
@@ -104,6 +105,14 @@ try {
                     break;
                     
                 case 'instagram':
+                    if (empty($token)) {
+                        $stmt = $pdo->prepare("\n                            SELECT pt.access_token_encrypted\n                            FROM platform_connections pc\n                            JOIN platform_tokens pt ON pc.id = pt.platform_connection_id\n                            WHERE pc.client_id = :client_id AND pc.platform = 'facebook' AND pc.status = 'connected'\n                            LIMIT 1\n                        ");
+                        $stmt->execute(['client_id' => $client_id]);
+                        $fbConn = $stmt->fetch();
+                        if (!empty($fbConn['access_token_encrypted'])) {
+                            $token = decrypt($fbConn['access_token_encrypted']);
+                        }
+                    }
                     $response = InstagramHandler::deletePost($token, $externalPostId);
                     break;
                     
@@ -135,35 +144,45 @@ try {
             if ($alreadyDeleted) {
                 $response = ['message' => 'Post already deleted on platform.'];
             } else {
-                // Record platform error but proceed with local deletion to avoid orphan posts on dashboard
                 $platformError = $err;
+                $externalDeleteSucceeded = false;
             }
         }
     } else {
         $response = ['message' => 'Post cleared locally (no external post ID found).'];
     }
 
-    // 3. Delete physical media file from disk
-    if (!empty($mediaPath)) {
+    // 3. Delete physical media file from disk only if external delete succeeded
+    if (!empty($mediaPath) && $externalDeleteSucceeded) {
         require_once __DIR__ . '/../storage/StorageService.php';
         StorageService::deletePostMedia($mediaPath, $client_id);
     }
 
-    // 4. Hard delete post from Hub posts table
-    if ($dbPostFound) {
+    // 4. Hard delete post from Hub posts table only if external delete succeeded
+    if ($dbPostFound && $externalDeleteSucceeded) {
         $stmt = $pdo->prepare("DELETE FROM posts WHERE id = :post_id");
         $stmt->execute(['post_id' => $postId]);
     }
 
-    log_message('info', "Successfully deleted post ID {$postId} (External ID: {$externalPostId}) on platform {$platform}", ['response' => $response]);
+    if ($externalDeleteSucceeded) {
+        log_message('info', "Successfully deleted post ID {$postId} (External ID: {$externalPostId}) on platform {$platform}", ['response' => $response]);
 
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success'  => true,
-        'message'  => 'Post deleted successfully',
-        'warning'  => $platformError,
-        'response' => $response
-    ]);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success'  => true,
+            'message'  => 'Post deleted successfully',
+            'response' => $response
+        ]);
+    } else {
+        log_message('warning', "Failed to delete post externally", ['post_id' => $postId, 'platform' => $platform, 'error' => $platformError]);
+
+        header('Content-Type: application/json', true, 500);
+        echo json_encode([
+            'success' => false,
+            'error'   => $platformError,
+            'response'=> $response
+        ]);
+    }
 
 } catch (Exception $e) {
     log_message('error', "Failed to delete post ID {$postId} on {$platform}", ['error' => $e->getMessage()]);
