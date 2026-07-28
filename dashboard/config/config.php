@@ -16,9 +16,9 @@ define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASH
 
 // Hub API Access Coordinates
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
-if (empty($httpHost)) {
-    $httpHost = 'localhost';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'rbfitness.in';
+if (empty($httpHost) || $httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') === 0) {
+    $httpHost = 'rbfitness.in';
 }
 // Hub API URL — point this to wherever the Hub is deployed.
 // On Hostinger: set HUB_BASE_URL env var in hPanel OR update the hardcoded fallback below.

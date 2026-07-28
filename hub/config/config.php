@@ -11,9 +11,9 @@ define('DB_PASS', getenv('HUB_DB_PASS') !== false ? getenv('HUB_DB_PASS') : '');
 
 // Application Settings
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
-if (empty($httpHost)) {
-    $httpHost = 'localhost';
+$httpHost = $_SERVER['HTTP_HOST'] ?? 'rbfitness.in';
+if (empty($httpHost) || $httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') === 0) {
+    $httpHost = 'rbfitness.in';
 }
 
 $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');

@@ -93,7 +93,7 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
             // Fetch live posts
             $allLivePosts = [];
             try {
-                $allLivePosts = loadAllLivePosts($client_id);
+                $allLivePosts = loadPlatformPosts($client_id);
             } catch (Exception $e) {
                 // Gracefully fallback
             }

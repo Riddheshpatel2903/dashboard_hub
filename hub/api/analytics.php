@@ -174,60 +174,6 @@ try {
                     log_message('warning', "Failed to fetch Facebook account info: " . $e->getMessage());
                 }
 
-                // Fetch recent posts
-                try {
-                    $recentPostsRaw = FacebookHandler::getRecentPosts($token, $externalId, 200);
-                    if (empty($recentPostsRaw['data'])) {
-                        log_message('warning', "Facebook recent posts fetch returned no items", ['platform_id' => $externalId, 'token_masked' => substr($token, 0, 8) . '...']);
-                    }
-                    if (!empty($recentPostsRaw['data'])) {
-                        foreach ($recentPostsRaw['data'] as $pItem) {
-                            $pId = $pItem['id'] ?? '';
-                            if ($pId) {
-                                $mediaUrl = '';
-                                if (!empty($pItem['attachments']['data'][0]['media']['image']['src'])) {
-                                    $mediaUrl = $pItem['attachments']['data'][0]['media']['image']['src'];
-                                }
-                                $likes = $pItem['likes']['summary']['total_count'] ?? 0;
-                                $comments = $pItem['comments']['summary']['total_count'] ?? 0;
-                                $shares = $pItem['shares']['count'] ?? 0;
-                                $views = 0;
-
-                                if (!empty($pItem['insights']['data']) && is_array($pItem['insights']['data'])) {
-                                    foreach ($pItem['insights']['data'] as $insight) {
-                                        if (empty($insight['name']) || empty($insight['values'][0]['value'])) {
-                                            continue;
-                                        }
-                                        $metricValue = (int)$insight['values'][0]['value'];
-                                        if ($insight['name'] === 'post_impressions') {
-                                            $views = max($views, $metricValue);
-                                        } elseif ($insight['name'] === 'post_video_views') {
-                                            $views = max($views, $metricValue);
-                                        }
-                                    }
-                                }
-                                
-                                $normalizedMetrics[] = [
-                                    'platform'    => 'facebook',
-                                    'metric_name' => 'fb_post_' . $pId,
-                                    'value'       => json_encode([
-                                        'post_id'      => $pId,
-                                        'message'      => $pItem['message'] ?? '',
-                                        'published_at' => $pItem['created_time'] ?? '',
-                                        'media_url'    => $mediaUrl,
-                                        'likes'        => (int)$likes,
-                                        'comments'     => (int)$comments,
-                                        'shares'       => (int)$shares,
-                                        'views'        => $views
-                                    ]),
-                                    'period'      => 'lifetime'
-                                ];
-                            }
-                        }
-                    }
-                } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Facebook recent posts: " . $e->getMessage());
-                }
             }
             break;
 
@@ -411,48 +357,6 @@ try {
                     log_message('warning', "Failed to fetch YouTube channel stats: " . $e->getMessage());
                 }
 
-                // ALSO fetch recent videos live stats & durations directly from YouTube channel
-                try {
-                    $recentVidRaw = YouTubeHandler::getRecentChannelVideos($token, 50);
-                    if (!empty($recentVidRaw['items'])) {
-                        foreach ($recentVidRaw['items'] as $vItem) {
-                            $vId = $vItem['id'] ?? '';
-                            $vStat = $vItem['statistics'] ?? [];
-                            $vDur = $vItem['contentDetails']['duration'] ?? '';
-                            $vPublishedAt = $vItem['snippet']['publishedAt'] ?? '';
-                            $vTitle = $vItem['snippet']['title'] ?? '';
-
-                            if ($vId) {
-                                // Pick best thumbnail resolution (maxres > high > medium > default)
-                                $thumbs = $vItem['snippet']['thumbnails'] ?? [];
-                                $thumbUrl = $thumbs['maxres']['url']
-                                    ?? $thumbs['high']['url']
-                                    ?? $thumbs['medium']['url']
-                                    ?? $thumbs['default']['url']
-                                    ?? '';
-
-                                $normalizedMetrics[] = [
-                                    'platform'    => 'youtube',
-                                    'metric_name' => 'yt_video_' . $vId,
-                                    'value'       => json_encode([
-                                        'video_id'      => $vId,
-                                        'title'         => $vTitle,
-                                        'published_at'  => $vPublishedAt,
-                                        'thumbnail_url' => $thumbUrl,
-                                        'views'         => (int)($vStat['viewCount'] ?? 0),
-                                        'likes'         => (int)($vStat['likeCount'] ?? 0),
-                                        'comments'      => (int)($vStat['commentCount'] ?? 0),
-                                        'duration'      => $vDur
-                                    ]),
-                                    'period'      => 'lifetime'
-                                ];
-                            }
-                        }
-                    }
-                } catch (Exception $e) {
-                    // Log warning if recent videos call fails
-                    log_message('warning', "Failed to fetch YouTube recent channel videos: " . $e->getMessage());
-                }
             }
             break;
 
@@ -545,43 +449,6 @@ try {
                 'period'      => 'n/a'
             ];
             
-            // Fetch recent posts
-            if ($postId == 0) {
-                try {
-                    $recentPostsRaw = LinkedInHandler::getRecentPosts($token, $externalId, 50);
-                    if (!empty($recentPostsRaw['elements'])) {
-                        foreach ($recentPostsRaw['elements'] as $pItem) {
-                            $pId = $pItem['id'] ?? '';
-                            if ($pId) {
-                                $message = '';
-                                $shareContent = $pItem['specificContent']['com.linkedin.ugc.ShareContent'] ?? [];
-                                if (!empty($shareContent['shareCommentary']['text'])) {
-                                    $message = $shareContent['shareCommentary']['text'];
-                                }
-
-                                $pubTime = $pItem['created']['time'] ?? $pItem['createdAt'] ?? 0; // Milliseconds timestamp
-                                $publishedAt = $pubTime ? date('Y-m-d H:i:s', $pubTime / 1000) : '';
-                                
-                                $normalizedMetrics[] = [
-                                    'platform'    => 'linkedin',
-                                    'metric_name' => 'linkedin_post_' . $pId,
-                                    'value'       => json_encode([
-                                        'post_id'      => $pId,
-                                        'message'      => $message,
-                                        'published_at' => $publishedAt,
-                                        'media_url'    => '',
-                                        'likes'        => 0,
-                                        'comments'     => 0
-                                    ]),
-                                    'period'      => 'lifetime'
-                                ];
-                            }
-                        }
-                    }
-                } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch LinkedIn recent posts: " . $e->getMessage());
-                }
-            }
             break;
 
         default:

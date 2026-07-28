@@ -27,7 +27,7 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
 // Fetch 5 most recent posts directly from APIs
 $recentPosts = [];
 try {
-    $allLivePosts = loadAllLivePosts($client_id);
+    $allLivePosts = loadPlatformPosts($client_id);
     $recentPosts = array_slice($allLivePosts, 0, 5);
 } catch (Exception $e) {
     $recentPostsError = $e->getMessage();

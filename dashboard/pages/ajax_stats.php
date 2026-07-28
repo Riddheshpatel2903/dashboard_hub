@@ -36,8 +36,8 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
-// 2. Load all live posts dynamically
-$allPosts = loadAllLivePosts($client_id);
+// 2. Load posts dynamically from the dedicated posts endpoint
+$allPosts = loadPlatformPosts($client_id);
 
 // 3. Apply platform and date filters in PHP
 $totalCount = 0;

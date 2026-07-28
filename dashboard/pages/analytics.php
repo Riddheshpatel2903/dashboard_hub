@@ -40,7 +40,7 @@ $selectedExternalPostId = $_GET['external_post_id'] ?? '';
 // Load all live posts dynamically
 $allLivePosts = [];
 try {
-    $allLivePosts = loadAllLivePosts($client_id);
+    $allLivePosts = loadPlatformPosts($client_id);
 } catch (Exception $e) {
     $allLivePostsError = $e->getMessage();
 }

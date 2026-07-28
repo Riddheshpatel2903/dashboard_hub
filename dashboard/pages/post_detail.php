@@ -72,7 +72,7 @@ if ($hubPostId > 0) {
 
 // 2. If not a local post, it must be a published live post. Search live posts.
 if (!$post && !empty($platform) && !empty($externalPostId)) {
-    $allLivePosts = loadAllLivePosts($client_id);
+    $allLivePosts = loadPlatformPosts($client_id);
     foreach ($allLivePosts as $p) {
         if ($p['platform'] === $platform && $p['external_post_id'] === $externalPostId) {
             $post = $p;

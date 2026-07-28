@@ -24,7 +24,7 @@ $offset = ($page - 1) * $limit;
 // Load all live posts dynamically
 $allLivePosts = [];
 try {
-    $allLivePosts = loadAllLivePosts($client_id);
+    $allLivePosts = loadPlatformPosts($client_id);
 } catch (Exception $e) {
     $postsError = $e->getMessage();
 }

@@ -94,10 +94,17 @@ function hubGetAnalytics($clientId, $platform, $postId = 0, $startDate = null, $
 }
 
 /**
+ * Gets local and platform posts from the Hub.
+ */
+function hubGetPlatformPosts($clientId, $limit = 100) {
+    return hubRequest($clientId, '/api/posts.php?include_platform=1&limit=' . (int)$limit, 'GET');
+}
+
+/**
  * Gets local scheduled, queued, and failed posts from the Hub.
  */
 function hubGetLocalPosts($clientId) {
-    return hubRequest($clientId, '/api/posts.php', 'GET');
+    return hubRequest($clientId, '/api/posts.php?include_platform=0', 'GET');
 }
 
 /**
@@ -108,150 +115,44 @@ function hubGetLocalPostDetails($clientId, $hubPostId) {
 }
 
 /**
- * Loads all live posts from connected platforms + local Hub scheduled/failed/queued posts.
- * Sorts them descending by date.
+ * Loads platform posts from the Hub posts endpoint.
+ * This replaces the old analytics-based reconstruction logic.
  */
-function loadAllLivePosts($clientId) {
-    $allPosts = [];
-    
-    // 1. Get local posts from Hub (scheduled, failed, queued)
-    $localRes = hubGetLocalPosts($clientId);
-    if (!empty($localRes['success']) && is_array($localRes['posts'])) {
-        foreach ($localRes['posts'] as $p) {
-            $allPosts[] = $p;
-        }
-    }
-    
-    // 2. Get active connections to fetch platform posts
-    $connRes = hubGetConnectionsStatus($clientId);
-    if (!empty($connRes['connections']) && is_array($connRes['connections'])) {
-        foreach ($connRes['connections'] as $conn) {
-            if ($conn['status'] !== 'connected') continue;
-            $platform = $conn['platform'];
-            if ($platform === 'whatsapp') continue; // Skip WhatsApp
-            
-            // Fetch recent posts from Hub analytics API
-            $aRes = hubGetAnalytics($clientId, $platform, 0);
-            if (!empty($aRes['success']) && is_array($aRes['metrics'])) {
-                foreach ($aRes['metrics'] as $m) {
-                    $mName = strtolower($m['metric_name']);
-                    
-                    // Parse based on platform
-                    if ($platform === 'facebook' && strpos($mName, 'fb_post_') === 0 && !empty($m['value'])) {
-                        $pData = json_decode($m['value'], true);
-                        if (!empty($pData['post_id'])) {
-                            $allPosts[] = [
-                                'id'               => 0,
-                                'hub_post_id'      => null,
-                                'content'          => $pData['message'] ?? 'Facebook Post',
-                                'status'           => 'published',
-                                'platform'         => 'facebook',
-                                'media_path'       => $pData['media_url'] ?? null,
-                                'scheduled_at'     => null,
-                                'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'external_post_id' => $pData['post_id'],
-                                'views_count'      => (int)($pData['views'] ?? 0),
-                                'likes_count'      => (int)($pData['likes'] ?? 0),
-                                'comments_count'   => (int)($pData['comments'] ?? 0),
-                                'duration'         => null
-                            ];
-                        }
-                    } elseif ($platform === 'instagram' && strpos($mName, 'ig_post_') === 0 && !empty($m['value'])) {
-                        $pData = json_decode($m['value'], true);
-                        if (!empty($pData['media_id'])) {
-                            $isVid = (strtoupper($pData['media_type'] ?? '') === 'VIDEO');
-                            $allPosts[] = [
-                                'id'               => 0,
-                                'hub_post_id'      => null,
-                                'content'          => $pData['caption'] ?? 'Instagram Post',
-                                'status'           => 'published',
-                                'platform'         => 'instagram',
-                                'media_path'       => $pData['media_url'] ?? null,
-                                'scheduled_at'     => null,
-                                'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'external_post_id' => $pData['media_id'],
-                                'views_count'      => (int)($pData['views'] ?? 0),
-                                'likes_count'      => (int)($pData['likes'] ?? 0),
-                                'comments_count'   => (int)($pData['comments'] ?? 0),
-                                'duration'         => $isVid ? '00:00' : 'Image'
-                            ];
-                        }
-                    } elseif ($platform === 'youtube' && strpos($mName, 'yt_video_') === 0 && !empty($m['value'])) {
-                        $pData = json_decode($m['value'], true);
-                        if (!empty($pData['video_id'])) {
-                            $allPosts[] = [
-                                'id'               => 0,
-                                'hub_post_id'      => null,
-                                'content'          => $pData['title'] ?? 'YouTube Video',
-                                'status'           => 'published',
-                                'platform'         => 'youtube',
-                                'media_path'       => $pData['thumbnail_url'] ?? null,
-                                'scheduled_at'     => null,
-                                'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'external_post_id' => $pData['video_id'],
-                                'views_count'      => (int)($pData['views'] ?? 0),
-                                'likes_count'      => (int)($pData['likes'] ?? 0),
-                                'comments_count'   => (int)($pData['comments'] ?? 0),
-                                'duration'         => $pData['duration'] ?? null
-                            ];
-                        }
-                    } elseif ($platform === 'google_business' && strpos($mName, 'gbp_post_') === 0 && !empty($m['value'])) {
-                        $pData = json_decode($m['value'], true);
-                        if (!empty($pData['post_id'])) {
-                            $allPosts[] = [
-                                'id'               => 0,
-                                'hub_post_id'      => null,
-                                'content'          => $pData['summary'] ?? 'Google Profile Post',
-                                'status'           => 'published',
-                                'platform'         => 'google_business',
-                                'media_path'       => $pData['media_url'] ?? null,
-                                'scheduled_at'     => null,
-                                'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'external_post_id' => $pData['post_id'],
-                                'views_count'      => 0,
-                                'likes_count'      => 0,
-                                'comments_count'   => 0,
-                                'duration'         => null
-                            ];
-                        }
-                    } elseif ($platform === 'linkedin' && strpos($mName, 'linkedin_post_') === 0 && !empty($m['value'])) {
-                        $pData = json_decode($m['value'], true);
-                        if (!empty($pData['post_id'])) {
-                            $allPosts[] = [
-                                'id'               => 0,
-                                'hub_post_id'      => null,
-                                'content'          => $pData['message'] ?? 'LinkedIn Post',
-                                'status'           => 'published',
-                                'platform'         => 'linkedin',
-                                'media_path'       => $pData['media_url'] ?? null,
-                                'scheduled_at'     => null,
-                                'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
-                                'external_post_id' => $pData['post_id'],
-                                'views_count'      => 0,
-                                'likes_count'      => 0,
-                                'comments_count'   => 0,
-                                'duration'         => null
-                            ];
-                        }
-                    }
-                }
+function loadPlatformPosts($clientId) {
+    $res = hubGetPlatformPosts($clientId);
+    if (!empty($res['success']) && is_array($res['posts'])) {
+        $posts = [];
+        foreach ($res['posts'] as $post) {
+            if (!empty($post['published_at'])) {
+                $post['published_at'] = date('Y-m-d H:i:s', strtotime($post['published_at']));
             }
+            if (!empty($post['created_at'])) {
+                $post['created_at'] = date('Y-m-d H:i:s', strtotime($post['created_at']));
+            }
+            if (!empty($post['scheduled_at'])) {
+                $post['scheduled_at'] = date('Y-m-d H:i:s', strtotime($post['scheduled_at']));
+            }
+            $posts[] = $post;
         }
+
+        usort($posts, function ($a, $b) {
+            $dateA = $a['published_at'] ?: ($a['scheduled_at'] ?: $a['created_at']);
+            $dateB = $b['published_at'] ?: ($b['scheduled_at'] ?: $b['created_at']);
+            return strcmp($dateB, $dateA);
+        });
+
+        return $posts;
     }
-    
-    // Sort all posts descending by publication date
-    usort($allPosts, function($a, $b) {
-        $dateA = $a['published_at'] ?: ($a['scheduled_at'] ?: $a['created_at']);
-        $dateB = $b['published_at'] ?: ($b['scheduled_at'] ?: $b['created_at']);
-        return strcmp($dateB, $dateA); // Descending
-    });
-    
-    return $allPosts;
+
+    if (!empty($res['error'])) {
+        throw new Exception($res['error']);
+    }
+
+    return [];
+}
+
+function loadAllLivePosts($clientId) {
+    return loadPlatformPosts($clientId);
 }
 
 /**
