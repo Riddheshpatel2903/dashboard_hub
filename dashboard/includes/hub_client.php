@@ -151,7 +151,7 @@ function loadAllLivePosts($clientId) {
                                 'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
                                 'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
                                 'external_post_id' => $pData['post_id'],
-                                'views_count'      => 0,
+                                'views_count'      => (int)($pData['views'] ?? 0),
                                 'likes_count'      => (int)($pData['likes'] ?? 0),
                                 'comments_count'   => (int)($pData['comments'] ?? 0),
                                 'duration'         => null
@@ -172,7 +172,7 @@ function loadAllLivePosts($clientId) {
                                 'published_at'     => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
                                 'created_at'       => !empty($pData['published_at']) ? date('Y-m-d H:i:s', strtotime($pData['published_at'])) : date('Y-m-d H:i:s'),
                                 'external_post_id' => $pData['media_id'],
-                                'views_count'      => 0,
+                                'views_count'      => (int)($pData['views'] ?? 0),
                                 'likes_count'      => (int)($pData['likes'] ?? 0),
                                 'comments_count'   => (int)($pData['comments'] ?? 0),
                                 'duration'         => $isVid ? '00:00' : 'Image'

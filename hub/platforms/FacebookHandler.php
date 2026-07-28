@@ -166,7 +166,7 @@ class FacebookHandler {
     public static function getRecentPosts($token, $pageId, $limit = 50) {
         $limit = max(1, min(500, $limit));
         $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)';
-        $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
+        $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/posts?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
         $allData = [];
         $maxPages = 10;
 

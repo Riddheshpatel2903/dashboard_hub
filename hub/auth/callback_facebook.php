@@ -142,49 +142,52 @@ try {
 
         // A. Insert or update the Facebook page connection if target is facebook (ensure only one connection per client per platform)
         if ($targetPlatform === 'facebook') {
-            $stmt = $pdo->prepare("
-                SELECT id FROM platform_connections 
-                WHERE client_id = :client_id AND platform = 'facebook'
-                LIMIT 1
-            ");
-            $stmt->execute(['client_id' => $clientId]);
-            $connectionId = $stmt->fetchColumn();
+                if (!isset($facebookConnectionSaved)) {
+                    $stmt = $pdo->prepare("
+                        SELECT id FROM platform_connections 
+                        WHERE client_id = :client_id AND platform = 'facebook'
+                        LIMIT 1
+                    ");
+                    $stmt->execute(['client_id' => $clientId]);
+                    $connectionId = $stmt->fetchColumn();
 
-            if ($connectionId) {
-                $stmt = $pdo->prepare("
-                    UPDATE platform_connections 
-                    SET external_account_id = :external_id, status = 'connected', connected_at = CURRENT_TIMESTAMP
-                    WHERE id = :id
-                ");
-                $stmt->execute([
-                    'external_id' => $pageId,
-                    'id'          => $connectionId
-                ]);
-            } else {
-                $stmt = $pdo->prepare("
-                    INSERT INTO platform_connections (client_id, platform, external_account_id, status)
-                    VALUES (:client_id, 'facebook', :external_id, 'connected')
-                ");
-                $stmt->execute([
-                    'client_id'   => $clientId,
-                    'external_id' => $pageId
-                ]);
-                $connectionId = $pdo->lastInsertId();
+                    if ($connectionId) {
+                        $stmt = $pdo->prepare("
+                            UPDATE platform_connections 
+                            SET external_account_id = :external_id, status = 'connected', connected_at = CURRENT_TIMESTAMP
+                            WHERE id = :id
+                        ");
+                        $stmt->execute([
+                            'external_id' => $pageId,
+                            'id'          => $connectionId
+                        ]);
+                    } else {
+                        $stmt = $pdo->prepare("
+                            INSERT INTO platform_connections (client_id, platform, external_account_id, status)
+                            VALUES (:client_id, 'facebook', :external_id, 'connected')
+                        ");
+                        $stmt->execute([
+                            'client_id'   => $clientId,
+                            'external_id' => $pageId
+                        ]);
+                        $connectionId = $pdo->lastInsertId();
+                    }
+
+                    // B. Store or update the token
+                    $stmt = $pdo->prepare("
+                        INSERT INTO platform_tokens (platform_connection_id, access_token_encrypted, expires_at)
+                        VALUES (:connection_id, :token, :expires_at)
+                        ON DUPLICATE KEY UPDATE access_token_encrypted = VALUES(access_token_encrypted), expires_at = VALUES(expires_at)
+                    ");
+                    $stmt->execute([
+                        'connection_id' => $connectionId,
+                        'token'         => $encryptedToken,
+                        'expires_at'    => null // Permanent page token has no expiry
+                    ]);
+
+                    $facebookConnectionSaved = true;
+                }
             }
-
-            // B. Store or update the token
-            $stmt = $pdo->prepare("
-                INSERT INTO platform_tokens (platform_connection_id, access_token_encrypted, expires_at)
-                VALUES (:connection_id, :token, :expires_at)
-                ON DUPLICATE KEY UPDATE access_token_encrypted = VALUES(access_token_encrypted), expires_at = VALUES(expires_at)
-            ");
-            $stmt->execute([
-                'connection_id' => $connectionId,
-                'token'         => $encryptedToken,
-                'expires_at'    => null // Permanent page token has no expiry
-            ]);
-        }
-
         // C. Check for linked Instagram account for this page if target is instagram
         if ($targetPlatform === 'instagram') {
             $igAccountId = null;
@@ -292,8 +295,8 @@ try {
                 ]);
                 
                 log_message('info', "Linked Instagram account detected and saved", ['client_id' => $clientId, 'instagram_id' => $igAccountId]);
-            } else {
-                throw new Exception("No linked Instagram Business Account found on your Facebook Page. Please convert your Instagram account to a Professional (Business/Creator) account and link it in Facebook Page settings (Settings -> Linked Accounts -> Instagram).");
+                $instagramConnectionSaved = true;
+                break;
             }
         }
     }

@@ -701,7 +701,7 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                     <div class="px-lg py-md border-b border-surface-variant flex flex-wrap justify-between items-center gap-md">
                         <div>
                             <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Content Performance Ledger</h3>
-                            <p class="text-xs text-on-surface-variant">Showing latest published content with views, likes, duration, and comment metrics.</p>
+                            <p class="text-xs text-on-surface-variant">Showing latest published content with views, likes, and comment metrics.</p>
                         </div>
                         <span class="text-xs font-bold px-md py-1 rounded-full bg-surface-container text-primary font-data-label uppercase">
                             <?php echo count($postsList); ?> Items
@@ -726,7 +726,7 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                             <tbody class="divide-y divide-surface-variant">
                                 <?php if (empty($postsList)): ?>
                                     <tr>
-                                        <td colspan="9" class="py-xl text-center text-on-surface-variant font-body-md">
+                                        <td colspan="8" class="py-xl text-center text-on-surface-variant font-body-md">
                                             No posts recorded for the active channel filter.
                                         </td>
                                     </tr>
@@ -738,7 +738,6 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                         $pViews = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['views_count'] ?? 0) : ucfirst($pItem['status']);
                                         $pLikes = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['likes_count'] ?? 0) : '-';
                                         $pComments = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['comments_count'] ?? 0) : '-';
-                                        $pDuration = $isVid ? getMediaDuration($pItem['media_path'] ?? '', $pItem['duration'] ?? null) : 'Image';
                                         ?>
                                         <tr class="hover:bg-secondary-container/10 transition-colors group">
                                             <td class="py-3 px-md">
@@ -782,9 +781,6 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                             </td>
                                             <td class="py-3 px-md text-right font-data-metric text-on-surface-variant">
                                                 <?php echo $pComments; ?>
-                                            </td>
-                                            <td class="py-3 px-md text-center font-data-label text-xs text-on-surface-variant font-bold">
-                                                <?php echo $pDuration; ?>
                                             </td>
                                             <td class="py-3 px-md font-body-sm text-on-surface-variant whitespace-nowrap text-xs">
                                                 <?php echo date('M d, H:i', strtotime($pItem['published_at'] ?: $pItem['scheduled_at'] ?: $pItem['created_at'])); ?>

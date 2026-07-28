@@ -111,7 +111,7 @@ try {
         case 'facebook':
             if ($postId > 0) {
                 try {
-                    $metrics = ['post_engaged_users', 'post_reactions_by_type_total'];
+                    $metrics = ['post_impressions', 'post_engaged_users', 'post_reactions_by_type_total'];
                     $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
@@ -121,9 +121,15 @@ try {
                             if (!empty($item['values'])) {
                                 $val = end($item['values'])['value'] ?? 0;
                             }
+                            $normalizedName = $name;
+                            if ($name === 'post_impressions') {
+                                $normalizedName = 'views';
+                            } elseif ($name === 'post_video_views') {
+                                $normalizedName = 'view_count';
+                            }
                             $normalizedMetrics[] = [
                                 'platform'    => 'facebook',
-                                'metric_name' => $name,
+                                'metric_name' => $normalizedName,
                                 'value'       => is_array($val) ? json_encode($val) : $val,
                                 'period'      => $period
                             ];
@@ -182,6 +188,21 @@ try {
                                 $likes = $pItem['likes']['summary']['total_count'] ?? 0;
                                 $comments = $pItem['comments']['summary']['total_count'] ?? 0;
                                 $shares = $pItem['shares']['count'] ?? 0;
+                                $views = 0;
+
+                                if (!empty($pItem['insights']['data']) && is_array($pItem['insights']['data'])) {
+                                    foreach ($pItem['insights']['data'] as $insight) {
+                                        if (empty($insight['name']) || empty($insight['values'][0]['value'])) {
+                                            continue;
+                                        }
+                                        $metricValue = (int)$insight['values'][0]['value'];
+                                        if ($insight['name'] === 'post_impressions') {
+                                            $views = max($views, $metricValue);
+                                        } elseif ($insight['name'] === 'post_video_views') {
+                                            $views = max($views, $metricValue);
+                                        }
+                                    }
+                                }
                                 
                                 $normalizedMetrics[] = [
                                     'platform'    => 'facebook',
@@ -193,7 +214,8 @@ try {
                                         'media_url'    => $mediaUrl,
                                         'likes'        => (int)$likes,
                                         'comments'     => (int)$comments,
-                                        'shares'       => (int)$shares
+                                        'shares'       => (int)$shares,
+                                        'views'        => $views
                                     ]),
                                     'period'      => 'lifetime'
                                 ];
@@ -276,6 +298,19 @@ try {
                         foreach ($recentMediaRaw['data'] as $mItem) {
                             $mId = $mItem['id'] ?? '';
                             if ($mId) {
+                                $views = 0;
+                                if (!empty($mItem['insights']['data']) && is_array($mItem['insights']['data'])) {
+                                    foreach ($mItem['insights']['data'] as $insight) {
+                                        if (empty($insight['name']) || empty($insight['values'][0]['value'])) {
+                                            continue;
+                                        }
+                                        $metricValue = (int)$insight['values'][0]['value'];
+                                        if ($insight['name'] === 'impressions' || $insight['name'] === 'reach' || $insight['name'] === 'video_views') {
+                                            $views = max($views, $metricValue);
+                                        }
+                                    }
+                                }
+
                                 $normalizedMetrics[] = [
                                     'platform'    => 'instagram',
                                     'metric_name' => 'ig_post_' . $mId,
@@ -286,7 +321,8 @@ try {
                                         'media_url'    => $mItem['media_url'] ?? '',
                                         'media_type'   => $mItem['media_type'] ?? 'IMAGE',
                                         'likes'        => (int)($mItem['like_count'] ?? 0),
-                                        'comments'     => (int)($mItem['comments_count'] ?? 0)
+                                        'comments'     => (int)($mItem['comments_count'] ?? 0),
+                                        'views'        => $views
                                     ]),
                                     'period'      => 'lifetime'
                                 ];
