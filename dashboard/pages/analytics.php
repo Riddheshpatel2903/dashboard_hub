@@ -173,7 +173,6 @@ if ($lastPost) {
 
 // Extract metric values and calculate dynamic totals
 $metricValues = [];
-$ytRecentVideos = [];
 $sumReach = 0;
 $sumImpressions = 0;
 $sumEngagement = 0;
@@ -185,22 +184,6 @@ foreach ($metrics as $m) {
     $mName = strtolower($m['metric_name']);
     $val = is_numeric($m['value']) ? (float) $m['value'] : 0;
     $metricValues[$mName] = $m['value'];
-
-    if (strpos($mName, 'yt_video_') === 0 && !empty($m['value'])) {
-        $decoded = json_decode($m['value'], true);
-        if ($decoded && !empty($decoded['video_id'])) {
-            $ytRecentVideos[$decoded['video_id']] = $decoded;
-            if (!empty($decoded['likes'])) {
-                $sumEngagement += (float) $decoded['likes'];
-            }
-            if (!empty($decoded['comments'])) {
-                $sumEngagement += (float) $decoded['comments'];
-            }
-            if (!empty($decoded['views']) && $sumReach == 0) {
-                $sumReach += (float) $decoded['views'];
-            }
-        }
-    }
 
     if (in_array($mName, ['reach', 'views', 'view_count', 'views_search', 'views_maps'])) {
         $sumReach += $val;
@@ -310,71 +293,6 @@ $totalViewsInChart = array_sum($chartValues);
 if ($totalViewsInChart === 0) {
     // Fall back to post counts so the graph has activity if views are not loaded/present
     $chartValues = $chartPostCounts;
-}
-
-// Pre-fetch live individual metrics for published posts in list
-$postMetricsMap = [];
-foreach ($postsList as $idx => $pItem) {
-    if ($pItem['status'] === 'published' && $idx < 15) {
-        // Always use external_post_id + post_id=0 so the Hub looks up via platform_connections,
-        // not via the Hub's posts table (which may no longer contain older/synced rows).
-        $extId = $pItem['external_post_id'] ?? '';
-        if (empty($extId) && !empty($pItem['hub_post_id'])) {
-            // Fallback: try hub_post_id lookup for posts that only have a hub ID
-            $pRes = hubGetAnalytics($client_id, $pItem['platform'], (int)$pItem['hub_post_id'], $startDate, $endDate);
-        } elseif (!empty($extId)) {
-            $pRes = hubGetAnalytics($client_id, $pItem['platform'], 0, $startDate, $endDate, $extId);
-        } else {
-            continue;
-        }
-        if (!empty($pRes['success']) && is_array($pRes['metrics'])) {
-            $pMap = [];
-            foreach ($pRes['metrics'] as $pm) {
-                $pMap[strtolower($pm['metric_name'])] = $pm['value'];
-            }
-            $postMetricsMap[$pItem['id']] = $pMap;
-        }
-    }
-}
-
-// Merge live recent YouTube videos for YouTube channel or All Channels view
-if (($platform === 'youtube' || empty($platform)) && !empty($ytRecentVideos)) {
-    // Build a set of external_post_ids already in postsList (covers synced posts with hub_post_id=0)
-    $existingYtIds = [];
-    foreach ($postsList as $p) {
-        if ($p['platform'] === 'youtube') {
-            if (!empty($p['external_post_id'])) {
-                $existingYtIds[] = $p['external_post_id'];
-            } elseif (!empty($p['hub_post_id'])) {
-                $existingYtIds[] = $p['hub_post_id'];
-            }
-        }
-    }
-    foreach ($ytRecentVideos as $vId => $vData) {
-        if (!in_array($vId, $existingYtIds)) {
-            $synthId = 'yt_' . $vId;
-            $pubDate = !empty($vData['published_at']) ? date('Y-m-d H:i:s', strtotime($vData['published_at'])) : date('Y-m-d H:i:s');
-            $thumbUrl = $vData['thumbnail_url'] ?? '';
-            array_unshift($postsList, [
-                'id'               => $synthId,
-                'hub_post_id'      => $vId,
-                'external_post_id' => $vId,
-                'content'          => $vData['title'] ?: 'YouTube Video (' . $vId . ')',
-                'status'           => 'published',
-                'platform'         => 'youtube',
-                'media_path'       => $thumbUrl ?: null,
-                'scheduled_at'     => null,
-                'published_at'     => $pubDate,
-                'created_at'       => $pubDate
-            ]);
-            $postMetricsMap[$synthId] = [
-                'view_count'    => $vData['views'],
-                'like_count'    => $vData['likes'],
-                'comment_count' => $vData['comments'],
-                'duration'      => $vData['duration']
-            ];
-        }
-    }
 }
 
 // Key KPI Values
