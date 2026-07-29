@@ -8,6 +8,7 @@ require_once __DIR__ . '/authenticate_request.php'; // Defines $client_id
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../utils/encryption.php';
 require_once __DIR__ . '/../utils/logger.php';
+require_once __DIR__ . '/../utils/token_helper.php';
 require_once __DIR__ . '/../storage/StorageService.php';
 
 // Include all platform handlers
@@ -64,7 +65,7 @@ foreach ($platformsInput as $platform) {
 
         $connectionId = $connection['connection_id'];
         $externalAccountId = $connection['external_account_id'];
-        $token = decrypt($connection['access_token_encrypted']);
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
 
         // Generate CDN public URL if media is supplied
         $mediaPublicUrl = $mediaTempPath ? StorageService::getPublicUrl($mediaTempPath) : null;

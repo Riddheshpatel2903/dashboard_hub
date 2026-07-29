@@ -8,11 +8,59 @@ require_once __DIR__ . '/authenticate_request.php'; // Defines $client_id
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../utils/encryption.php';
 require_once __DIR__ . '/../utils/logger.php';
+require_once __DIR__ . '/../utils/token_helper.php';
 
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
 require_once __DIR__ . '/../platforms/InstagramHandler.php';
 require_once __DIR__ . '/../platforms/YouTubeHandler.php';
 require_once __DIR__ . '/../platforms/GoogleBusinessHandler.php';
+
+function ensureAnalyticsCacheTable(PDO $pdo)
+{
+    $pdo->exec("CREATE TABLE IF NOT EXISTS analytics_cache (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_id INT NOT NULL,
+        platform VARCHAR(50) NOT NULL,
+        cache_key VARCHAR(64) NOT NULL,
+        response_json LONGTEXT,
+        fetched_at DATETIME NOT NULL,
+        UNIQUE KEY uniq_cache (client_id, platform, cache_key)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+}
+
+function getCachedOrFetch(PDO $pdo, $clientId, $platform, $cacheKey, callable $fetchFn, $ttlSeconds = 900)
+{
+    ensureAnalyticsCacheTable($pdo);
+    $cacheHash = hash('sha256', $cacheKey);
+
+    $stmt = $pdo->prepare("SELECT response_json, fetched_at FROM analytics_cache WHERE client_id = :client_id AND platform = :platform AND cache_key = :cache_key LIMIT 1");
+    $stmt->execute([
+        'client_id' => $clientId,
+        'platform' => $platform,
+        'cache_key' => $cacheHash
+    ]);
+    $row = $stmt->fetch();
+
+    if ($row && (time() - strtotime($row['fetched_at'])) < $ttlSeconds) {
+        return json_decode($row['response_json'], true);
+    }
+
+    $result = $fetchFn();
+
+    $upsert = $pdo->prepare("INSERT INTO analytics_cache (client_id, platform, cache_key, response_json, fetched_at)
+        VALUES (:client_id, :platform, :cache_key, :response_json, NOW())
+        ON DUPLICATE KEY UPDATE response_json = :response_json2, fetched_at = NOW()");
+    $encoded = json_encode($result);
+    $upsert->execute([
+        'client_id' => $clientId,
+        'platform' => $platform,
+        'cache_key' => $cacheHash,
+        'response_json' => $encoded,
+        'response_json2' => $encoded
+    ]);
+
+    return $result;
+}
 
 $platformInput = $_GET['platform'] ?? '';
 $postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
@@ -34,33 +82,22 @@ try {
     if (!empty($externalPostIdInput)) {
         $platform = $platformInput;
         $externalId = $externalPostIdInput;
-        // Find token for this platform
-        $stmt = $pdo->prepare("
-            SELECT pc.external_account_id, pt.access_token_encrypted
-            FROM platform_connections pc
-            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
-            WHERE pc.client_id = :client_id AND pc.platform = :platform AND pc.status = 'connected'
-            LIMIT 1
-        ");
-        $stmt->execute([
-            'client_id' => $client_id,
-            'platform'  => $platform
-        ]);
-        $connData = $stmt->fetch();
-        if (!$connData) {
+        if ($platform === 'facebook') {
+            $externalId = ensureFacebookCompositeId($pdo, $client_id, $externalId);
+        }
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
+        if (!$token) {
             header('Content-Type: application/json', true, 404);
             echo json_encode(['success' => false, 'error' => 'No active connection found for ' . $platform]);
             exit();
         }
-        $token = !empty($connData['access_token_encrypted']) ? decrypt($connData['access_token_encrypted']) : '';
         $postId = 1; // Treat as post-level metrics fetching
     } elseif ($postId > 0) {
         // Resolve post's external account / platform
         $stmt = $pdo->prepare("
-            SELECT p.external_post_id, pc.platform, pc.external_account_id, pt.access_token_encrypted
+            SELECT p.external_post_id, pc.platform, pc.external_account_id
             FROM posts p
             JOIN platform_connections pc ON p.platform_connection_id = pc.id
-            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
             WHERE p.id = :post_id AND p.client_id = :client_id
             LIMIT 1
         ");
@@ -78,30 +115,30 @@ try {
 
         $platform = $postData['platform'];
         $externalId = $postData['external_post_id'];
-        $token = !empty($postData['access_token_encrypted']) ? decrypt($postData['access_token_encrypted']) : '';
+        if ($platform === 'facebook') {
+            $externalId = ensureFacebookCompositeId($pdo, $client_id, $externalId);
+        }
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
     } else {
         // Get account level metrics by finding the first connection for this client + platform
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
+        if (!$token) {
+            header('Content-Type: application/json', true, 404);
+            echo json_encode(['success' => false, 'error' => 'No active connection found for ' . $platform]);
+            exit();
+        }
+        
         $stmt = $pdo->prepare("
-            SELECT pc.external_account_id, pt.access_token_encrypted
-            FROM platform_connections pc
-            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
-            WHERE pc.client_id = :client_id AND pc.platform = :platform AND pc.status = 'connected'
+            SELECT external_account_id
+            FROM platform_connections
+            WHERE client_id = :client_id AND platform = :platform AND status = 'connected'
             LIMIT 1
         ");
         $stmt->execute([
             'client_id' => $client_id,
             'platform'  => $platform
         ]);
-        $connData = $stmt->fetch();
-        
-        if (!$connData) {
-            header('Content-Type: application/json', true, 404);
-            echo json_encode(['success' => false, 'error' => 'No active connection found for ' . $platform]);
-            exit();
-        }
-
-        $externalId = $connData['external_account_id'];
-        $token = !empty($connData['access_token_encrypted']) ? decrypt($connData['access_token_encrypted']) : '';
+        $externalId = $stmt->fetchColumn();
     }
 
     $normalizedMetrics = [];
@@ -111,7 +148,7 @@ try {
         case 'facebook':
             if ($postId > 0) {
                 try {
-                    $metrics = ['post_impressions', 'post_engaged_users', 'post_reactions_by_type_total'];
+                    $metrics = ['post_engaged_users', 'post_reactions_by_type_total', 'post_clicks'];
                     $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
@@ -122,10 +159,13 @@ try {
                                 $val = end($item['values'])['value'] ?? 0;
                             }
                             $normalizedName = $name;
-                            if ($name === 'post_impressions') {
-                                $normalizedName = 'views';
-                            } elseif ($name === 'post_video_views') {
-                                $normalizedName = 'view_count';
+                            if ($name === 'post_reactions_by_type_total') {
+                                $normalizedName = 'reactions';
+                                if (is_array($val)) {
+                                    $val = array_sum($val);
+                                }
+                            } elseif ($name === 'post_clicks') {
+                                $normalizedName = 'clicks';
                             }
                             $normalizedMetrics[] = [
                                 'platform'    => 'facebook',
@@ -138,9 +178,34 @@ try {
                 } catch (Exception $e) {
                     log_message('warning', "Failed to fetch Facebook post insights: " . $e->getMessage());
                 }
+                // Fallback: fetch post detail fields for likes/comments/shares when insights not available
+                try {
+                    $postFields = ['id','message','shares','permalink_url','created_time','likes.summary(true).limit(0)','comments.summary(true).limit(0)'];
+                    $postDetail = FacebookHandler::getPostDetails($token, $externalId, $postFields);
+                    if (!empty($postDetail['id'])) {
+                        $likesCount = 0;
+                        if (!empty($postDetail['likes']['summary']['total_count'])) {
+                            $likesCount = (int)$postDetail['likes']['summary']['total_count'];
+                        }
+                        $commentsCount = 0;
+                        if (!empty($postDetail['comments']['summary']['total_count'])) {
+                            $commentsCount = (int)$postDetail['comments']['summary']['total_count'];
+                        }
+                        $sharesCount = 0;
+                        if (!empty($postDetail['shares']['count'])) {
+                            $sharesCount = (int)$postDetail['shares']['count'];
+                        }
+
+                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes', 'value' => $likesCount, 'period' => 'lifetime'];
+                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => $commentsCount, 'period' => 'lifetime'];
+                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares', 'value' => $sharesCount, 'period' => 'lifetime'];
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Facebook post details: " . $e->getMessage());
+                }
             } else {
                 try {
-                    $metrics = ['page_post_engagements', 'page_views_total'];
+                    $metrics = ['page_views_total'];
                     $raw = FacebookHandler::getInsights($token, $externalId, $metrics, 'day');
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
@@ -179,9 +244,28 @@ try {
 
         case 'instagram':
             if ($postId > 0) {
+                $mediaType = 'IMAGE';
+                $likeCount = 0;
+                $commentCount = 0;
                 try {
-                    $metrics = ['impressions', 'reach', 'engagement', 'saved', 'video_views'];
+                    $mediaFields = ['id', 'caption', 'media_type', 'media_url', 'timestamp', 'like_count', 'comments_count'];
+                    $mediaDetail = InstagramHandler::getMediaDetails($token, $externalId, $mediaFields);
+                    if (!empty($mediaDetail['id'])) {
+                        $mediaType = $mediaDetail['media_type'] ?? 'IMAGE';
+                        $likeCount = (int)($mediaDetail['like_count'] ?? 0);
+                        $commentCount = (int)($mediaDetail['comments_count'] ?? 0);
+                        
+                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'like_count', 'value' => $likeCount, 'period' => 'lifetime'];
+                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'comment_count', 'value' => $commentCount, 'period' => 'lifetime'];
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Instagram media details: " . $e->getMessage());
+                }
+
+                try {
+                    $metrics = ['reach', 'saved', 'views'];
                     $raw = InstagramHandler::getInsights($token, $externalId, $metrics);
+
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
                             $name = $item['name'];
@@ -203,8 +287,10 @@ try {
                 }
             } else {
                 try {
-                    $metrics = ['impressions', 'reach', 'profile_views'];
-                    $raw = InstagramHandler::getInsights($token, $externalId, $metrics, 'day');
+                    $metrics = ['reach'];
+                    $raw = getCachedOrFetch($pdo, $client_id, 'instagram', "instagram_account_insights:{$externalId}:reach:total_value", function () use ($token, $externalId, $metrics) {
+                        return InstagramHandler::getInsights($token, $externalId, $metrics, null, 'total_value');
+                    }, 900);
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
                             $name = $item['name'];
@@ -254,7 +340,7 @@ try {
                                             continue;
                                         }
                                         $metricValue = (int)$insight['values'][0]['value'];
-                                        if ($insight['name'] === 'impressions' || $insight['name'] === 'reach' || $insight['name'] === 'video_views') {
+                                        if ($insight['name'] === 'views' || $insight['name'] === 'reach') {
                                             $views = max($views, $metricValue);
                                         }
                                     }
@@ -311,7 +397,11 @@ try {
                         }
                     }
                 } catch (Exception $e) {
-                    // Fallback to YouTube Analytics API
+                    log_message('warning', "Failed to fetch YouTube video stats: " . $e->getMessage());
+                }
+
+                // Try YouTube Analytics API for advanced insights (watch time, CTR, etc.)
+                try {
                     $raw = YouTubeHandler::getVideoAnalytics($token, $externalId, $startDate, $endDate);
                     if (!empty($raw['columnHeaders']) && !empty($raw['rows'])) {
                         $headers = array_column($raw['columnHeaders'], 'name');
@@ -329,6 +419,8 @@ try {
                             }
                         }
                     }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch YouTube video analytics: " . $e->getMessage());
                 }
             } else {
                 try {

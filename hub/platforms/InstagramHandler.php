@@ -6,7 +6,14 @@
 
 class InstagramHandler {
 
-    private static $version = 'v18.0';
+    private static $version = null;
+
+    private static function initVersion() {
+        if (self::$version === null) {
+            $platforms = require __DIR__ . '/../config/platforms.php';
+            self::$version = $platforms['facebook']['graph_api_version'] ?? 'v22.0';
+        }
+    }
 
     /**
      * Publishes a post to an Instagram Business account.
@@ -20,6 +27,7 @@ class InstagramHandler {
      * @throws Exception
      */
     public static function publishPost($token, $igUserId, $content, $mediaUrl) {
+        self::initVersion();
         if (empty($mediaUrl)) {
             throw new Exception("Instagram requires a valid media URL for posting (text-only posts are not supported).");
         }
@@ -134,6 +142,7 @@ class InstagramHandler {
      * @throws Exception
      */
     public static function deletePost($token, $mediaId) {
+        self::initVersion();
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$mediaId}?access_token=" . urlencode($token);
         return self::executeRequest('DELETE', $endpoint);
     }
@@ -152,13 +161,21 @@ class InstagramHandler {
      * @return array
      * @throws Exception
      */
-    public static function getInsights($token, $mediaId, array $metrics, $period = null) {
+    public static function getInsights($token, $mediaId, array $metrics, $period = null, $metricType = null) {
+        self::initVersion();
+        if ($metricType === 'total_value' && $period !== null) {
+            // Meta Graph API rejects combined period + total_value parameters.
+            $period = null;
+        }
         $urlParams = [
             'metric'       => implode(',', $metrics),
             'access_token' => $token
         ];
         if ($period) {
             $urlParams['period'] = $period;
+        }
+        if ($metricType) {
+            $urlParams['metric_type'] = $metricType;
         }
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s/insights?%s",
@@ -170,9 +187,31 @@ class InstagramHandler {
     }
 
     /**
+     * Retrieves Instagram Media post fields such as like_count and comments_count.
+     *
+     * @param string $token   Facebook Page Token
+     * @param string $mediaId Instagram Media ID (external)
+     * @param array  $fields  Array of fields to request
+     * @return array
+     * @throws Exception
+     */
+    public static function getMediaDetails($token, $mediaId, array $fields) {
+        self::initVersion();
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/%s?fields=%s&access_token=%s",
+            self::$version,
+            $mediaId,
+            implode(',', $fields),
+            urlencode($token)
+        );
+        return self::executeRequest('GET', $endpoint);
+    }
+
+    /**
      * Gets comment list on an Instagram Media post.
      */
     public static function getComments($token, $mediaId) {
+        self::initVersion();
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s/comments?access_token=%s",
             self::$version,
@@ -192,6 +231,7 @@ class InstagramHandler {
      * @throws Exception
      */
     public static function replyToComment($token, $commentId, $reply) {
+        self::initVersion();
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$commentId}/replies";
         $payload = [
             'access_token' => $token,
@@ -204,6 +244,7 @@ class InstagramHandler {
      * Retrieves Instagram Account profile info (followers, following, media count).
      */
     public static function getAccountInfo($token, $igUserId) {
+        self::initVersion();
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s?fields=followers_count,follows_count,media_count,username,name&access_token=%s",
             self::$version,
@@ -218,33 +259,38 @@ class InstagramHandler {
      * Supports cursor pagination for older media items.
      */
     public static function getRecentMedia($token, $igUserId, $limit = 50) {
-        $limit = max(1, min(500, $limit));
+        self::initVersion();
+        $unlimited = ($limit <= 0);
+        if (!$unlimited) {
+            $limit = min(500, max(1, $limit));
+        }
         $fields = 'id,caption,media_type,media_url,timestamp,like_count,comments_count';
+        $pageSize = $unlimited ? 100 : min($limit, 100);
         $pageUrl = sprintf(
             "https://graph.facebook.com/%s/%s/media?fields=%s&limit=%d&access_token=%s",
             self::$version,
             urlencode($igUserId),
             $fields,
-            min($limit, 100),
+            $pageSize,
             urlencode($token)
         );
         $allData = [];
-        $maxPages = 10;
+        $maxPages = 50;
 
-        while ($pageUrl && count($allData) < $limit && $maxPages-- > 0) {
+        while ($pageUrl && ($unlimited || count($allData) < $limit) && $maxPages-- > 0) {
             $raw = self::executeRequest('GET', $pageUrl);
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = array_merge($allData, $raw['data']);
             }
 
-            if (count($allData) >= $limit) {
+            if (!$unlimited && count($allData) >= $limit) {
                 break;
             }
 
             $pageUrl = $raw['paging']['next'] ?? null;
         }
 
-        if (count($allData) > $limit) {
+        if (!$unlimited && count($allData) > $limit) {
             $allData = array_slice($allData, 0, $limit);
         }
 

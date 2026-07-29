@@ -165,6 +165,101 @@ class StorageService {
     }
 
     /**
+     * Download a remote media URL and store it in the local uploads directory.
+     *
+     * @param string $mediaUrl
+     * @param int $clientId
+     * @return string|false Relative storage path or false on failure
+     */
+    public static function uploadFromUrl($mediaUrl, $clientId) {
+        if (empty($mediaUrl) || !filter_var($mediaUrl, FILTER_VALIDATE_URL)) {
+            log_message('warning', "StorageService::uploadFromUrl called with invalid URL", ['url' => $mediaUrl, 'client_id' => $clientId]);
+            return false;
+        }
+
+        $urlParts = parse_url($mediaUrl);
+        if (empty($urlParts['scheme']) || !in_array(strtolower($urlParts['scheme']), ['http', 'https'], true)) {
+            log_message('warning', "StorageService::uploadFromUrl unsupported URL scheme", ['url' => $mediaUrl, 'client_id' => $clientId]);
+            return false;
+        }
+
+        $tempDir = sys_get_temp_dir();
+        $extension = pathinfo($urlParts['path'] ?? '', PATHINFO_EXTENSION);
+        $tempFile = tempnam($tempDir, 'remote_media_');
+        if (!$tempFile) {
+            log_message('error', "StorageService::uploadFromUrl failed to create temp file", ['client_id' => $clientId]);
+            return false;
+        }
+
+        $downloaded = false;
+        try {
+            $ch = curl_init($mediaUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            $fileData = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            curl_close($ch);
+
+            if ($fileData === false || $httpCode >= 400 || empty($fileData)) {
+                log_message('warning', "StorageService::uploadFromUrl failed to download remote media", ['url' => $mediaUrl, 'http_code' => $httpCode, 'client_id' => $clientId]);
+                return false;
+            }
+
+            if (!empty($contentType) && empty($extension)) {
+                $extensionMap = [
+                    'image/jpeg' => 'jpg',
+                    'image/jpg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/gif' => 'gif',
+                    'image/webp' => 'webp',
+                    'video/mp4' => 'mp4',
+                    'video/quicktime' => 'mov',
+                    'video/webm' => 'webm',
+                ];
+                if (isset($extensionMap[$contentType])) {
+                    $extension = $extensionMap[$contentType];
+                }
+            }
+
+            if (!empty($extension)) {
+                $newTempFile = $tempFile . '.' . $extension;
+                rename($tempFile, $newTempFile);
+                $tempFile = $newTempFile;
+            }
+
+            file_put_contents($tempFile, $fileData);
+            $downloaded = true;
+        } catch (Exception $e) {
+            log_message('warning', "StorageService::uploadFromUrl exception while downloading remote media: " . $e->getMessage(), ['url' => $mediaUrl, 'client_id' => $clientId]);
+            if (file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
+            return false;
+        }
+
+        if (!$downloaded) {
+            if (file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
+            return false;
+        }
+
+        $stored = self::uploadTempFile($tempFile, $clientId);
+        if ($stored === false) {
+            if (file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
+            return false;
+        }
+
+        return $stored;
+    }
+
+    /**
      * Delete a file from the local uploads directory.
      *
      * @param string $storagePath

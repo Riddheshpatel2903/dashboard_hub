@@ -5,7 +5,14 @@
 
 class FacebookHandler {
 
-    private static $version = 'v18.0';
+    private static $version = null;
+
+    private static function initVersion() {
+        if (self::$version === null) {
+            $platforms = require __DIR__ . '/../config/platforms.php';
+            self::$version = $platforms['facebook']['graph_api_version'] ?? 'v22.0';
+        }
+    }
 
     /**
      * Publishes a post to a Facebook Page.
@@ -19,6 +26,7 @@ class FacebookHandler {
      * @throws Exception
      */
     public static function publishPost($token, $pageId, $content, $mediaUrl = null, $localFilePath = null) {
+        self::initVersion();
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$pageId}/";
         $payload = ['access_token' => $token];
 
@@ -63,6 +71,7 @@ class FacebookHandler {
      * @throws Exception
      */
     public static function editPost($token, $postId, $newContent) {
+        self::initVersion();
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$postId}";
         $payload = [
             'access_token' => $token,
@@ -80,6 +89,7 @@ class FacebookHandler {
      * @throws Exception
      */
     public static function deletePost($token, $postId) {
+        self::initVersion();
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$postId}?access_token=" . urlencode($token);
         return self::executeRequest('DELETE', $endpoint);
     }
@@ -94,6 +104,7 @@ class FacebookHandler {
      * @throws Exception
      */
     public static function getInsights($token, $targetId, array $metrics, $period = null) {
+        self::initVersion();
         $urlParams = [
             'metric'       => implode(',', $metrics),
             'access_token' => $token
@@ -119,6 +130,7 @@ class FacebookHandler {
      * @throws Exception
      */
     public static function getComments($token, $postId) {
+        self::initVersion();
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s/comments?access_token=%s",
             self::$version,
@@ -138,6 +150,7 @@ class FacebookHandler {
      * @throws Exception
      */
     public static function replyToComment($token, $commentId, $reply) {
+        self::initVersion();
         $endpoint = "https://graph.facebook.com/" . self::$version . "/{$commentId}/comments";
         $payload = [
             'access_token' => $token,
@@ -150,6 +163,7 @@ class FacebookHandler {
      * Retrieves Facebook Page profile info (followers count, fans count).
      */
     public static function getAccountInfo($token, $pageId) {
+        self::initVersion();
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s?fields=followers_count,fan_count,name&access_token=%s",
             self::$version,
@@ -160,23 +174,50 @@ class FacebookHandler {
     }
 
     /**
+     * Retrieves basic post details including likes/comments/shares counts.
+     *
+     * @param string $token Page access token
+     * @param string $postId Facebook Post ID
+     * @param array  $fields Fields to request (comma separated will be joined)
+     * @return array
+     * @throws Exception
+     */
+    public static function getPostDetails($token, $postId, array $fields = []) {
+        self::initVersion();
+        $fieldsStr = !empty($fields) ? implode(',', $fields) : 'id,message,shares,attachments,created_time,permalink_url,likes.summary(true).limit(0),comments.summary(true).limit(0)';
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/%s?fields=%s&access_token=%s",
+            self::$version,
+            $postId,
+            $fieldsStr,
+            urlencode($token)
+        );
+        return self::executeRequest('GET', $endpoint);
+    }
+
+    /**
      * Retrieves recent posts from Page feed with basic interaction stats.
      * Supports cursor pagination to retrieve older posts when needed.
      */
     public static function getRecentPosts($token, $pageId, $limit = 50) {
-        $limit = max(1, min(500, $limit));
-        $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0),insights.metric(post_impressions,post_video_views).period(lifetime)';
-        $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/posts?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
+        self::initVersion();
+        $unlimited = ($limit <= 0);
+        if (!$unlimited) {
+            $limit = min(500, max(1, $limit));
+        }
+        $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)';
+        $pageSize = $unlimited ? 100 : min($limit, 100);
+        $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/posts?fields={$fields}&limit={$pageSize}&access_token=" . urlencode($token);
         $allData = [];
-        $maxPages = 10;
+        $maxPages = 50;
 
-        while ($pageUrl && count($allData) < $limit && $maxPages-- > 0) {
+        while ($pageUrl && ($unlimited || count($allData) < $limit) && $maxPages-- > 0) {
             $raw = self::executeRequest('GET', $pageUrl);
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = array_merge($allData, $raw['data']);
             }
 
-            if (count($allData) >= $limit) {
+            if (!$unlimited && count($allData) >= $limit) {
                 break;
             }
 
@@ -184,14 +225,14 @@ class FacebookHandler {
         }
 
         if (count($allData) === 0) {
-            $fallbackUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields={$fields}&limit=" . min($limit, 100) . "&access_token=" . urlencode($token);
+            $fallbackUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields={$fields}&limit={$pageSize}&access_token=" . urlencode($token);
             $raw = self::executeRequest('GET', $fallbackUrl);
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = $raw['data'];
             }
         }
 
-        if (count($allData) > $limit) {
+        if (!$unlimited && count($allData) > $limit) {
             $allData = array_slice($allData, 0, $limit);
         }
 

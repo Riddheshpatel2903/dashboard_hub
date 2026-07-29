@@ -8,6 +8,7 @@ require_once __DIR__ . '/authenticate_request.php'; // Defines $client_id
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../utils/encryption.php';
 require_once __DIR__ . '/../utils/logger.php';
+require_once __DIR__ . '/../utils/token_helper.php';
 
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
 require_once __DIR__ . '/../platforms/InstagramHandler.php';
@@ -51,7 +52,7 @@ try {
 
     $platform = $post['platform'];
     $externalPostId = $post['external_post_id'];
-    $token = !empty($post['access_token_encrypted']) ? decrypt($post['access_token_encrypted']) : '';
+    $token = get_valid_platform_token($pdo, $client_id, $platform) ?: '';
 
     $response = [];
     
@@ -59,7 +60,7 @@ try {
     if (!empty($externalPostId)) {
         switch ($platform) {
             case 'facebook':
-                $response = FacebookHandler::editPost($token, $externalPostId, $newContent);
+                $response = FacebookHandler::editPost($token, ensureFacebookCompositeId($pdo, $client_id, $externalPostId), $newContent);
                 break;
                 
             case 'linkedin':

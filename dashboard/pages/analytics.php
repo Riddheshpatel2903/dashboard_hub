@@ -38,9 +38,10 @@ $selectedPlatform = $_GET['platform_inspect'] ?? '';
 $selectedExternalPostId = $_GET['external_post_id'] ?? '';
 
 // Load all live posts dynamically
+$forceSync = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
 $allLivePosts = [];
 try {
-    $allLivePosts = loadPlatformPosts($client_id);
+    $allLivePosts = loadPlatformPosts($client_id, $forceSync);
 } catch (Exception $e) {
     $allLivePostsError = $e->getMessage();
 }
@@ -123,7 +124,7 @@ foreach ($allLivePosts as $post) {
     }
     
     $totalPosts++;
-    if ($post['status'] === 'published') {
+    if ($post['status'] === 'published' || !empty($post['external_post_id'])) {
         $publishedPosts++;
         if (!$lastPost) {
             $lastPost = $post;
@@ -205,6 +206,29 @@ foreach ($metrics as $m) {
     }
 }
 
+// Aggregate post-level metrics to channel-level KPIs as a fallback/addition!
+$postReachSum = 0;
+$postEngagementSum = 0;
+$postViewsSum = 0;
+
+foreach ($allLivePosts as $p) {
+    if (!empty($platform) && $p['platform'] !== $platform) {
+        continue;
+    }
+    $platformMetrics = is_array($p['metrics'] ?? null) ? $p['metrics'] : [];
+    $pViews = $p['views_count'] ?? $platformMetrics['views'] ?? $platformMetrics['view_count'] ?? $platformMetrics['impressions'] ?? $platformMetrics['reach'] ?? 0;
+    $pLikes = $p['likes_count'] ?? $platformMetrics['likes'] ?? $platformMetrics['like_count'] ?? 0;
+    $pComments = $p['comments_count'] ?? $platformMetrics['comments'] ?? $platformMetrics['comment_count'] ?? 0;
+    
+    $postViewsSum += (int)$pViews;
+    $postReachSum += (int)($platformMetrics['reach'] ?? $pViews);
+    $postEngagementSum += ((int)$pLikes + (int)$pComments);
+}
+
+$sumReach = max($sumReach, $postReachSum);
+$sumImpressions = max($sumImpressions, $postViewsSum);
+$sumEngagement = max($sumEngagement, $postEngagementSum);
+
 function formatCompactNumber($num)
 {
     if (!is_numeric($num))
@@ -253,25 +277,29 @@ $chartStartTs = strtotime($startDate);
 $chartEndTs = strtotime($endDate);
 $chartStep = max(1, ($chartEndTs - $chartStartTs) / 5);
 
-// Query actual DB post activity over the date range
-$stmtPostsTrend = $pdo->prepare("
-    SELECT published_at, views_count
-    FROM posts_cache 
-    WHERE client_id = :client_id AND status = 'published'
-      AND DATE(published_at) BETWEEN :start_date AND :end_date
-      " . (!empty($platform) ? ' AND platform = :platform' : '') . "
-    ORDER BY published_at ASC
-");
-$paramsTrend = [
-    'client_id'  => $client_id,
-    'start_date' => $startDate,
-    'end_date'   => $endDate
-];
-if (!empty($platform)) {
-    $paramsTrend['platform'] = $platform;
+// Filter posts in PHP to build trend
+$postsTrend = [];
+foreach ($allLivePosts as $p) {
+    if (($p['status'] ?? '') !== 'published') {
+        continue;
+    }
+    if (!empty($platform) && ($p['platform'] ?? '') !== $platform) {
+        continue;
+    }
+    $pubDate = date('Y-m-d', strtotime($p['published_at'] ?? ''));
+    if ($pubDate < $startDate || $pubDate > $endDate) {
+        continue;
+    }
+    $postsTrend[] = [
+        'published_at' => $p['published_at'] ?? '',
+        'views_count' => $p['views_count'] ?? 0
+    ];
 }
-$stmtPostsTrend->execute($paramsTrend);
-$postsTrend = $stmtPostsTrend->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+// Sort by date ascending to make sure chart lines are correct
+usort($postsTrend, function($a, $b) {
+    return strcmp($a['published_at'], $b['published_at']);
+});
 
 // Initialize 6 data points
 $chartValues = array_fill(0, 6, 0);
@@ -636,7 +664,6 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                     <th class="py-3 px-md font-data-label text-on-surface-variant uppercase text-xs text-right">Views</th>
                                     <th class="py-3 px-md font-data-label text-on-surface-variant uppercase text-xs text-right">Likes</th>
                                     <th class="py-3 px-md font-data-label text-on-surface-variant uppercase text-xs text-right">Comments</th>
-                                    <th class="py-3 px-md font-data-label text-on-surface-variant uppercase text-xs text-center">Duration</th>
                                     <th class="py-3 px-md font-data-label text-on-surface-variant uppercase text-xs">Release Date</th>
                                     <th class="py-3 px-md font-data-label text-on-surface-variant uppercase text-xs text-center">Action</th>
                                 </tr>
@@ -651,36 +678,37 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                 <?php else: ?>
                                     <?php
                                     foreach ($postsList as $pItem):
-                                        $isVid = ($pItem['platform'] === 'youtube' || strpos($pItem['media_path'] ?? '', '.mp4') !== false || strpos($pItem['media_path'] ?? '', '.mov') !== false);
+                                         $isVid = ($pItem['platform'] === 'youtube' || strpos($pItem['media_path'] ?? '', '.mp4') !== false || strpos($pItem['media_path'] ?? '', '.mov') !== false);
+                                         $platformMetrics = is_array($pItem['metrics'] ?? null) ? $pItem['metrics'] : [];
+                                        $resolvedViews = $pItem['views_count'] ?? $platformMetrics['views'] ?? $platformMetrics['view_count'] ?? $platformMetrics['impressions'] ?? $platformMetrics['reach'] ?? 0;
+                                        $resolvedLikes = $pItem['likes_count'] ?? $platformMetrics['likes'] ?? $platformMetrics['like_count'] ?? 0;
+                                        $resolvedComments = $pItem['comments_count'] ?? $platformMetrics['comments'] ?? $platformMetrics['comment_count'] ?? 0;
                                         
-                                        $pViews = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['views_count'] ?? 0) : ucfirst($pItem['status']);
-                                        $pLikes = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['likes_count'] ?? 0) : '-';
-                                        $pComments = ($pItem['status'] === 'published') ? formatCompactNumber($pItem['comments_count'] ?? 0) : '-';
+                                        $pViews = ($pItem['status'] === 'published' || !empty($pItem['external_post_id'])) ? formatCompactNumber($resolvedViews) : ucfirst($pItem['status']);
+                                        $pLikes = ($pItem['status'] === 'published' || !empty($pItem['external_post_id'])) ? formatCompactNumber($resolvedLikes) : '-';
+                                        $pComments = ($pItem['status'] === 'published' || !empty($pItem['external_post_id'])) ? formatCompactNumber($resolvedComments) : '-';
                                         ?>
                                         <tr class="hover:bg-secondary-container/10 transition-colors group">
                                             <td class="py-3 px-md">
                                                 <?php
-                                                $thumbSrc = '';
-                                                if (!empty($pItem['media_path'])) {
-                                                    if (preg_match('/^https?:\/\//i', $pItem['media_path'])) {
-                                                        $thumbSrc = $pItem['media_path'];
-                                                    } else {
-                                                        $ext = strtolower(pathinfo($pItem['media_path'], PATHINFO_EXTENSION));
-                                                        if (in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
-                                                            $thumbSrc = (defined('HUB_BASE_URL') ? HUB_BASE_URL : '') . '/uploads/' . ltrim($pItem['media_path'], '/');
-                                                        }
-                                                    }
-                                                }
+                                                 $thumbSrc = '';
+                                                 if (!empty($pItem['media_path'])) {
+                                                     if (preg_match('/^https?:\/\//i', $pItem['media_path'])) {
+                                                         $thumbSrc = $pItem['media_path'];
+                                                     } else {
+                                                         $thumbSrc = (defined('HUB_BASE_URL') ? HUB_BASE_URL : '') . '/uploads/' . ltrim($pItem['media_path'], '/');
+                                                     }
+                                                 }
                                                 ?>
                                                 <div class="w-10 h-10 rounded border border-surface-variant overflow-hidden bg-surface-container flex items-center justify-center text-primary font-bold flex-shrink-0">
-                                                    <?php if ($thumbSrc): ?>
-                                                        <img src="<?php echo htmlspecialchars($thumbSrc); ?>" alt="thumb"
-                                                             class="w-full h-full object-cover"
-                                                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                                                        <span class="material-symbols-outlined text-sm" style="display:none"><?php echo $isVid ? 'movie' : 'image'; ?></span>
-                                                    <?php else: ?>
-                                                        <span class="material-symbols-outlined text-sm"><?php echo $isVid ? 'movie' : 'image'; ?></span>
-                                                    <?php endif; ?>
+                                                     <?php if ($thumbSrc): ?>
+                                                         <img src="<?php echo htmlspecialchars($thumbSrc); ?>" alt="thumb"
+                                                              class="w-full h-full object-cover"
+                                                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                                         <span class="material-symbols-outlined text-sm" style="display:none"><?php echo $isVid ? 'movie' : 'image'; ?></span>
+                                                     <?php else: ?>
+                                                         <span class="material-symbols-outlined text-sm"><?php echo $isVid ? 'movie' : 'image'; ?></span>
+                                                     <?php endif; ?>
                                                 </div>
                                             </td>
                                             <td class="py-3 px-sm text-center">
@@ -701,7 +729,7 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                                                 <?php echo $pComments; ?>
                                             </td>
                                             <td class="py-3 px-md font-body-sm text-on-surface-variant whitespace-nowrap text-xs">
-                                                <?php echo date('M d, H:i', strtotime($pItem['published_at'] ?: $pItem['scheduled_at'] ?: $pItem['created_at'])); ?>
+                                                <?php echo date('M d, Y', strtotime($pItem['published_at'] ?: $pItem['scheduled_at'] ?: $pItem['created_at'])); ?>
                                             </td>
                                             <td class="py-3 px-md text-center">
                                                 <a href="?tab=inspect&hub_post_id=<?php echo $pItem['hub_post_id'] ?? ''; ?>&platform_inspect=<?php echo urlencode($pItem['platform']); ?>&external_post_id=<?php echo urlencode($pItem['external_post_id'] ?? ''); ?>&platform=<?php echo urlencode($platform); ?>" 
@@ -744,9 +772,9 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                     foreach ($inspectMetrics as $im) {
                         $inspMap[strtolower($im['metric_name'])] = $im['value'];
                     }
-                    $inspViews = isset($inspMap['view_count']) ? formatCompactNumber($inspMap['view_count']) : (isset($inspMap['views']) ? formatCompactNumber($inspMap['views']) : ($kpiReach !== '0' ? $kpiReach : '0'));
-                    $inspLikes = isset($inspMap['like_count']) ? formatCompactNumber($inspMap['like_count']) : (isset($inspMap['likes']) ? formatCompactNumber($inspMap['likes']) : ($kpiEngagement !== '0' ? $kpiEngagement : '0'));
-                    $inspComments = isset($inspMap['comment_count']) ? formatCompactNumber($inspMap['comment_count']) : (isset($inspMap['comments']) ? formatCompactNumber($inspMap['comments']) : '0');
+                    $inspViews = isset($inspMap['view_count']) ? formatCompactNumber($inspMap['view_count']) : (isset($inspMap['views']) ? formatCompactNumber($inspMap['views']) : (isset($inspMap['reach']) ? formatCompactNumber($inspMap['reach']) : formatCompactNumber($inspectPost['views_count'] ?? 0)));
+                    $inspLikes = isset($inspMap['like_count']) ? formatCompactNumber($inspMap['like_count']) : (isset($inspMap['likes']) ? formatCompactNumber($inspMap['likes']) : formatCompactNumber($inspectPost['likes_count'] ?? 0));
+                    $inspComments = isset($inspMap['comment_count']) ? formatCompactNumber($inspMap['comment_count']) : (isset($inspMap['comments']) ? formatCompactNumber($inspMap['comments']) : formatCompactNumber($inspectPost['comments_count'] ?? 0));
                     ?>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
                         <!-- Post Preview -->

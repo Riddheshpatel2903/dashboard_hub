@@ -6,6 +6,7 @@
  */
 class YouTubeHandler
 {
+    private static $analyticsApiDisabled = false;
     /**
      * Upload a video using YouTube's Resumable Upload protocol.
      * Quota Cost: 1600 units (1600 units for insert).
@@ -219,7 +220,10 @@ class YouTubeHandler
      */
     public static function getRecentChannelVideos($token, $maxResults = 50)
     {
-        $maxResults = max(1, min(500, $maxResults));
+        $unlimited = ($maxResults <= 0);
+        if (!$unlimited) {
+            $maxResults = max(1, min(500, $maxResults));
+        }
 
         // 1. Get uploads playlist ID
         $chRes = self::getChannelStats($token, 'mine');
@@ -231,8 +235,8 @@ class YouTubeHandler
         // 2. Collect playlist video IDs with pagination
         $videoIds = [];
         $nextPageToken = null;
-        while (count($videoIds) < $maxResults) {
-            $pageSize = min(50, $maxResults - count($videoIds));
+        while ($nextPageToken !== false && ($unlimited || count($videoIds) < $maxResults)) {
+            $pageSize = $unlimited ? 50 : min(50, $maxResults - count($videoIds));
             $plUrl = 'https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=' . $pageSize . '&playlistId=' . urlencode($uploadsPlaylistId);
             if ($nextPageToken) {
                 $plUrl .= '&pageToken=' . urlencode($nextPageToken);
@@ -246,14 +250,14 @@ class YouTubeHandler
             foreach ($plRes['items'] as $item) {
                 if (!empty($item['contentDetails']['videoId'])) {
                     $videoIds[] = $item['contentDetails']['videoId'];
-                    if (count($videoIds) >= $maxResults) {
+                    if (!$unlimited && count($videoIds) >= $maxResults) {
                         break 2;
                     }
                 }
             }
 
-            $nextPageToken = $plRes['nextPageToken'] ?? null;
-            if (empty($nextPageToken)) {
+            $nextPageToken = $plRes['nextPageToken'] ?? false;
+            if (!$nextPageToken) {
                 break;
             }
         }
@@ -289,18 +293,28 @@ class YouTubeHandler
      */
     public static function getVideoAnalytics($token, $videoId, $startDate = null, $endDate = null)
     {
+        if (self::$analyticsApiDisabled) {
+            throw new Exception("YouTube Analytics API is disabled or not activated in GCP project.");
+        }
+
         $startDate = $startDate ?: date('Y-m-d', strtotime('-30 days'));
         $endDate = $endDate ?: date('Y-m-d');
 
-        // Base URL is different: youtubeanalytics.googleapis.com vs www.googleapis.com/youtube
         $url = sprintf(
-            'https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE&startDate=%s&endDate=%s&metrics=views,comments,likes,dislikes&filters=video==%s',
+            'https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE&startDate=%s&endDate=%s&metrics=views,comments,likes,dislikes,estimatedMinutesWatched,averageViewDuration,subscribersGained&filters=video==%s',
             $startDate,
             $endDate,
             $videoId
         );
 
-        return self::executeRequest('GET', $token, $url);
+        try {
+            return self::executeRequest('GET', $token, $url);
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'has not been used in project') !== false || strpos($e->getMessage(), 'disabled') !== false) {
+                self::$analyticsApiDisabled = true;
+            }
+            throw $e;
+        }
     }
 
     /**

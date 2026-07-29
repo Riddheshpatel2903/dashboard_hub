@@ -96,8 +96,12 @@ function hubGetAnalytics($clientId, $platform, $postId = 0, $startDate = null, $
 /**
  * Gets local and platform posts from the Hub.
  */
-function hubGetPlatformPosts($clientId, $limit = 100) {
-    return hubRequest($clientId, '/api/posts.php?include_platform=1&limit=' . (int)$limit, 'GET');
+function hubGetPlatformPosts($clientId, $limit = 100, $forceSync = false) {
+    $url = '/api/posts.php?include_platform=1&limit=' . (int)$limit;
+    if ($forceSync) {
+        $url .= '&force_sync=1';
+    }
+    return hubRequest($clientId, $url, 'GET');
 }
 
 /**
@@ -118,8 +122,8 @@ function hubGetLocalPostDetails($clientId, $hubPostId) {
  * Loads platform posts from the Hub posts endpoint.
  * This replaces the old analytics-based reconstruction logic.
  */
-function loadPlatformPosts($clientId) {
-    $res = hubGetPlatformPosts($clientId);
+function loadPlatformPosts($clientId, $forceSync = false) {
+    $res = hubGetPlatformPosts($clientId, 100, $forceSync);
     if (!empty($res['success']) && is_array($res['posts'])) {
         $posts = [];
         foreach ($res['posts'] as $post) {
@@ -132,6 +136,59 @@ function loadPlatformPosts($clientId) {
             if (!empty($post['scheduled_at'])) {
                 $post['scheduled_at'] = date('Y-m-d H:i:s', strtotime($post['scheduled_at']));
             }
+
+            if (empty($post['views_count']) || empty($post['likes_count']) || empty($post['comments_count'])) {
+                $metrics = is_array($post['metrics'] ?? null) ? $post['metrics'] : [];
+                if (empty($post['views_count'])) {
+                    $post['views_count'] = isset($metrics['views']) ? (int)$metrics['views'] : (isset($metrics['view_count']) ? (int)$metrics['view_count'] : (isset($metrics['impressions']) ? (int)$metrics['impressions'] : (isset($metrics['reach']) ? (int)$metrics['reach'] : 0)));
+                }
+                if (empty($post['likes_count'])) {
+                    $post['likes_count'] = isset($metrics['likes']) ? (int)$metrics['likes'] : (isset($metrics['like_count']) ? (int)$metrics['like_count'] : 0);
+                }
+                if (empty($post['comments_count'])) {
+                    $post['comments_count'] = isset($metrics['comments']) ? (int)$metrics['comments'] : (isset($metrics['comment_count']) ? (int)$metrics['comment_count'] : 0);
+                }
+            }
+
+            // Auto-heal local dashboard posts_cache status if Hub returned it as published or it has an external_post_id
+            if (!empty($post['hub_post_id'])) {
+                try {
+                    $dashPdo = require __DIR__ . '/../db/connection.php';
+                    $checkStmt = $dashPdo->prepare("SELECT id, status, external_post_id FROM posts_cache WHERE hub_post_id = :hub_post_id LIMIT 1");
+                    $checkStmt->execute(['hub_post_id' => $post['hub_post_id']]);
+                    $cached = $checkStmt->fetch();
+                    if ($cached) {
+                        $needsUpdate = false;
+                        $updateParams = ['hub_post_id' => $post['hub_post_id']];
+                        
+                        if ($cached['status'] !== 'published' && ($post['status'] === 'published' || !empty($post['external_post_id']))) {
+                            $needsUpdate = true;
+                            $updateParams['status'] = 'published';
+                            $updateParams['published_at'] = !empty($post['published_at']) ? $post['published_at'] : date('Y-m-d H:i:s');
+                        }
+                        if (empty($cached['external_post_id']) && !empty($post['external_post_id'])) {
+                            $needsUpdate = true;
+                            $updateParams['external_post_id'] = $post['external_post_id'];
+                        }
+                        
+                        if ($needsUpdate) {
+                            $sql = "UPDATE posts_cache SET ";
+                            $sets = [];
+                            if (isset($updateParams['status'])) $sets[] = "status = :status";
+                            if (isset($updateParams['published_at'])) $sets[] = "published_at = :published_at";
+                            if (isset($updateParams['external_post_id'])) $sets[] = "external_post_id = :external_post_id";
+                            $sql .= implode(', ', $sets);
+                            $sql .= " WHERE hub_post_id = :hub_post_id";
+                            
+                            $updStmt = $dashPdo->prepare($sql);
+                            $updStmt->execute($updateParams);
+                        }
+                    }
+                } catch (Exception $dbEx) {
+                    // Ignore local cache update failures
+                }
+            }
+
             $posts[] = $post;
         }
 

@@ -8,6 +8,7 @@ require_once __DIR__ . '/authenticate_request.php'; // Defines $client_id
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../utils/encryption.php';
 require_once __DIR__ . '/../utils/logger.php';
+require_once __DIR__ . '/../utils/token_helper.php';
 
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
 require_once __DIR__ . '/../platforms/InstagramHandler.php';
@@ -52,7 +53,7 @@ try {
             $platform = $post['platform'];
             $externalPostId = $post['external_post_id'];
             $mediaPath = $post['media_temp_path'] ?? '';
-            $token = decrypt($post['access_token_encrypted']);
+            $token = get_valid_platform_token($pdo, $client_id, $platform);
         }
     }
 
@@ -63,24 +64,12 @@ try {
             exit();
         }
         
-        $stmt = $pdo->prepare("
-            SELECT pc.id, pt.access_token_encrypted 
-            FROM platform_connections pc
-            JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
-            WHERE pc.client_id = :client_id AND pc.platform = :platform AND pc.status = 'connected'
-            LIMIT 1
-        ");
-        $stmt->execute([
-            'client_id' => $client_id,
-            'platform'  => $platform
-        ]);
-        $conn = $stmt->fetch();
-        if (!$conn) {
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
+        if (!$token) {
             header('Content-Type: application/json', true, 404);
             echo json_encode(['success' => false, 'error' => 'Platform connection not found or unauthorized']);
             exit();
         }
-        $token = decrypt($conn['access_token_encrypted']);
     }
 
     $response = [];
@@ -92,26 +81,13 @@ try {
         try {
             switch ($platform) {
                 case 'facebook':
-                    // If the post ID is just a numeric media/photo ID (no page_id prefix),
-                    // prefix it with the page ID (external_account_id) so Facebook knows the context.
-                    $fbPostId = $externalPostId;
-                    if (strpos($fbPostId, '_') === false) {
-                        $pageId = $post['external_account_id'] ?? $conn['external_account_id'] ?? '';
-                        if (!empty($pageId)) {
-                            $fbPostId = $pageId . '_' . $fbPostId;
-                        }
-                    }
+                    $fbPostId = ensureFacebookCompositeId($pdo, $client_id, $externalPostId);
                     $response = FacebookHandler::deletePost($token, $fbPostId);
                     break;
                     
                 case 'instagram':
                     if (empty($token)) {
-                        $stmt = $pdo->prepare("\n                            SELECT pt.access_token_encrypted\n                            FROM platform_connections pc\n                            JOIN platform_tokens pt ON pc.id = pt.platform_connection_id\n                            WHERE pc.client_id = :client_id AND pc.platform = 'facebook' AND pc.status = 'connected'\n                            LIMIT 1\n                        ");
-                        $stmt->execute(['client_id' => $client_id]);
-                        $fbConn = $stmt->fetch();
-                        if (!empty($fbConn['access_token_encrypted'])) {
-                            $token = decrypt($fbConn['access_token_encrypted']);
-                        }
+                        $token = get_valid_platform_token($pdo, $client_id, 'facebook');
                     }
                     $response = InstagramHandler::deletePost($token, $externalPostId);
                     break;

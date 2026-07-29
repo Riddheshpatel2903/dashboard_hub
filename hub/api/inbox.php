@@ -8,6 +8,7 @@ require_once __DIR__ . '/authenticate_request.php'; // Defines $client_id
 $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../utils/encryption.php';
 require_once __DIR__ . '/../utils/logger.php';
+require_once __DIR__ . '/../utils/token_helper.php';
 
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
 require_once __DIR__ . '/../platforms/InstagramHandler.php';
@@ -81,7 +82,7 @@ try {
         }
 
         $externalAccountId = $connection['external_account_id'];
-        $token = decrypt($connection['access_token_encrypted']);
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
         $externalPostId = $connection['external_post_id'] ?? null;
 
         // Fetch feed comments or reviews from API
@@ -91,7 +92,7 @@ try {
             }
 
             if ($platform === 'facebook') {
-                $results = FacebookHandler::getComments($token, $externalPostId);
+                $results = FacebookHandler::getComments($token, ensureFacebookCompositeId($pdo, $client_id, $externalPostId));
             } elseif ($platform === 'instagram') {
                 $results = InstagramHandler::getComments($token, $externalPostId);
             } elseif ($platform === 'youtube') {

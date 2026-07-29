@@ -6,7 +6,14 @@
 
 class WhatsAppHandler {
 
-    private static $version = 'v18.0';
+    private static $version = null;
+
+    private static function initVersion() {
+        if (self::$version === null) {
+            $platforms = require __DIR__ . '/../config/platforms.php';
+            self::$version = $platforms['facebook']['graph_api_version'] ?? 'v22.0';
+        }
+    }
 
     /**
      * Sends a pre-approved WhatsApp Template Message.
@@ -22,6 +29,7 @@ class WhatsAppHandler {
      * @throws Exception
      */
     public static function sendTemplateMessage($token, $phoneNumberId, $to, $templateName, $languageCode = 'en_US', array $components = []) {
+        self::initVersion();
         $url = "https://graph.facebook.com/" . self::$version . "/{$phoneNumberId}/messages";
         
         $payload = [
@@ -55,6 +63,7 @@ class WhatsAppHandler {
      * @throws Exception
      */
     public static function sendTextMessage($token, $phoneNumberId, $to, $text) {
+        self::initVersion();
         $pdo = require __DIR__ . '/../db/connection.php';
 
         // 1. Resolve client_id from the connection's external_account_id

@@ -5339,3 +5339,423 @@
 [2026-07-28 14:30:53] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1785223107_1785223107_cropped_image.jpg (167848 bytes)
 [2026-07-28 15:42:32] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784972937_1784972937_ChatGPT Image Jul 22, 2026, 06_03_15 PM.png
 [2026-07-28 15:57:35] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784972431_1784972431_ChatGPT Image Jul 22, 2026, 06_03_15 PM.png
+[2026-07-29 11:28:03] [WARNING]: API request rejected: missing X-API-Key {"ip":"unknown"}
+[2026-07-29 11:53:27] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 12:10:57] [INFO]: Successfully refreshed Google OAuth token for client 1 on youtube.
+[2026-07-29 12:17:34] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:17:45] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:20:43] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:20:46] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:20:46] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:20:46] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110484097392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:20:47] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:20:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0343}
+[2026-07-29 12:20:47] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:20:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0103}
+[2026-07-29 12:20:58] [WARNING]: Failed to fetch Instagram media details: Instagram Graph Exception (Code: 100): Unsupported get request. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:20:58] [WARNING]: Failed to fetch Instagram post insights: Instagram Graph Exception (Code: 100): Unsupported get request. Object with ID 'insights' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:21:00] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:21:03] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:21:03] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:21:04] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110484097392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:21:04] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:21:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0093}
+[2026-07-29 12:21:04] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:21:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.009}
+[2026-07-29 12:21:11] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:21:13] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:21:13] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:21:13] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110484097392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:21:14] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:21:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-29 12:21:14] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:21:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0718}
+[2026-07-29 12:25:17] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:25:24] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:25:25] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:25:26] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110484097392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:25:26] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:25:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0079}
+[2026-07-29 12:25:26] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:25:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0137}
+[2026-07-29 12:25:43] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 12:25:58] [WARNING]: Instagram media insights unavailable {"media_id":"18169404568449252","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:01] [WARNING]: Instagram media insights unavailable {"media_id":"18093185954059867","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:01] [WARNING]: Instagram media insights unavailable {"media_id":"18093097946077596","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:02] [WARNING]: Instagram media insights unavailable {"media_id":"18118078432677883","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:03] [WARNING]: Instagram media insights unavailable {"media_id":"18201211261362785","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:03] [WARNING]: Instagram media insights unavailable {"media_id":"18090779117378374","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:06] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:26:07] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:26:09] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:26:20] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 12:26:28] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:26:31] [WARNING]: Instagram media insights unavailable {"media_id":"18169404568449252","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:32] [WARNING]: Instagram media insights unavailable {"media_id":"18093185954059867","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:32] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:26:33] [WARNING]: Instagram media insights unavailable {"media_id":"18093097946077596","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:34] [WARNING]: Instagram media insights unavailable {"media_id":"18118078432677883","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:36] [WARNING]: Instagram media insights unavailable {"media_id":"18201211261362785","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:37] [WARNING]: Instagram media insights unavailable {"media_id":"18090779117378374","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:26:44] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:26:48] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:26:54] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:27:19] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:27:54] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:27:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0397}
+[2026-07-29 12:27:54] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:27:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0274}
+[2026-07-29 12:28:48] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:28:51] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:29:40] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:29:40] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0081}
+[2026-07-29 12:29:40] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:29:40] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0231}
+[2026-07-29 12:29:46] [WARNING]: Failed to fetch YouTube video analytics: YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+[2026-07-29 12:29:47] [WARNING]: Failed to fetch YouTube video analytics: YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+[2026-07-29 12:29:49] [WARNING]: Failed to fetch YouTube video analytics: YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+[2026-07-29 12:29:54] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:29:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-29 12:29:54] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:29:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0109}
+[2026-07-29 12:30:01] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:30:06] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:30:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0456}
+[2026-07-29 12:30:06] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:30:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0255}
+[2026-07-29 12:30:17] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:30:21] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:30:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0071}
+[2026-07-29 12:30:21] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:30:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0304}
+[2026-07-29 12:30:26] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:30:30] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:30:30] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-29 12:30:30] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:30:30] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.01}
+[2026-07-29 12:31:17] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.013}
+[2026-07-29 12:31:17] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0103}
+[2026-07-29 12:31:21] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.007}
+[2026-07-29 12:31:21] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0093}
+[2026-07-29 12:31:27] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.03}
+[2026-07-29 12:31:27] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:27] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0201}
+[2026-07-29 12:31:29] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0157}
+[2026-07-29 12:31:29] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0148}
+[2026-07-29 12:31:35] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 12:31:35] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-29 12:31:35] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-29 12:31:37] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:37] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0051}
+[2026-07-29 12:31:37] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:37] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0096}
+[2026-07-29 12:31:39] [WARNING]: Instagram media insights unavailable {"media_id":"18169404568449252","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:40] [WARNING]: Instagram media insights unavailable {"media_id":"18093185954059867","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:40] [WARNING]: Instagram media insights unavailable {"media_id":"18093097946077596","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:41] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0116}
+[2026-07-29 12:31:41] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0102}
+[2026-07-29 12:31:41] [WARNING]: Instagram media insights unavailable {"media_id":"18118078432677883","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:42] [WARNING]: Instagram media insights unavailable {"media_id":"18201211261362785","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:42] [WARNING]: Instagram media insights unavailable {"media_id":"18090779117378374","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:44] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:31:45] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 12:31:46] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:31:46] [WARNING]: Instagram media insights unavailable {"media_id":"18169404568449252","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:47] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0181}
+[2026-07-29 12:31:47] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0094}
+[2026-07-29 12:31:47] [WARNING]: Instagram media insights unavailable {"media_id":"18093185954059867","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:48] [WARNING]: Instagram media insights unavailable {"media_id":"18093097946077596","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:48] [WARNING]: Instagram media insights unavailable {"media_id":"18118078432677883","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:49] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.01}
+[2026-07-29 12:31:49] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.011}
+[2026-07-29 12:31:49] [WARNING]: Instagram media insights unavailable {"media_id":"18201211261362785","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:50] [WARNING]: Instagram media insights unavailable {"media_id":"18090779117378374","error":"Instagram Graph Exception (Code: 100): (#100) Starting from version v22.0 and above, the impressions metric is no longer supported for the queried media. Please refer to the documentation at https://developers.facebook.com/docs/instagram-api/reference/ig-media/insights for a list of supported metrics."}
+[2026-07-29 12:31:51] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:51] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-29 12:31:51] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:51] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-29 12:31:52] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:31:53] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:31:57] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:31:57] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.009}
+[2026-07-29 12:31:57] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:31:57] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0298}
+[2026-07-29 12:32:00] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:32:06] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:32:06] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0069}
+[2026-07-29 12:32:06] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:32:06] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0226}
+[2026-07-29 12:33:31] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) The following metrics (profile_views) should be specified with parameter metric_type=total_value
+[2026-07-29 12:33:38] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:33:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0108}
+[2026-07-29 12:33:38] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:33:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0113}
+[2026-07-29 12:37:04] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:37:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0074}
+[2026-07-29 12:37:04] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:37:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0118}
+[2026-07-29 12:37:26] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:37:26] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 12:37:27] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110484097392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 12:37:32] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:37:32] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0246}
+[2026-07-29 12:37:32] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:37:32] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-29 12:37:43] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:37:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0071}
+[2026-07-29 12:37:43] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:37:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0102}
+[2026-07-29 12:43:38] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 12:43:49] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 12:44:08] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:44:09] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:44:10] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:44:10] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 12:45:31] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:45:31] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0071}
+[2026-07-29 12:45:31] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:45:31] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0271}
+[2026-07-29 12:45:51] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:45:51] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0173}
+[2026-07-29 12:45:51] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:45:51] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0116}
+[2026-07-29 12:46:16] [INFO]: Scheduler: Started execution.
+[2026-07-29 12:46:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0079}
+[2026-07-29 12:46:16] [INFO]: Queue Worker: Started execution.
+[2026-07-29 12:46:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0117}
+[2026-07-29 13:53:56] [INFO]: Successfully refreshed Google OAuth token for client 1 on youtube.
+[2026-07-29 13:54:01] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:54:01] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0091}
+[2026-07-29 13:54:01] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:54:01] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0098}
+[2026-07-29 13:54:27] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:54:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0072}
+[2026-07-29 13:54:28] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:54:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0191}
+[2026-07-29 13:55:09] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:55:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0077}
+[2026-07-29 13:55:09] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:55:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0115}
+[2026-07-29 13:55:12] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:55:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0065}
+[2026-07-29 13:55:12] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:55:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 13:55:18] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:55:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0075}
+[2026-07-29 13:55:18] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:55:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0085}
+[2026-07-29 13:55:23] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 13:55:24] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 13:55:24] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110481721392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 13:55:25] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 13:55:25] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 13:55:25] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110481721392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 13:55:27] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 13:55:27] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 13:55:27] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110481721392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 13:56:41] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:56:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0073}
+[2026-07-29 13:56:41] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:56:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0083}
+[2026-07-29 13:56:56] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:56:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-29 13:56:56] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:56:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-29 13:57:09] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:57:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 13:57:09] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:57:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0212}
+[2026-07-29 13:57:36] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 13:57:44] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 13:57:45] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 13:57:45] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 13:57:56] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 13:57:57] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 13:57:58] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:57:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0289}
+[2026-07-29 13:57:58] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:57:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0216}
+[2026-07-29 13:58:08] [INFO]: Scheduler: Started execution.
+[2026-07-29 13:58:08] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0175}
+[2026-07-29 13:58:08] [INFO]: Queue Worker: Started execution.
+[2026-07-29 13:58:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0071}
+[2026-07-29 14:00:48] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:00:48] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0083}
+[2026-07-29 14:00:48] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:00:48] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0105}
+[2026-07-29 14:01:03] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:01:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0262}
+[2026-07-29 14:01:03] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:01:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0092}
+[2026-07-29 14:01:11] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:01:11] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0297}
+[2026-07-29 14:01:11] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:01:11] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0219}
+[2026-07-29 14:01:20] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:01:20] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0288}
+[2026-07-29 14:01:20] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:01:20] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 14:01:41] [WARNING]: Failed to fetch Facebook post insights: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 14:01:41] [WARNING]: Failed to fetch Facebook post impressions fallback: Facebook Graph API Exception (Code: 100): (#100) Tried accessing nonexisting field (insights)
+[2026-07-29 14:01:42] [WARNING]: Failed to fetch Facebook post details: Facebook Graph API Exception (Code: 100): Unsupported get request. Object with ID '122110484097392348' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api
+[2026-07-29 14:01:47] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:01:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0113}
+[2026-07-29 14:01:47] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:01:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0076}
+[2026-07-29 14:01:56] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:01:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0074}
+[2026-07-29 14:01:56] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:01:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0187}
+[2026-07-29 14:04:24] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 14:04:33] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:04:33] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 14:04:34] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:04:42] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:04:44] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:06:12] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:06:12] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 14:06:12] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:06:12] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0144}
+[2026-07-29 14:06:18] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 14:06:23] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:06:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0067}
+[2026-07-29 14:06:23] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:06:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.01}
+[2026-07-29 14:06:32] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 14:06:32] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:06:34] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:06:42] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:06:43] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:14:01] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 14:14:09] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:14:11] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:14:11] [WARNING]: Platform post fetch failed {"platform":"facebook","error":"Facebook Graph API Exception (Code: 10): (#10) This endpoint requires the 'pages_read_engagement' permission or the 'Page Public Content Access' feature. Refer to https://developers.facebook.com/docs/apps/review/login-permissions#manage-pages and https://developers.facebook.com/docs/apps/review/feature#reference-PAGES_ACCESS for details."}
+[2026-07-29 14:14:19] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:14:21] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:14:39] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:14:39] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0191}
+[2026-07-29 14:14:39] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:14:39] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0305}
+[2026-07-29 14:16:49] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 14:16:49] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 14:22:56] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:22:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0076}
+[2026-07-29 14:22:56] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:22:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0437}
+[2026-07-29 14:23:07] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:23:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0299}
+[2026-07-29 14:23:07] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:23:07] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0204}
+[2026-07-29 14:23:21] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:23:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0073}
+[2026-07-29 14:23:21] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:23:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0089}
+[2026-07-29 14:40:15] [WARNING]: Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required {"platform":"facebook","client_id":1}
+[2026-07-29 14:40:24] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:40:24] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube Analytics API is disabled or not activated in GCP project."}
+[2026-07-29 14:40:24] [WARNING]: Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required {"platform":"facebook","client_id":1}
+[2026-07-29 14:40:35] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:40:35] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube Analytics API is disabled or not activated in GCP project."}
+[2026-07-29 14:41:02] [WARNING]: Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required {"platform":"facebook","client_id":1}
+[2026-07-29 14:41:09] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:41:09] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube Analytics API is disabled or not activated in GCP project."}
+[2026-07-29 14:41:12] [WARNING]: Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required {"platform":"facebook","client_id":1}
+[2026-07-29 14:41:21] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:41:21] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube Analytics API is disabled or not activated in GCP project."}
+[2026-07-29 14:44:25] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:44:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0259}
+[2026-07-29 14:44:25] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:44:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0103}
+[2026-07-29 14:44:37] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:44:37] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0201}
+[2026-07-29 14:44:38] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:44:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0188}
+[2026-07-29 14:45:42] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:45:42] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-29 14:45:42] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:45:42] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0108}
+[2026-07-29 14:45:56] [WARNING]: Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required {"platform":"facebook","client_id":1}
+[2026-07-29 14:46:05] [WARNING]: YouTube video analytics unavailable {"video_id":"OJNllMu9a5E","error":"YouTube API Exception (Code 403): YouTube Analytics API has not been used in project 408603801836 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/youtubeanalytics.googleapis.com/overview?project=408603801836 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."}
+[2026-07-29 14:46:05] [WARNING]: YouTube video analytics unavailable {"video_id":"lQ7uv7PifeQ","error":"YouTube Analytics API is disabled or not activated in GCP project."}
+[2026-07-29 14:46:10] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:46:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0076}
+[2026-07-29 14:46:10] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:46:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0111}
+[2026-07-29 14:57:13] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0084}
+[2026-07-29 14:57:13] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0131}
+[2026-07-29 14:57:16] [INFO]: Platform facebook disconnected for client 1 {"connection_id":25}
+[2026-07-29 14:57:18] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0052}
+[2026-07-29 14:57:18] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 14:57:19] [INFO]: Platform instagram disconnected for client 1 {"connection_id":26}
+[2026-07-29 14:57:21] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0055}
+[2026-07-29 14:57:21] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0092}
+[2026-07-29 14:57:22] [INFO]: Platform youtube disconnected for client 1 {"connection_id":27}
+[2026-07-29 14:57:23] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.009}
+[2026-07-29 14:57:23] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0112}
+[2026-07-29 14:57:43] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-29 14:57:43] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0082}
+[2026-07-29 14:57:46] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-29 14:57:46] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0282}
+[2026-07-29 14:57:59] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:57:59] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0086}
+[2026-07-29 14:57:59] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:57:59] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 14:59:38] [INFO]: Scheduler: Started execution.
+[2026-07-29 14:59:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.011}
+[2026-07-29 14:59:38] [INFO]: Queue Worker: Started execution.
+[2026-07-29 14:59:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0221}
+[2026-07-29 15:05:41] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:05:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-29 15:05:41] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:05:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0131}
+[2026-07-29 15:05:50] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:05:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.025}
+[2026-07-29 15:05:50] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:05:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0098}
+[2026-07-29 15:06:41] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:06:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0143}
+[2026-07-29 15:06:41] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:06:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0119}
+[2026-07-29 15:06:43] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:06:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0053}
+[2026-07-29 15:06:43] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:06:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0112}
+[2026-07-29 15:06:55] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:06:55] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0068}
+[2026-07-29 15:06:55] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:06:55] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-29 15:26:14] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:26:14] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0169}
+[2026-07-29 15:26:14] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:26:14] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0109}
+[2026-07-29 15:27:29] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:27:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0061}
+[2026-07-29 15:27:29] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:27:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0097}

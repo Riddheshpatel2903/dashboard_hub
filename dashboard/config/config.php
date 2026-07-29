@@ -14,18 +14,6 @@ define('DASHBOARD_DB_NAME', getenv('DASHBOARD_DB_NAME') ?: 'dashboard_db');
 define('DASHBOARD_DB_USER', getenv('DASHBOARD_DB_USER') ?: 'root');
 define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASHBOARD_DB_PASS') : '');
 
-// Hub API Access Coordinates
-$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'rbfitness.in';
-if (empty($httpHost) || $httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') === 0) {
-    $httpHost = 'rbfitness.in';
-}
-// Hub API URL — point this to wherever the Hub is deployed.
-// On Hostinger: set HUB_BASE_URL env var in hPanel OR update the hardcoded fallback below.
-// IMPORTANT: Replace 'https://yourdomain.com/hub' with your actual Hostinger domain.
-define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: 'https://rbfitness.in/new-site/hub', '/'));
-define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
-define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 // Dynamically compute base URL path relative to the server document root
 $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');
 $dashRoot = str_replace('\\', '/', realpath(__DIR__ . '/..') ?: '');
@@ -38,6 +26,24 @@ $dashboardBaseUrl = str_replace('\\', '/', $dashboardBaseUrl);
 $dashboardBaseUrl = rtrim($dashboardBaseUrl, '/');
 
 define('DASHBOARD_BASE_URL', $dashboardBaseUrl);
+
+// Hub API Access Coordinates
+$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+$httpHost = $_SERVER['HTTP_HOST'] ?? '';
+$isLocal = empty($httpHost) || $httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') === 0 || strpos($httpHost, '[::1]') === 0 || strpos($httpHost, '192.168.') === 0 || strpos($httpHost, '.life') !== false || strpos($httpHost, '.local') !== false;
+
+if ($isLocal && !empty($httpHost)) {
+    $dashRootParts = explode('/', trim($dashboardBaseUrl, '/'));
+    $baseSubdir = !empty($dashRootParts[0]) ? '/' . $dashRootParts[0] : '';
+    $defaultHubUrl = $httpScheme . '://' . $httpHost . $baseSubdir . '/hub';
+} else {
+    $defaultHubUrl = 'https://rbfitness.in/new-site/hub';
+}
+
+// Hub API URL — point this to wherever the Hub is deployed.
+define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultHubUrl, '/'));
+define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
+define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 $cookiePath = empty($dashboardBaseUrl) ? '/' : $dashboardBaseUrl;
 
 // Session Settings

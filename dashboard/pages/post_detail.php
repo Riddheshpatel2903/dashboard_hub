@@ -105,6 +105,49 @@ if ($status === 'published' && $platform !== 'google_business') {
     }
 }
 
+// If published and we have an external post id, fetch live post-level insights from Hub
+if ($status === 'published' && !empty($externalPostId) && $platform !== 'google_business') {
+    try {
+        $inspectRes = hubGetAnalytics($client_id, $platform, 0, null, null, $externalPostId);
+        if (!empty($inspectRes['success']) && !empty($inspectRes['metrics']) && is_array($inspectRes['metrics'])) {
+            // Merge into metrics map (prefer Hub values)
+            $map = [];
+            foreach ($metrics as $m) {
+                $map[strtolower($m['metric_name'])] = $m['value'];
+            }
+
+            foreach ($inspectRes['metrics'] as $m) {
+                $name = strtolower($m['metric_name']);
+                $val = $m['value'];
+                // Normalize common metric names
+                if (in_array($name, ['views', 'view_count', 'impressions', 'reach'])) {
+                    $map['views'] = (int)$val;
+                } elseif (in_array($name, ['likes', 'like_count', 'post_reactions_by_type_total'])) {
+                    $map['likes'] = is_numeric($val) ? (int)$val : $map['likes'] ?? 0;
+                } elseif (in_array($name, ['comments', 'comment_count'])) {
+                    $map['comments'] = (int)$val;
+                } else {
+                    // keep raw names as fallback
+                    $map[$name] = $val;
+                }
+            }
+
+            // Rebuild metrics array from map for rendering
+            $metrics = [];
+            if (isset($map['views'])) $metrics[] = ['metric_name' => 'views', 'value' => $map['views']];
+            if (isset($map['likes'])) $metrics[] = ['metric_name' => 'likes', 'value' => $map['likes']];
+            if (isset($map['comments'])) $metrics[] = ['metric_name' => 'comments', 'value' => $map['comments']];
+            // Append any remaining mapped items
+            foreach ($map as $k => $v) {
+                if (in_array($k, ['views','likes','comments'], true)) continue;
+                $metrics[] = ['metric_name' => $k, 'value' => $v];
+            }
+        }
+    } catch (Exception $e) {
+        // non-fatal
+    }
+}
+
 // Resolve Platform badge details
 $platIcon = 'face';
 $platColorClass = 'bg-surface-container text-on-surface-variant';

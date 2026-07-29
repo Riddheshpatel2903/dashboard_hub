@@ -10,7 +10,7 @@ return [
     'facebook' => [
         'app_id' => getenv('HUB_FACEBOOK_APP_ID') ?: '2167118710745191',
         'app_secret' => getenv('HUB_FACEBOOK_APP_SECRET') ?: '1d8014e67eafffade7fd7bd01708a1a5',
-        'graph_api_version' => getenv('HUB_FACEBOOK_API_VERSION') ?: 'v25.0',
+        'graph_api_version' => getenv('HUB_FACEBOOK_API_VERSION') ?: 'v22.0',
         'redirect_uri' => 'https://rbfitness.in/new-site/hub/auth/callback_facebook.php',
     ],
     // Google OAuth is shared between YouTube and Google Business Profile APIs
