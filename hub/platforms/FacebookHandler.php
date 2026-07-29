@@ -184,7 +184,7 @@ class FacebookHandler {
      */
     public static function getPostDetails($token, $postId, array $fields = []) {
         self::initVersion();
-        $fieldsStr = !empty($fields) ? implode(',', $fields) : 'id,message,shares,attachments,created_time,permalink_url,likes.summary(true).limit(0),comments.summary(true).limit(0)';
+        $fieldsStr = !empty($fields) ? implode(',', $fields) : 'id,message,shares,attachments,full_picture,created_time,permalink_url,likes.summary(true).limit(0),comments.summary(true).limit(0)';
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s?fields=%s&access_token=%s",
             self::$version,
@@ -205,14 +205,27 @@ class FacebookHandler {
         if (!$unlimited) {
             $limit = min(500, max(1, $limit));
         }
-        $fields = 'id,message,created_time,attachments,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)';
+        $fields = 'id,message,created_time,attachments,full_picture,permalink_url,shares,likes.summary(true).limit(0),comments.summary(true).limit(0)';
         $pageSize = $unlimited ? 100 : min($limit, 100);
-        $pageUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/posts?fields={$fields}&limit={$pageSize}&access_token=" . urlencode($token);
+        $pageUrl = "https://graph.facebook.com/" . self::$version . "/me/posts?fields={$fields}&limit={$pageSize}&access_token=" . urlencode($token);
         $allData = [];
         $maxPages = 50;
+        $isFallbackMode = false;
 
         while ($pageUrl && ($unlimited || count($allData) < $limit) && $maxPages-- > 0) {
-            $raw = self::executeRequest('GET', $pageUrl);
+            try {
+                $raw = self::executeRequest('GET', $pageUrl);
+            } catch (Exception $e) {
+                if (!$isFallbackMode && (strpos($e->getMessage(), 'Code: 10') !== false || strpos($e->getMessage(), 'pages_read_engagement') !== false)) {
+                    $isFallbackMode = true;
+                    $fallbackFields = 'id,message,created_time,attachments,full_picture,permalink_url,shares';
+                    $pageUrl = "https://graph.facebook.com/" . self::$version . "/me/posts?fields={$fallbackFields}&limit={$pageSize}&access_token=" . urlencode($token);
+                    continue; // Retry current iteration with fallback URL
+                } else {
+                    throw $e;
+                }
+            }
+            
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = array_merge($allData, $raw['data']);
             }
@@ -222,11 +235,27 @@ class FacebookHandler {
             }
 
             $pageUrl = $raw['paging']['next'] ?? null;
+            if ($isFallbackMode && $pageUrl) {
+                // Ensure next cursor URL also uses fallback fields
+                $urlParts = parse_url($pageUrl);
+                parse_str($urlParts['query'] ?? '', $queryParts);
+                $queryParts['fields'] = 'id,message,created_time,attachments,full_picture,permalink_url,shares';
+                $pageUrl = $urlParts['scheme'] . '://' . $urlParts['host'] . $urlParts['path'] . '?' . http_build_query($queryParts);
+            }
         }
 
         if (count($allData) === 0) {
-            $fallbackUrl = "https://graph.facebook.com/" . self::$version . "/{$pageId}/feed?fields={$fields}&limit={$pageSize}&access_token=" . urlencode($token);
-            $raw = self::executeRequest('GET', $fallbackUrl);
+            $fallbackUrl = "https://graph.facebook.com/" . self::$version . "/me/feed?fields=" . ($isFallbackMode ? 'id,message,created_time,attachments,full_picture,permalink_url,shares' : $fields) . "&limit={$pageSize}&access_token=" . urlencode($token);
+            try {
+                $raw = self::executeRequest('GET', $fallbackUrl);
+            } catch (Exception $e) {
+                if (!$isFallbackMode && (strpos($e->getMessage(), 'Code: 10') !== false || strpos($e->getMessage(), 'pages_read_engagement') !== false)) {
+                    $fallbackUrl = "https://graph.facebook.com/" . self::$version . "/me/feed?fields=id,message,created_time,attachments,full_picture,permalink_url,shares&limit={$pageSize}&access_token=" . urlencode($token);
+                    $raw = self::executeRequest('GET', $fallbackUrl);
+                } else {
+                    throw $e;
+                }
+            }
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = $raw['data'];
             }

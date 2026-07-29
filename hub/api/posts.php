@@ -407,6 +407,37 @@ function normalizeInstagramMetrics(array $mediaItem, array $insights = []): arra
 }
 
 function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array {
+    $views = isset($videoItem['statistics']['viewCount']) ? (int)$videoItem['statistics']['viewCount'] : 0;
+    $likes = isset($videoItem['statistics']['likeCount']) ? (int)$videoItem['statistics']['likeCount'] : 0;
+    $comments = isset($videoItem['statistics']['commentCount']) ? (int)$videoItem['statistics']['commentCount'] : 0;
+    $favorites = isset($videoItem['statistics']['favoriteCount']) ? (int)$videoItem['statistics']['favoriteCount'] : 0;
+
+    $estimatedMinutesWatched = null;
+    $averageViewDuration = null;
+    $subscribersGained = null;
+
+    if (!empty($analytics['rows'][0])) {
+        $row = $analytics['rows'][0];
+        $views = isset($row[0]) ? (int)$row[0] : $views;
+        $comments = isset($row[1]) ? (int)$row[1] : $comments;
+        $likes = isset($row[2]) ? (int)$row[2] : $likes;
+        $estimatedMinutesWatched = isset($row[4]) ? (int)$row[4] : null;
+        $averageViewDuration = isset($row[5]) ? (int)$row[5] : null;
+        $subscribersGained = isset($row[6]) ? (int)$row[6] : null;
+    }
+
+    return [
+        'views' => $views,
+        'likes' => $likes,
+        'comments' => $comments,
+        'favorites' => $favorites,
+        'estimated_minutes_watched' => $estimatedMinutesWatched,
+        'average_view_duration' => $averageViewDuration,
+        'subscribers_gained' => $subscribersGained,
+    ];
+}
+
+try {
     ensurePlatformPostsTable($pdo);
 
     $postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
@@ -504,6 +535,7 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
         $formatted[] = formatLocalPost($pdo, $post, $client_id);
     }
 
+    $platformErrors = [];
     if ($includePlatform) {
         $cachedPosts = fetchCachedPlatformPosts($pdo, $client_id, $platformFilter, $limit);
         foreach ($cachedPosts as $post) {
@@ -541,6 +573,7 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
                         try {
                             $recentPostsRaw = FacebookHandler::getRecentPosts($token, $conn['external_account_id'], $limit);
                         } catch (Exception $e) {
+                            $platformErrors[$platform] = $e->getMessage();
                             if (strpos($e->getMessage(), 'pages_read_engagement') !== false) {
                                 log_message('warning', 'Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required', ['platform' => $platform, 'client_id' => $client_id]);
                             } else {
@@ -557,12 +590,14 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
 
                                 $metrics = ['likes' => 0, 'comments' => 0, 'shares' => 0, 'reach' => null, 'impressions' => null, 'clicks' => null, 'engagement' => null];
                                 $insights = [];
+                                $mediaPath = $postItem['attachments']['data'][0]['media']['image']['src'] ?? ($postItem['full_picture'] ?? null);
                                 try {
                                     $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged_users', 'post_reactions_by_type_total', 'post_clicks']);
                                     $insights = $rawInsights['data'] ?? [];
                                     $metrics = normalizeFacebookMetrics($postItem, $insights);
                                 } catch (Exception $insightEx) {
                                     log_message('warning', 'Facebook post insights unavailable', ['post_id' => $postIdValue, 'error' => $insightEx->getMessage()]);
+                                    $metrics = normalizeFacebookMetrics($postItem, []);
                                 }
 
                                 $entry = [
@@ -741,11 +776,48 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
                         }
                     }
                 } catch (Exception $e) {
+                    $platformErrors[$platform] = $e->getMessage();
                     log_message('warning', 'Platform post fetch failed', ['platform' => $platform, 'error' => $e->getMessage()]);
                 }
             }
         }
     }
+
+    // Deduplicate posts centrally (merge local database entries with platform/live API entries)
+    $unique = [];
+    foreach ($formatted as $post) {
+        $key = null;
+        if (!empty($post['platform']) && !empty($post['external_post_id'])) {
+            $key = $post['platform'] . '_' . $post['external_post_id'];
+        } elseif (!empty($post['hub_post_id'])) {
+            $key = ($post['platform'] ?? 'unknown') . '_local_' . $post['hub_post_id'];
+        }
+
+        if ($key) {
+            if (!isset($unique[$key])) {
+                $unique[$key] = $post;
+            } else {
+                $existing = $unique[$key];
+                $hubPostId = $post['hub_post_id'] ?: ($existing['hub_post_id'] ?: null);
+                $pref = ($post['source'] !== 'local') ? $post : $existing;
+                $local = ($post['source'] === 'local') ? $post : $existing;
+
+                $merged = $pref;
+                $merged['hub_post_id'] = $hubPostId;
+                $merged['id'] = $local['id'] ?: ($pref['id'] ?: 0);
+                if (empty($merged['content']) && !empty($local['content'])) {
+                    $merged['content'] = $local['content'];
+                }
+                if ($post['source'] === 'local' || $existing['source'] === 'local') {
+                    $merged['source'] = 'local';
+                }
+                $unique[$key] = $merged;
+            }
+        } else {
+            $unique[] = $post;
+        }
+    }
+    $formatted = array_values($unique);
 
     usort($formatted, function ($a, $b) {
         $dateA = $a['published_at'] ?: ($a['scheduled_at'] ?: $a['created_at']);
@@ -763,6 +835,7 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
         'posts' => $formatted,
         'local_posts' => array_values(array_filter($formatted, function ($item) { return ($item['source'] ?? '') === 'local'; })),
         'platform_posts' => array_values(array_filter($formatted, function ($item) { return ($item['source'] ?? '') !== 'local'; })),
+        'platform_errors' => $platformErrors
     ]);
 } catch (Exception $e) {
     log_message('error', 'Posts fetch failure', ['error' => $e->getMessage()]);

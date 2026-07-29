@@ -124,6 +124,9 @@ function hubGetLocalPostDetails($clientId, $hubPostId) {
  */
 function loadPlatformPosts($clientId, $forceSync = false) {
     $res = hubGetPlatformPosts($clientId, 100, $forceSync);
+    if (!empty($res['platform_errors'])) {
+        $GLOBALS['platform_errors'] = $res['platform_errors'];
+    }
     if (!empty($res['success']) && is_array($res['posts'])) {
         $posts = [];
         foreach ($res['posts'] as $post) {

@@ -1,0 +1,56 @@
+# 
+
+Total posts returned: 21
+
+Facebook posts count: 5
+
+Post #1:
+  - ID: 0 (Hub ID: 116)
+  - Content: hello
+  - Status: published
+  - External ID: 122110484097392348
+  - Views Count: 0
+  - Likes Count: 0
+  - Comments Count: 0
+  - Metrics: []
+
+Post #2:
+  - ID: 0 (Hub ID: 114)
+  - Content: neqwwwwwwwwww
+  - Status: published
+  - External ID: 122110483017392348
+  - Views Count: 0
+  - Likes Count: 0
+  - Comments Count: 0
+  - Metrics: []
+
+Post #3:
+  - ID: 0 (Hub ID: 112)
+  - Content: hey there
+  - Status: published
+  - External ID: 122110482309392348
+  - Views Count: 0
+  - Likes Count: 0
+  - Comments Count: 0
+  - Metrics: []
+
+Post #4:
+  - ID: 0 (Hub ID: 110)
+  - Content: new one
+  - Status: published
+  - External ID: 122110482123392348
+  - Views Count: 0
+  - Likes Count: 0
+  - Comments Count: 0
+  - Metrics: []
+
+Post #5:
+  - ID: 0 (Hub ID: 108)
+  - Content: new one
+  - Status: published
+  - External ID: 122110481721392348
+  - Views Count: 0
+  - Likes Count: 0
+  - Comments Count: 0
+  - Metrics: []
+

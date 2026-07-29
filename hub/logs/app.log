@@ -5759,3 +5759,288 @@
 [2026-07-29 15:27:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0061}
 [2026-07-29 15:27:29] [INFO]: Queue Worker: Started execution.
 [2026-07-29 15:27:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0097}
+[2026-07-29 15:44:26] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:44:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0065}
+[2026-07-29 15:44:26] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:44:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0132}
+[2026-07-29 15:44:29] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:44:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.024}
+[2026-07-29 15:44:29] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:44:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.009}
+[2026-07-29 15:44:29] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:44:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-29 15:44:29] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:44:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0083}
+[2026-07-29 15:44:44] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:44:44] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-29 15:44:44] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:44:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0096}
+[2026-07-29 15:44:46] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:44:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0066}
+[2026-07-29 15:44:46] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:44:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0078}
+[2026-07-29 15:44:50] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:44:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0189}
+[2026-07-29 15:44:50] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:44:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0088}
+[2026-07-29 15:45:35] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:45:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-29 15:45:35] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:45:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0151}
+[2026-07-29 15:45:46] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:45:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0054}
+[2026-07-29 15:45:46] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:45:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0074}
+[2026-07-29 15:45:50] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:45:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0259}
+[2026-07-29 15:45:50] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:45:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-29 15:48:46] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:48:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0061}
+[2026-07-29 15:48:46] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:48:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0103}
+[2026-07-29 15:48:55] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSF0WBQmL5Ak2smcZAZBB7QzRzRgHfNdfZBfZAfjzPf9CcBevF6D1NyjqQ3MVYPqcs73nPmfZCO46a64gehHBNcMCQzoTj5QUZBFXKqs9JZCREa0zZAsvfgSf3FMgSfcjZBLq8DY88MubexFgS6HxZC0ZAkfAA5OuZAI5ao6KfZCbj1iDTwgay5kcOGPPAkDrH\",\"instagram_business_account\":{\"id\":\"17841451698722819\"}}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-29 15:48:55] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-29 15:49:02] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:49:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-29 15:49:02] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:49:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0091}
+[2026-07-29 15:49:04] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:49:04] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.043}
+[2026-07-29 15:49:04] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:49:04] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0099}
+[2026-07-29 15:49:13] [INFO]: Facebook me/accounts response {"client_id":1,"http_code":200,"response":"{\"data\":[{\"id\":\"1243224272200630\",\"name\":\"My Page\",\"access_token\":\"EAAeyZB6TwqGcBSJiXcTdBZAkDxeyZCiZAbpXTTCtY6A0IYmgQLr7Ag3tyUVjzKgS26HQrGZBOdwFx05F1GeKCWnW81bFbipZAmZARFg0ZAilVc2bZBZCsIcZCfpOFalmBrDCUFVi2EbReWw3ZBNuPLOyYBRzqJEtjYlugMQKKWGfKJoDJGb0Qr4ZBE4bCdZBEZCx5da1KSRziQ1xwPU\",\"instagram_business_account\":{\"id\":\"17841451698722819\"}}],\"paging\":{\"cursors\":{\"before\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\",\"after\":\"QVFIU0lENkg5X2ExSThTYVV3LVd3MFF0NlhBUm5IM1FEQ2txX2JZAcWFQX3dCRmFfWl9iOVhzZAk5SRjBDcGFZARUYtblk5RTVJYnlGTGNVMlFjMHMtMTQxYUJR\"}}}"}
+[2026-07-29 15:49:13] [INFO]: Instagram business account found in me/accounts response directly {"page_id":"1243224272200630","instagram_id":"17841451698722819"}
+[2026-07-29 15:49:13] [INFO]: Linked Instagram account detected and saved {"client_id":1,"instagram_id":"17841451698722819"}
+[2026-07-29 15:49:13] [INFO]: OAuth Page connections successful {"client_id":1,"pages_count":1}
+[2026-07-29 15:49:17] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:49:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0349}
+[2026-07-29 15:49:17] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:49:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0084}
+[2026-07-29 15:49:34] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:49:34] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0224}
+[2026-07-29 15:49:34] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:49:34] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0192}
+[2026-07-29 15:49:40] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:49:40] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0058}
+[2026-07-29 15:49:40] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:49:40] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0101}
+[2026-07-29 15:51:43] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:51:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0059}
+[2026-07-29 15:51:43] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:51:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0095}
+[2026-07-29 15:51:45] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:51:45] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-29 15:51:45] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:51:45] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-29 15:57:33] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:57:33] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0062}
+[2026-07-29 15:57:33] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:57:33] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0239}
+[2026-07-29 15:57:35] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:57:35] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0057}
+[2026-07-29 15:57:35] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:57:35] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0133}
+[2026-07-29 15:58:09] [INFO]: Scheduler: Started execution.
+[2026-07-29 15:58:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0196}
+[2026-07-29 15:58:10] [INFO]: Queue Worker: Started execution.
+[2026-07-29 15:58:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0202}
+[2026-07-29 16:04:00] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:00] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-29 16:04:00] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:00] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0098}
+[2026-07-29 16:04:03] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:03] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0312}
+[2026-07-29 16:04:03] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:03] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0274}
+[2026-07-29 16:04:17] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0266}
+[2026-07-29 16:04:17] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0094}
+[2026-07-29 16:04:19] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0307}
+[2026-07-29 16:04:19] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0262}
+[2026-07-29 16:04:23] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0266}
+[2026-07-29 16:04:23] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0089}
+[2026-07-29 16:04:23] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:23] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0077}
+[2026-07-29 16:04:23] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:23] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0094}
+[2026-07-29 16:04:24] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0304}
+[2026-07-29 16:04:24] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0081}
+[2026-07-29 16:04:24] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0064}
+[2026-07-29 16:04:24] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0087}
+[2026-07-29 16:04:25] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:25] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0051}
+[2026-07-29 16:04:25] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:25] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0083}
+[2026-07-29 16:04:26] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:26] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0412}
+[2026-07-29 16:04:26] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:26] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0272}
+[2026-07-29 16:04:44] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:44] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0073}
+[2026-07-29 16:04:44] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0096}
+[2026-07-29 16:04:47] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:04:47] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0193}
+[2026-07-29 16:04:47] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:04:47] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0205}
+[2026-07-29 16:06:07] [INFO]: Platform facebook disconnected for client 1 {"connection_id":30}
+[2026-07-29 16:06:09] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:06:09] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0335}
+[2026-07-29 16:06:09] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:06:09] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0377}
+[2026-07-29 16:06:21] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:06:21] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0092}
+[2026-07-29 16:06:21] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:06:21] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0098}
+[2026-07-29 16:41:13] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) For field 'insights': The parameter period is required
+[2026-07-29 16:41:15] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:41:15] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0136}
+[2026-07-29 16:41:15] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:41:15] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0099}
+[2026-07-29 16:41:36] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) For field 'insights': The parameter period is required
+[2026-07-29 16:41:38] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:41:38] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.005}
+[2026-07-29 16:41:38] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:41:38] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0325}
+[2026-07-29 16:41:42] [WARNING]: Failed to fetch Instagram insights: Instagram Graph Exception (Code: 100): (#100) For field 'insights': The parameter period is required
+[2026-07-29 16:41:43] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:41:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0116}
+[2026-07-29 16:41:43] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:41:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0079}
+[2026-07-29 16:41:46] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:41:46] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0307}
+[2026-07-29 16:41:46] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:41:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0286}
+[2026-07-29 16:41:48] [INFO]: Platform instagram disconnected for client 1 {"connection_id":31}
+[2026-07-29 16:41:49] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:41:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.005}
+[2026-07-29 16:41:49] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:41:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0085}
+[2026-07-29 16:41:57] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:41:57] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0427}
+[2026-07-29 16:41:57] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:41:57] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0204}
+[2026-07-29 16:42:00] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:42:00] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0183}
+[2026-07-29 16:42:00] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:42:00] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0086}
+[2026-07-29 16:42:10] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:42:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0048}
+[2026-07-29 16:42:10] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:42:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0089}
+[2026-07-29 16:42:36] [INFO]: Scheduler: Started execution.
+[2026-07-29 16:42:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0236}
+[2026-07-29 16:42:36] [INFO]: Queue Worker: Started execution.
+[2026-07-29 16:42:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.008}
+[2026-07-29 17:02:25] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 17:02:25] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 17:10:04] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 17:10:04] [WARNING]: API request rejected: missing X-API-Key {"ip":"::1"}
+[2026-07-29 17:16:32] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:32] [INFO]: Local file uploaded successfully: clients/3/rem6B52.tmp.jpg {"client_id":3,"size":287745}
+[2026-07-29 17:16:33] [WARNING]: Instagram media insights unavailable {"media_id":"17854713096262076","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:34] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:34] [INFO]: Local file uploaded successfully: clients/3/rem717D.tmp.jpg {"client_id":3,"size":175772}
+[2026-07-29 17:16:34] [WARNING]: Instagram media insights unavailable {"media_id":"18011394518311732","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:35] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:35] [INFO]: Local file uploaded successfully: clients/3/rem775A.tmp.jpg {"client_id":3,"size":191146}
+[2026-07-29 17:16:36] [WARNING]: Instagram media insights unavailable {"media_id":"17851327296070262","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:37] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:37] [INFO]: Local file uploaded successfully: clients/3/rem7D18.tmp.jpg {"client_id":3,"size":632724}
+[2026-07-29 17:16:37] [WARNING]: Instagram media insights unavailable {"media_id":"17952988073414115","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:39] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:39] [INFO]: Local file uploaded successfully: clients/3/rem843D.tmp.jpg {"client_id":3,"size":125979}
+[2026-07-29 17:16:40] [WARNING]: Instagram media insights unavailable {"media_id":"17912593169668181","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:41] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:41] [INFO]: Local file uploaded successfully: clients/3/rem90B2.tmp.jpg {"client_id":3,"size":287745}
+[2026-07-29 17:16:42] [WARNING]: Instagram media insights unavailable {"media_id":"17854713096262076","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:42] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:42] [INFO]: Local file uploaded successfully: clients/3/rem948B.tmp.jpg {"client_id":3,"size":175772}
+[2026-07-29 17:16:43] [WARNING]: Instagram media insights unavailable {"media_id":"18011394518311732","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:43] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:43] [INFO]: Local file uploaded successfully: clients/3/rem98E2.tmp.jpg {"client_id":3,"size":191146}
+[2026-07-29 17:16:44] [WARNING]: Instagram media insights unavailable {"media_id":"17851327296070262","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:44] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:44] [INFO]: Local file uploaded successfully: clients/3/rem9D96.tmp.jpg {"client_id":3,"size":632724}
+[2026-07-29 17:16:45] [WARNING]: Instagram media insights unavailable {"media_id":"17952988073414115","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:16:45] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:16:45] [INFO]: Local file uploaded successfully: clients/3/remA21B.tmp.jpg {"client_id":3,"size":125979}
+[2026-07-29 17:16:46] [WARNING]: Instagram media insights unavailable {"media_id":"17912593169668181","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:13] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701807400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:18:13] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701783400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:18:15] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:15] [INFO]: Local file uploaded successfully: clients/3/remFF1C.tmp.jpg {"client_id":3,"size":287745}
+[2026-07-29 17:18:16] [WARNING]: Instagram media insights unavailable {"media_id":"17854713096262076","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:16] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:16] [INFO]: Local file uploaded successfully: clients/3/rem372.tmp.jpg {"client_id":3,"size":175772}
+[2026-07-29 17:18:16] [WARNING]: Instagram media insights unavailable {"media_id":"18011394518311732","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:17] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:17] [INFO]: Local file uploaded successfully: clients/3/rem6EE.tmp.jpg {"client_id":3,"size":191146}
+[2026-07-29 17:18:17] [WARNING]: Instagram media insights unavailable {"media_id":"17851327296070262","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:18] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:18] [INFO]: Local file uploaded successfully: clients/3/remA2B.tmp.jpg {"client_id":3,"size":632724}
+[2026-07-29 17:18:19] [WARNING]: Instagram media insights unavailable {"media_id":"17952988073414115","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:19] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:19] [INFO]: Local file uploaded successfully: clients/3/remFAA.tmp.jpg {"client_id":3,"size":125979}
+[2026-07-29 17:18:20] [WARNING]: Instagram media insights unavailable {"media_id":"17912593169668181","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:21] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701807400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:18:21] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701783400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:18:22] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:22] [INFO]: Local file uploaded successfully: clients/3/rem1CBB.tmp.jpg {"client_id":3,"size":287745}
+[2026-07-29 17:18:23] [WARNING]: Instagram media insights unavailable {"media_id":"17854713096262076","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:24] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:24] [INFO]: Local file uploaded successfully: clients/3/rem21DC.tmp.jpg {"client_id":3,"size":175772}
+[2026-07-29 17:18:25] [WARNING]: Instagram media insights unavailable {"media_id":"18011394518311732","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:25] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:25] [INFO]: Local file uploaded successfully: clients/3/rem28B3.tmp.jpg {"client_id":3,"size":191146}
+[2026-07-29 17:18:27] [WARNING]: Instagram media insights unavailable {"media_id":"17851327296070262","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:28] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:28] [INFO]: Local file uploaded successfully: clients/3/rem2FE8.tmp.jpg {"client_id":3,"size":632724}
+[2026-07-29 17:18:28] [WARNING]: Instagram media insights unavailable {"media_id":"17952988073414115","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:18:29] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:18:29] [INFO]: Local file uploaded successfully: clients/3/rem3577.tmp.jpg {"client_id":3,"size":125979}
+[2026-07-29 17:18:29] [WARNING]: Instagram media insights unavailable {"media_id":"17912593169668181","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:08] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701807400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:20:08] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701783400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:20:10] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:10] [INFO]: Local file uploaded successfully: clients/3/remBFC1.tmp.jpg {"client_id":3,"size":287745}
+[2026-07-29 17:20:10] [WARNING]: Instagram media insights unavailable {"media_id":"17854713096262076","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:11] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:11] [INFO]: Local file uploaded successfully: clients/3/remC3AA.tmp.jpg {"client_id":3,"size":175772}
+[2026-07-29 17:20:11] [WARNING]: Instagram media insights unavailable {"media_id":"18011394518311732","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:12] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:12] [INFO]: Local file uploaded successfully: clients/3/remC7E2.tmp.jpg {"client_id":3,"size":191146}
+[2026-07-29 17:20:13] [WARNING]: Instagram media insights unavailable {"media_id":"17851327296070262","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:13] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:13] [INFO]: Local file uploaded successfully: clients/3/remCCC5.tmp.jpg {"client_id":3,"size":632724}
+[2026-07-29 17:20:14] [WARNING]: Instagram media insights unavailable {"media_id":"17952988073414115","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:15] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:15] [INFO]: Local file uploaded successfully: clients/3/remD35D.tmp.jpg {"client_id":3,"size":125979}
+[2026-07-29 17:20:15] [WARNING]: Instagram media insights unavailable {"media_id":"17912593169668181","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:16] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701807400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:20:17] [WARNING]: Facebook post insights unavailable {"post_id":"1169742216226175_122107701783400851","error":"Facebook Graph API Exception (Code: 100): (#100) The value must be a valid insights metric"}
+[2026-07-29 17:20:18] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:18] [INFO]: Local file uploaded successfully: clients/3/remE0FA.tmp.jpg {"client_id":3,"size":287745}
+[2026-07-29 17:20:19] [WARNING]: Instagram media insights unavailable {"media_id":"17854713096262076","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:19] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:19] [INFO]: Local file uploaded successfully: clients/3/remE560.tmp.jpg {"client_id":3,"size":175772}
+[2026-07-29 17:20:20] [WARNING]: Instagram media insights unavailable {"media_id":"18011394518311732","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:20] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:20] [INFO]: Local file uploaded successfully: clients/3/remE8DC.tmp.jpg {"client_id":3,"size":191146}
+[2026-07-29 17:20:21] [WARNING]: Instagram media insights unavailable {"media_id":"17851327296070262","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:21] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:21] [INFO]: Local file uploaded successfully: clients/3/remECF4.tmp.jpg {"client_id":3,"size":632724}
+[2026-07-29 17:20:22] [WARNING]: Instagram media insights unavailable {"media_id":"17952988073414115","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}
+[2026-07-29 17:20:22] [DEBUG]: Before image conversion check: isImage=yes, mimeType=image/jpeg
+[2026-07-29 17:20:22] [INFO]: Local file uploaded successfully: clients/3/remF1F6.tmp.jpg {"client_id":3,"size":125979}
+[2026-07-29 17:20:23] [WARNING]: Instagram media insights unavailable {"media_id":"17912593169668181","error":"Instagram Graph Exception (Code: 100): Invalid parameter"}

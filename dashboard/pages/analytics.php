@@ -385,6 +385,29 @@ $chartTooltipValue = ($sumReach > 0) ? ('Reach: ' . formatCompactNumber($sumReac
                 </a>
             </div>
 
+            <?php if (!empty($GLOBALS['platform_errors'])): ?>
+                <?php foreach ($GLOBALS['platform_errors'] as $plat => $err): ?>
+                    <div class="bg-red-50 border border-red-200 text-red-800 p-md rounded-xl shadow-xs flex items-start gap-md">
+                        <span class="material-symbols-outlined text-red-600 text-xl flex-shrink-0">warning</span>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-sm capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Profile' : $plat); ?> Integration Alert</h4>
+                            <p class="text-xs text-red-700">
+                                <?php 
+                                if (strpos($err, 'pages_read_engagement') !== false || strpos($err, 'permission') !== false || strpos($err, 'OAuth') !== false || strpos($err, 'Code: 10') !== false) {
+                                    echo "The Facebook connection is missing the required permissions (e.g., <code>pages_read_engagement</code>). Please disconnect and reconnect your Facebook account in settings, making sure to approve all requested Page permission checkboxes.";
+                                } else {
+                                    echo htmlspecialchars($err); 
+                                }
+                                ?>
+                            </p>
+                            <div class="pt-1">
+                                <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/connections.php" class="text-xs font-bold text-primary hover:underline">Go to Connections &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
             <!-- Global Channel Filter Pills & Date Selector Bar -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-surface-container-lowest border border-surface-variant p-md rounded-xl shadow-sm gap-md">
                 <div class="flex flex-wrap items-center gap-md">

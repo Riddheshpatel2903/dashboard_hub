@@ -1,0 +1,9 @@
+# 
+
+<br />
+<b>Warning</b>:  require_once(D:\xampp\htdocs\dashboard_hub/hub/includes/db.php): Failed to open stream: No such file or directory in <b>D:\xampp\htdocs\dashboard_hub\test_fallback.php</b> on line <b>7</b><br />
+<br />
+<b>Fatal error</b>:  Uncaught Error: Failed opening required 'D:\xampp\htdocs\dashboard_hub/hub/includes/db.php' (include_path='D:\xampp\php\PEAR') in D:\xampp\htdocs\dashboard_hub\test_fallback.php:7
+Stack trace:
+#0 {main}
+  thrown in <b>D:\xampp\htdocs\dashboard_hub\test_fallback.php</b> on line <b>7</b><br />

@@ -28,19 +28,11 @@ $dashboardBaseUrl = rtrim($dashboardBaseUrl, '/');
 define('DASHBOARD_BASE_URL', $dashboardBaseUrl);
 
 // Hub API Access Coordinates
-$httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$httpHost = $_SERVER['HTTP_HOST'] ?? '';
-$isLocal = empty($httpHost) || $httpHost === 'localhost' || strpos($httpHost, '127.0.0.1') === 0 || strpos($httpHost, '[::1]') === 0 || strpos($httpHost, '192.168.') === 0 || strpos($httpHost, '.life') !== false || strpos($httpHost, '.local') !== false;
+// Dashboard always targets the production hub regardless of dev/prod environment.
+// Run /dashboard/admin/sync_hub.php once to register local clients in the production hub DB.
+$defaultHubUrl = 'https://rbfitness.in/new-site/hub';
 
-if ($isLocal && !empty($httpHost)) {
-    $dashRootParts = explode('/', trim($dashboardBaseUrl, '/'));
-    $baseSubdir = !empty($dashRootParts[0]) ? '/' . $dashRootParts[0] : '';
-    $defaultHubUrl = $httpScheme . '://' . $httpHost . $baseSubdir . '/hub';
-} else {
-    $defaultHubUrl = 'https://rbfitness.in/new-site/hub';
-}
-
-// Hub API URL — point this to wherever the Hub is deployed.
+// Hub API URL — override via HUB_BASE_URL env var to use a local hub during development.
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultHubUrl, '/'));
 define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
 define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
