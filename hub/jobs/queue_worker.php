@@ -16,6 +16,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../utils/encryption.php';
 require_once __DIR__ . '/../utils/logger.php';
 require_once __DIR__ . '/../storage/StorageService.php';
+require_once __DIR__ . '/../utils/token_helper.php';
 
 // Include Platform Handlers
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
@@ -127,7 +128,7 @@ try {
         $externalAccountId = $post['external_account_id'];
         $currentRetryCount = (int)$post['retry_count'];
         
-        $token = decrypt($post['access_token_encrypted']);
+        $token = get_valid_platform_token($pdo, $clientId, $platform);
         $mediaPublicUrl = $mediaTempPath ? StorageService::getPublicUrl($mediaTempPath) : null;
 
         $externalPostId = null;
@@ -135,7 +136,14 @@ try {
         $httpStatusCode = 200;
         $success = false;
 
+        if (empty($token)) {
+            $token = ''; // fallback
+        }
+
         try {
+            if (empty($token)) {
+                throw new Exception("Authentication token is invalid or expired, and could not be refreshed. Please reconnect the platform connection in settings.", 401);
+            }
             // Publish using platform handler
             switch ($platform) {
                 case 'facebook':
@@ -205,6 +213,7 @@ try {
                     throw new Exception("Unsupported platform: {$platform}");
             }
 
+            verifyAndReconnectDb($pdo, $dashPdo, $clientId);
             try {
                 $pdo->beginTransaction();
                 
@@ -298,6 +307,7 @@ try {
                 $isRetryable = true;
             }
 
+            verifyAndReconnectDb($pdo, $dashPdo, $clientId);
             try {
                 $pdo->beginTransaction();
                 
@@ -351,7 +361,6 @@ try {
                         }
 
                         log_message('info', "Queue Worker: Scheduled retry #{$newRetryCount} for post ID {$postId} at {$newScheduledTime}");
-
                     } else {
                         // Max retries exceeded or non-retryable error
                         $stmtUpdateFailed = $pdo->prepare("
@@ -360,6 +369,15 @@ try {
                             WHERE id = :post_id
                         ");
                         $stmtUpdateFailed->execute(['post_id' => $postId]);
+
+                        // Delete media file from disk to save space
+                        if (!empty($mediaTempPath)) {
+                            try {
+                                StorageService::deletePostMedia($mediaTempPath, $clientId);
+                            } catch (Exception $delEx) {
+                                log_message('warning', "Queue Worker: Failed to delete media on failure for post ID {$postId}", ['error' => $delEx->getMessage()]);
+                            }
+                        }
 
                         $stmtLog = $pdo->prepare("
                             INSERT INTO post_logs (post_id, http_status_code, response_body, success)
@@ -440,3 +458,49 @@ try {
         ]);
     }
 }
+
+/**
+ * Ensures the Hub and Dashboard database connections are alive, reconnecting them if necessary.
+ */
+function verifyAndReconnectDb(&$pdo, &$dashPdo, $client_id) {
+    // 1. Verify Hub PDO
+    try {
+        if ($pdo) {
+            $pdo->query("SELECT 1");
+        } else {
+            throw new Exception("PDO is null");
+        }
+    } catch (Exception $e) {
+        log_message('info', "Queue Worker: Reconnecting Hub database due to timeout: " . $e->getMessage());
+        $GLOBALS['hub_pdo'] = null; // Clear cached connection
+        $pdo = require __DIR__ . '/../db/connection.php';
+    }
+
+    // 2. Verify Dashboard PDO
+    try {
+        if ($dashPdo) {
+            $dashPdo->query("SELECT 1");
+        } else {
+            throw new Exception("dashPdo is null");
+        }
+    } catch (Exception $e) {
+        log_message('info', "Queue Worker: Reconnecting Dashboard database due to timeout: " . $e->getMessage());
+        try {
+            $dashPdo = new PDO(
+                "mysql:host=" . DASHBOARD_DB_HOST . ";port=3306;dbname=" . DASHBOARD_DB_NAME . ";charset=utf8mb4",
+                DASHBOARD_DB_USER,
+                DASHBOARD_DB_PASS
+            );
+            $dashPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            try {
+                $dashPdo->exec("SET time_zone = '+05:30'");
+            } catch (Exception $tzEx) {
+                // Ignore
+            }
+        } catch (Exception $dashEx) {
+            log_message('error', "Queue Worker: Failed to reconnect to dashboard_db", ['error' => $dashEx->getMessage()]);
+            $dashPdo = null;
+        }
+    }
+}
+

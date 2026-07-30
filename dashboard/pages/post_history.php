@@ -22,9 +22,10 @@ $limit = 9; // Grid has 3 columns, 9 posts per page looks better
 $offset = ($page - 1) * $limit;
 
 // Load all live posts dynamically
+$forceSync = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
 $allLivePosts = [];
 try {
-    $allLivePosts = loadPlatformPosts($client_id);
+    $allLivePosts = loadPlatformPosts($client_id, $forceSync);
 } catch (Exception $e) {
     $postsError = $e->getMessage();
 }
@@ -89,7 +90,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                     </div>
                 </div>
                 <div class="flex gap-sm">
-                    <a href="post_history.php" 
+                    <a href="post_history.php?force_sync=1" 
                        class="flex items-center gap-sm px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-body-md font-bold transition-all active:scale-95">
                         <span class="material-symbols-outlined text-sm">sync</span>
                         <span>Refresh Data</span>

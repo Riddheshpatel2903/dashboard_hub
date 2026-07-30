@@ -215,6 +215,11 @@ foreach ($allLivePosts as $p) {
     if (!empty($platform) && $p['platform'] !== $platform) {
         continue;
     }
+    // Filter posts by selected date range
+    $pubDate = date('Y-m-d', strtotime($p['published_at'] ?: ($p['scheduled_at'] ?: $p['created_at'])));
+    if ($pubDate < $startDate || $pubDate > $endDate) {
+        continue;
+    }
     $platformMetrics = is_array($p['metrics'] ?? null) ? $p['metrics'] : [];
     $pViews = $p['views_count'] ?? $platformMetrics['views'] ?? $platformMetrics['view_count'] ?? $platformMetrics['impressions'] ?? $platformMetrics['reach'] ?? 0;
     $pLikes = $p['likes_count'] ?? $platformMetrics['likes'] ?? $platformMetrics['like_count'] ?? 0;

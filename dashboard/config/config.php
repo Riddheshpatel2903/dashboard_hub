@@ -8,7 +8,7 @@ date_default_timezone_set('Asia/Kolkata');
  */
 
 // Dashboard Database Credentials (separate DB from Hub)
-define('DASHBOARD_DB_HOST', getenv('DASHBOARD_DB_HOST') ?: 'srv2216.hstgr.io');
+define('DASHBOARD_DB_HOST', getenv('DASHBOARD_DB_HOST') ?: '31.97.2.65');
 define('DASHBOARD_DB_PORT', getenv('DASHBOARD_DB_PORT') ?: '3306');
 define('DASHBOARD_DB_NAME', getenv('DASHBOARD_DB_NAME') ?: 'u689131217_dashboard_db');
 define('DASHBOARD_DB_USER', getenv('DASHBOARD_DB_USER') ?: 'u689131217_dashboarduser');

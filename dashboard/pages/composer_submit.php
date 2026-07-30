@@ -59,6 +59,11 @@ try {
             throw new Exception("Media Upload Failure: " . $err);
         }
         $mediaTempPath = $uploadRes['media_temp_path'];
+        
+        // Re-establish DB connection to prevent "MySQL server has gone away" 
+        // in case the file upload took too long and the server connection timed out.
+        $GLOBALS['dashboard_pdo'] = null;
+        $pdo = require __DIR__ . '/../db/connection.php';
     }
 
     $results = [];
