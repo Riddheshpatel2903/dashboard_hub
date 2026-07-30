@@ -39,6 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 StorageService::deletePostMedia($mediaPath, $client_id);
             }
             
+            // Delete from local dashboard cache table (so it disappears from Calendar immediately)
+            $stmtDelCache = $pdo->prepare("DELETE FROM posts_cache WHERE hub_post_id = :hub_post_id AND client_id = :client_id");
+            $stmtDelCache->execute([
+                'hub_post_id' => $hubPostId,
+                'client_id'   => $client_id
+            ]);
+            
             $msg = 'Post and associated media deleted successfully.';
             if (!empty($res['warning'])) {
                 $msg .= ' Note: ' . $res['warning'];

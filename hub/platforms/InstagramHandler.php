@@ -73,7 +73,7 @@ class InstagramHandler {
         ];
 
         if ($isVideo) {
-            $containerPayload['media_type'] = 'VIDEO';
+            $containerPayload['media_type'] = 'REELS';
             $containerPayload['video_url']  = $mediaUrl;
         } else {
             // Explicitly declare IMAGE type — required by Meta Graph API to avoid error 9004
