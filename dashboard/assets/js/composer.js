@@ -327,6 +327,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Validate scheduled date/time is in the future
+        if (toggleSchedule.checked) {
+            updateScheduledAt();
+            const schedValue = scheduledAtHidden.value; // Format: YYYY-MM-DDTHH:MM
+            if (!schedValue) {
+                alert('Please select a valid scheduled release date and time.');
+                return;
+            }
+            const schedDateObj = new Date(schedValue);
+            const now = new Date();
+            if (schedDateObj <= now) {
+                alert('The scheduled release date and time must be in the future. Please select a future time.');
+                return;
+            }
+        }
+
         const file = mediaInput.files[0] || originalFile;
         if (checked.includes('instagram') && !file && !croppedBlob) {
             alert('Instagram requires a photo or video attachment to publish.');

@@ -22,11 +22,19 @@ if (empty($httpHost)) {
     $httpHost = 'rbfitness.in';
 }
 
+$isLocal = in_array($httpHost, ['localhost', '127.0.0.1', '::1']);
+if (!$isLocal) {
+    $httpScheme = 'https';
+}
+
 $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');
 $hubRoot = str_replace('\\', '/', realpath(__DIR__ . '/..') ?: '');
 
 $hubSubpath = '';
-if (!empty($docRoot) && !empty($hubRoot) && strpos(strtolower($hubRoot), strtolower($docRoot)) === 0) {
+$publicHtmlPos = strpos($hubRoot, '/public_html');
+if ($publicHtmlPos !== false) {
+    $hubSubpath = substr($hubRoot, $publicHtmlPos + strlen('/public_html'));
+} elseif (!empty($docRoot) && !empty($hubRoot) && strpos(strtolower($hubRoot), strtolower($docRoot)) === 0) {
     $hubSubpath = substr($hubRoot, strlen($docRoot));
 }
 $hubSubpath = str_replace('\\', '/', $hubSubpath);

@@ -161,7 +161,11 @@ class StorageService {
     public static function getPublicUrl($storagePath) {
         // HUB_BASE_URL auto-detects to the live domain on Hostinger (e.g. https://yourdomain.com/hub)
         // No tunnel needed — Instagram/Facebook fetch media directly from live HTTPS URL.
-        return rtrim(trim(HUB_BASE_URL), '/') . '/uploads/' . ltrim($storagePath, '/');
+        // URL-encode segments to handle files containing spaces or parentheses (e.g., "123 (2).mp4")
+        $segments = explode('/', ltrim($storagePath, '/'));
+        $encodedSegments = array_map('rawurlencode', $segments);
+        $encodedPath = implode('/', $encodedSegments);
+        return rtrim(trim(HUB_BASE_URL), '/') . '/uploads/' . $encodedPath;
     }
 
     /**

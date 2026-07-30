@@ -39,7 +39,11 @@ try {
             DASHBOARD_DB_PASS
         );
         $dashPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $dashPdo->exec("SET time_zone = '+05:30'");
+        try {
+            $dashPdo->exec("SET time_zone = '+05:30'");
+        } catch (Exception $tzEx) {
+            // Ignore
+        }
     } catch (Exception $e) {
         log_message('error', "Scheduler: Failed to connect to dashboard_db during cache sync initialization", ['error' => $e->getMessage()]);
     }

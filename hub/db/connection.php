@@ -25,7 +25,11 @@ try {
     ];
     
     $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-    $pdo->exec("SET time_zone = '+05:30'");
+    try {
+        $pdo->exec("SET time_zone = '+05:30'");
+    } catch (Exception $tzEx) {
+        // Gracefully ignore if database doesn't support setting timezone
+    }
     $GLOBALS['hub_pdo'] = $pdo;
     
     return $pdo;

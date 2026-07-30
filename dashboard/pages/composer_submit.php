@@ -37,7 +37,13 @@ if (empty($content) && empty($_FILES['media'])) {
 // Convert HTML datetime-local format (YYYY-MM-DDTHH:MM) to SQL format
 $sqlScheduledAt = null;
 if ($scheduleType === 'later' && !empty($scheduledAt)) {
-    $sqlScheduledAt = date('Y-m-d H:i:s', strtotime($scheduledAt));
+    $schedTime = strtotime($scheduledAt);
+    if ($schedTime <= time()) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Scheduled release time must be in the future.']);
+        exit();
+    }
+    $sqlScheduledAt = date('Y-m-d H:i:s', $schedTime);
 }
 
 try {
