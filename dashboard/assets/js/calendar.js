@@ -82,7 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const deleteBtn = modalBody.querySelector('#btn-delete-post');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', function() {
-                const postId = this.getAttribute('data-id');
+                const hubId = this.getAttribute('data-hub-id');
+                const platform = this.getAttribute('data-platform');
+                const extId = this.getAttribute('data-external-id');
+                const mediaPath = this.getAttribute('data-media-path');
+
                 const confirmed = confirm("Are you sure you want to delete this post from the Hub and all integrated channels? This action is irreversible.");
                 
                 if (confirmed) {
@@ -97,7 +101,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         body: JSON.stringify({
                             action: 'delete',
-                            post_id: postId
+                            hub_post_id: hubId,
+                            platform: platform,
+                            external_post_id: extId,
+                            media_path: mediaPath
                         })
                     })
                     .then(res => res.json())

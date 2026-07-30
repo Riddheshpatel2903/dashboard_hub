@@ -57,8 +57,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // GET Request: Render details view (for modal inclusion)
 $hubPostId = isset($_GET['hub_post_id']) ? (int)$_GET['hub_post_id'] : 0;
+$postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
 $platform = $_GET['platform'] ?? '';
 $externalPostId = $_GET['external_post_id'] ?? '';
+
+// If we only have post_id (e.g. from calendar click), resolve the details from posts_cache first
+if ($hubPostId <= 0 && $postId > 0) {
+    $stmtCache = $pdo->prepare("SELECT hub_post_id, platform, external_post_id FROM posts_cache WHERE id = :id AND client_id = :client_id LIMIT 1");
+    $stmtCache->execute(['id' => $postId, 'client_id' => $client_id]);
+    $cached = $stmtCache->fetch();
+    if ($cached) {
+        $hubPostId = (int)$cached['hub_post_id'];
+        if (empty($platform)) {
+            $platform = $cached['platform'];
+        }
+        if (empty($externalPostId)) {
+            $externalPostId = $cached['external_post_id'];
+        }
+    }
+}
 
 $post = null;
 
@@ -78,6 +95,16 @@ if (!$post && !empty($platform) && !empty($externalPostId)) {
             $post = $p;
             break;
         }
+    }
+}
+
+// 3. Fallback to posts_cache if the post is still not resolved from the Hub API
+if (!$post && $postId > 0) {
+    $stmtCacheFull = $pdo->prepare("SELECT * FROM posts_cache WHERE id = :id AND client_id = :client_id LIMIT 1");
+    $stmtCacheFull->execute(['id' => $postId, 'client_id' => $client_id]);
+    $cachedFull = $stmtCacheFull->fetch();
+    if ($cachedFull) {
+        $post = $cachedFull;
     }
 }
 

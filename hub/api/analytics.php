@@ -147,44 +147,23 @@ try {
     switch ($platform) {
         case 'facebook':
             if ($postId > 0) {
-                try {
-                    $metrics = ['post_engaged_users'];
-                    $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
-                    if (!empty($raw['data'])) {
-                        foreach ($raw['data'] as $item) {
-                            $name = $item['name'];
-                            $period = $item['period'] ?? 'lifetime';
-                            $val = 0;
-                            if (!empty($item['values'])) {
-                                $val = end($item['values'])['value'] ?? 0;
-                            }
-                            $normalizedMetrics[] = [
-                                'platform'    => 'facebook',
-                                'metric_name' => $name,
-                                'value'       => is_array($val) ? json_encode($val) : $val,
-                                'period'      => $period
-                            ];
-                        }
-                    }
-                } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Facebook post insights: " . $e->getMessage());
-                }
-
+                // Post-level: fetch likes/comments/shares via post fields (no deprecated Insights metrics)
                 try {
                     $engagement = FacebookHandler::getEngagementCounts($token, $externalId);
-                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes', 'value' => (int)($engagement['likes'] ?? 0), 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes',    'value' => (int)($engagement['likes']    ?? 0), 'period' => 'lifetime'];
                     $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => (int)($engagement['comments'] ?? 0), 'period' => 'lifetime'];
-                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares', 'value' => (int)($engagement['shares'] ?? 0), 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares',   'value' => (int)($engagement['shares']   ?? 0), 'period' => 'lifetime'];
                 } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Facebook post engagement details: " . $e->getMessage());
-                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes', 'value' => 0, 'period' => 'lifetime'];
+                    log_message('warning', "Failed to fetch Facebook post engagement: " . $e->getMessage());
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes',    'value' => 0, 'period' => 'lifetime'];
                     $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => 0, 'period' => 'lifetime'];
-                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares', 'value' => 0, 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares',   'value' => 0, 'period' => 'lifetime'];
                 }
             } else {
+                // Page-level: page views via /me/insights, plus followers/fans via /me account info
                 try {
                     $metrics = ['page_views_total'];
-                    $raw = FacebookHandler::getInsights($token, $externalId, $metrics, 'day');
+                    $raw = FacebookHandler::getPageInsights($token, $metrics, 'day');
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
                             $name = $item['name'];
@@ -216,7 +195,6 @@ try {
                 } catch (Exception $e) {
                     log_message('warning', "Failed to fetch Facebook account info: " . $e->getMessage());
                 }
-
             }
             break;
 
@@ -267,7 +245,7 @@ try {
                 try {
                     $metrics = ['reach'];
                     $raw = getCachedOrFetch($pdo, $client_id, 'instagram', "instagram_account_insights:{$externalId}:reach:total_value", function () use ($token, $externalId, $metrics) {
-                        return InstagramHandler::getInsights($token, $externalId, $metrics, null, 'total_value');
+                        return InstagramHandler::getInsights($token, $externalId, $metrics, 'day', 'total_value');
                     }, 900);
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {

@@ -2,12 +2,18 @@
 /** Central place for environment-level settings — DB credentials, base URLs, encryption key. */
 date_default_timezone_set('Asia/Kolkata');
 
-// Database Credentials
+// Hub Database Credentials
 define('DB_HOST', getenv('HUB_DB_HOST') ?: '127.0.0.1');
 define('DB_PORT', getenv('HUB_DB_PORT') ?: '3306');
 define('DB_NAME', getenv('HUB_DB_NAME') ?: 'hub_db');
 define('DB_USER', getenv('HUB_DB_USER') ?: 'root');
 define('DB_PASS', getenv('HUB_DB_PASS') !== false ? getenv('HUB_DB_PASS') : '');
+
+// Dashboard Database Credentials (same server, separate DB — credentials pulled from env vars)
+define('DASHBOARD_DB_HOST', getenv('DASHBOARD_DB_HOST') ?: 'srv2216.hstgr.io');
+define('DASHBOARD_DB_NAME', getenv('DASHBOARD_DB_NAME') ?: 'u689131217_dashboard_db');
+define('DASHBOARD_DB_USER', getenv('DASHBOARD_DB_USER') ?: 'u689131217_dashboarduser');
+define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASHBOARD_DxB_PASS') : 'qSmo:mo*8');
 
 // Application Settings
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';

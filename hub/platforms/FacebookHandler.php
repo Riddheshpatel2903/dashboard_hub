@@ -161,14 +161,44 @@ class FacebookHandler {
 
     /**
      * Retrieves Facebook Page profile info (followers count, fans count).
+     * Uses /me endpoint with a Page access token — /me resolves to the Page,
+     * matching the same pattern used by getRecentPosts().
      */
-    public static function getAccountInfo($token, $pageId) {
+    public static function getAccountInfo($token, $pageId = null) {
         self::initVersion();
+        // Use /me so the Page access token resolves correctly regardless of
+        // whether an explicit Page ID is passed — avoids Code:190 "impersonating
+        // a user's page" error that occurs when a User token hits /{pageId}
         $endpoint = sprintf(
-            "https://graph.facebook.com/%s/%s?fields=followers_count,fan_count,name&access_token=%s",
+            "https://graph.facebook.com/%s/me?fields=followers_count,fan_count,name&access_token=%s",
             self::$version,
-            urlencode($pageId),
             urlencode($token)
+        );
+        return self::executeRequest('GET', $endpoint);
+    }
+
+    /**
+     * Retrieves page-level insights via /me/insights.
+     * Uses /me so the Page access token resolves to the correct Page context,
+     * matching the same /me pattern used by getRecentPosts().
+     *
+     * @param string $token   Page access token
+     * @param array  $metrics Array of metric names
+     * @param string $period  Period (e.g. 'day', 'week', 'month')
+     * @return array
+     * @throws Exception
+     */
+    public static function getPageInsights($token, array $metrics, $period = 'day') {
+        self::initVersion();
+        $urlParams = [
+            'metric'       => implode(',', $metrics),
+            'period'       => $period,
+            'access_token' => $token
+        ];
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/me/insights?%s",
+            self::$version,
+            http_build_query($urlParams)
         );
         return self::executeRequest('GET', $endpoint);
     }

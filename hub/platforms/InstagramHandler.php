@@ -163,10 +163,6 @@ class InstagramHandler {
      */
     public static function getInsights($token, $mediaId, array $metrics, $period = null, $metricType = null) {
         self::initVersion();
-        if ($metricType === 'total_value' && $period !== null) {
-            // Meta Graph API rejects combined period + total_value parameters.
-            $period = null;
-        }
         $urlParams = [
             'metric'       => implode(',', $metrics),
             'access_token' => $token

@@ -8,11 +8,11 @@ date_default_timezone_set('Asia/Kolkata');
  */
 
 // Dashboard Database Credentials (separate DB from Hub)
-define('DASHBOARD_DB_HOST', getenv('DASHBOARD_DB_HOST') ?: '127.0.0.1');
+define('DASHBOARD_DB_HOST', getenv('DASHBOARD_DB_HOST') ?: 'srv2216.hstgr.io');
 define('DASHBOARD_DB_PORT', getenv('DASHBOARD_DB_PORT') ?: '3306');
-define('DASHBOARD_DB_NAME', getenv('DASHBOARD_DB_NAME') ?: 'dashboard_db');
-define('DASHBOARD_DB_USER', getenv('DASHBOARD_DB_USER') ?: 'root');
-define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASHBOARD_DB_PASS') : '');
+define('DASHBOARD_DB_NAME', getenv('DASHBOARD_DB_NAME') ?: 'u689131217_dashboard_db');
+define('DASHBOARD_DB_USER', getenv('DASHBOARD_DB_USER') ?: 'u689131217_dashboarduser');
+define('DASHBOARD_DB_PASS', getenv('DASHBOARD_DB_PASS') !== false ? getenv('DASHBOARD_DB_PASS') : 'qSmo:mo*8');
 
 // Dynamically compute base URL path relative to the server document root
 $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');

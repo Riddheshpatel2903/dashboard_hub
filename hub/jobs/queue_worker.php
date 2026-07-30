@@ -84,8 +84,13 @@ try {
     // Connect to Dashboard Database for Cache Updates
     $dashPdo = null;
     try {
-        $dashPdo = new PDO("mysql:host=127.0.0.1;port=3306;dbname=dashboard_db;charset=utf8mb4", "root", "");
+        $dashPdo = new PDO(
+            "mysql:host=" . DASHBOARD_DB_HOST . ";port=3306;dbname=" . DASHBOARD_DB_NAME . ";charset=utf8mb4",
+            DASHBOARD_DB_USER,
+            DASHBOARD_DB_PASS
+        );
         $dashPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $dashPdo->exec("SET time_zone = '+05:30'");
     } catch (Exception $e) {
         log_message('error', "Queue Worker: Failed to connect to dashboard_db during cache sync", ['error' => $e->getMessage()]);
     }

@@ -25,6 +25,7 @@ try {
     ];
     
     $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    $pdo->exec("SET time_zone = '+05:30'");
     $GLOBALS['hub_pdo'] = $pdo;
     
     return $pdo;
