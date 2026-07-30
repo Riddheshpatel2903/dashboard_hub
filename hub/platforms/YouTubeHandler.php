@@ -212,6 +212,16 @@ class YouTubeHandler
     }
 
     /**
+     * Deletes a video via the YouTube Data API v3.
+     */
+    public static function deleteVideo($token, $videoId)
+    {
+        $cleanId = self::extractVideoId($videoId);
+        $url = 'https://www.googleapis.com/youtube/v3/videos?id=' . urlencode($cleanId);
+        return self::executeRequest('DELETE', $token, $url);
+    }
+
+    /**
      * Retrieves recent uploaded videos and their live statistics (views, likes, comments, duration).
      *
      * @param string $token

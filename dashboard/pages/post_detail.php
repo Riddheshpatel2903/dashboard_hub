@@ -29,8 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'delete') {
             // Delete post on Hub
             $res = hubDelete($client_id, $hubPostId, $platform, $externalPostId);
+            
+            $isAlreadyDeleted = false;
             if (empty($res['success'])) {
-                throw new Exception("Platform Deletion Failure: " . ($res['error'] ?? 'Unknown error'));
+                $err = $res['error'] ?? 'Unknown error';
+                if (stripos($err, 'not found') !== false || stripos($err, 'unauthorized') !== false || stripos($err, 'not exist') !== false) {
+                    $isAlreadyDeleted = true;
+                } else {
+                    throw new Exception("Platform Deletion Failure: " . $err);
+                }
             }
             
             // Delete media file from all upload folders if exists
@@ -39,6 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 StorageService::deletePostMedia($mediaPath, $client_id);
             }
             
+            // Verify database connection is alive before query execution (timeouts can happen during long API calls)
+            try {
+                $pdo->query("SELECT 1");
+            } catch (Exception $connEx) {
+                $GLOBALS['dashboard_pdo'] = null;
+                $pdo = require __DIR__ . '/../db/connection.php';
+            }
+
             // Delete from local dashboard cache table (so it disappears from Calendar immediately)
             $stmtDelCache = $pdo->prepare("DELETE FROM posts_cache WHERE hub_post_id = :hub_post_id AND client_id = :client_id");
             $stmtDelCache->execute([

@@ -196,7 +196,17 @@ try {
                     break;
 
                 case 'linkedin':
-                    $res = LinkedInHandler::publishPost($token, $externalAccountId, $content);
+                    $localPath = null;
+                    if ($mediaTempPath) {
+                        $localPath = __DIR__ . '/../uploads/' . ltrim($mediaTempPath, '/');
+                        if (!file_exists($localPath)) {
+                            $localPath = __DIR__ . '/../storage/temp/' . basename($mediaTempPath);
+                            if (!file_exists($localPath) && $mediaTempPath && file_exists($mediaTempPath)) {
+                                $localPath = $mediaTempPath;
+                            }
+                        }
+                    }
+                    $res = LinkedInHandler::publishPost($token, $externalAccountId, $content, $localPath);
                     $externalPostId = $res['id'] ?? null;
                     $responseBody = json_encode($res);
                     $success = true;

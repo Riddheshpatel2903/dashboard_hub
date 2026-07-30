@@ -92,6 +92,14 @@ try {
             $externalPostId = $platformRes['external_id'] ?? null;
             $publishedAt = ($status === 'published') ? date('Y-m-d H:i:s') : null;
 
+            // Verify database connection is alive before query execution (timeouts can happen during long cURL calls)
+            try {
+                $pdo->query("SELECT 1");
+            } catch (Exception $connEx) {
+                $GLOBALS['dashboard_pdo'] = null;
+                $pdo = require __DIR__ . '/../db/connection.php';
+            }
+
             $stmt = $pdo->prepare("
                 INSERT INTO posts_cache (hub_post_id, client_id, content, status, platform, media_path, scheduled_at, published_at, external_post_id)
                 VALUES (:hub_post_id, :client_id, :content, :status, :platform, :media_path, :scheduled_at, :published_at, :ext_id)

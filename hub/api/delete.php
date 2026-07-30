@@ -119,6 +119,11 @@ try {
             }
             if ($alreadyDeleted) {
                 $response = ['message' => 'Post already deleted on platform.'];
+            } elseif ($platform === 'instagram' && (stripos($err, 'permissions') !== false || stripos($err, 'Code 10') !== false || stripos($err, 'Code: 10') !== false)) {
+                $response = [
+                    'message' => 'Instagram does not support deleting published posts via the API. Please delete it manually on the Instagram app.',
+                    'warning' => 'Instagram does not support deleting published posts via the API. Please delete it manually on the Instagram app.'
+                ];
             } else {
                 $platformError = $err;
                 $externalDeleteSucceeded = false;
@@ -144,11 +149,15 @@ try {
         log_message('info', "Successfully deleted post ID {$postId} (External ID: {$externalPostId}) on platform {$platform}", ['response' => $response]);
 
         header('Content-Type: application/json');
-        echo json_encode([
+        $ret = [
             'success'  => true,
             'message'  => 'Post deleted successfully',
             'response' => $response
-        ]);
+        ];
+        if (!empty($response['warning'])) {
+            $ret['warning'] = $response['warning'];
+        }
+        echo json_encode($ret);
     } else {
         log_message('warning', "Failed to delete post externally", ['post_id' => $postId, 'platform' => $platform, 'error' => $platformError]);
 

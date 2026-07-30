@@ -31,7 +31,7 @@ class LinkedInHandler {
                         'urn:li:digitalmediaRecipe:feedshare-image'
                     ],
                     'owner' => $authorUrn,
-                    'supportedUploadMechanisms' => [
+                    'supportedUploadMechanism' => [
                         'SYNCHRONOUS_UPLOAD'
                     ]
                 ]
