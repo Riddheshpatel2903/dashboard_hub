@@ -490,7 +490,7 @@ try {
         SELECT p.id, p.content, p.status, p.media_temp_path as media_path, p.scheduled_at, p.published_at, p.created_at, pc.platform, p.external_post_id, pc.external_account_id as page_id
         FROM posts p
         JOIN platform_connections pc ON p.platform_connection_id = pc.id
-        WHERE p.client_id = :client_id AND (p.status = 'published' || p.external_post_id IS NOT NULL)
+        WHERE p.client_id = :client_id
         ORDER BY COALESCE(p.published_at, p.created_at) DESC, p.created_at DESC
     ";
     if ($limit > 0) {
