@@ -148,7 +148,7 @@ try {
         case 'facebook':
             if ($postId > 0) {
                 try {
-                    $metrics = ['post_engaged_users', 'post_reactions_by_type_total', 'post_clicks'];
+                    $metrics = ['post_engaged_users'];
                     $raw = FacebookHandler::getInsights($token, $externalId, $metrics);
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
@@ -158,18 +158,9 @@ try {
                             if (!empty($item['values'])) {
                                 $val = end($item['values'])['value'] ?? 0;
                             }
-                            $normalizedName = $name;
-                            if ($name === 'post_reactions_by_type_total') {
-                                $normalizedName = 'reactions';
-                                if (is_array($val)) {
-                                    $val = array_sum($val);
-                                }
-                            } elseif ($name === 'post_clicks') {
-                                $normalizedName = 'clicks';
-                            }
                             $normalizedMetrics[] = [
                                 'platform'    => 'facebook',
-                                'metric_name' => $normalizedName,
+                                'metric_name' => $name,
                                 'value'       => is_array($val) ? json_encode($val) : $val,
                                 'period'      => $period
                             ];
@@ -178,30 +169,17 @@ try {
                 } catch (Exception $e) {
                     log_message('warning', "Failed to fetch Facebook post insights: " . $e->getMessage());
                 }
-                // Fallback: fetch post detail fields for likes/comments/shares when insights not available
-                try {
-                    $postFields = ['id','message','shares','permalink_url','created_time','likes.summary(true).limit(0)','comments.summary(true).limit(0)'];
-                    $postDetail = FacebookHandler::getPostDetails($token, $externalId, $postFields);
-                    if (!empty($postDetail['id'])) {
-                        $likesCount = 0;
-                        if (!empty($postDetail['likes']['summary']['total_count'])) {
-                            $likesCount = (int)$postDetail['likes']['summary']['total_count'];
-                        }
-                        $commentsCount = 0;
-                        if (!empty($postDetail['comments']['summary']['total_count'])) {
-                            $commentsCount = (int)$postDetail['comments']['summary']['total_count'];
-                        }
-                        $sharesCount = 0;
-                        if (!empty($postDetail['shares']['count'])) {
-                            $sharesCount = (int)$postDetail['shares']['count'];
-                        }
 
-                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes', 'value' => $likesCount, 'period' => 'lifetime'];
-                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => $commentsCount, 'period' => 'lifetime'];
-                        $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares', 'value' => $sharesCount, 'period' => 'lifetime'];
-                    }
+                try {
+                    $engagement = FacebookHandler::getEngagementCounts($token, $externalId);
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes', 'value' => (int)($engagement['likes'] ?? 0), 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => (int)($engagement['comments'] ?? 0), 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares', 'value' => (int)($engagement['shares'] ?? 0), 'period' => 'lifetime'];
                 } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Facebook post details: " . $e->getMessage());
+                    log_message('warning', "Failed to fetch Facebook post engagement details: " . $e->getMessage());
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'likes', 'value' => 0, 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => 0, 'period' => 'lifetime'];
+                    $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares', 'value' => 0, 'period' => 'lifetime'];
                 }
             } else {
                 try {

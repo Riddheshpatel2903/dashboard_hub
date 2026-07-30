@@ -196,6 +196,30 @@ class FacebookHandler {
     }
 
     /**
+     * Fetch engagement counts (likes, comments, shares) for a post.
+     *
+     * @param string $token Page access token
+     * @param string $postId Facebook Post ID
+     * @return array
+     * @throws Exception
+     */
+    public static function getEngagementCounts($token, $postId) {
+        self::initVersion();
+        $endpoint = sprintf(
+            "https://graph.facebook.com/%s/%s?fields=likes.summary(true).limit(0),comments.summary(true).limit(0),shares&access_token=%s",
+            self::$version,
+            $postId,
+            urlencode($token)
+        );
+        $response = self::executeRequest('GET', $endpoint);
+        return [
+            'likes' => $response['likes']['summary']['total_count'] ?? 0,
+            'comments' => $response['comments']['summary']['total_count'] ?? 0,
+            'shares' => $response['shares']['count'] ?? 0,
+        ];
+    }
+
+    /**
      * Retrieves recent posts from Page feed with basic interaction stats.
      * Supports cursor pagination to retrieve older posts when needed.
      */

@@ -186,26 +186,24 @@ function formatLocalPost(PDO $pdo, array $post, int $client_id): array {
                             $likesCount = isset($detail['likes']['summary']['total_count']) ? (int)$detail['likes']['summary']['total_count'] : $likesCount;
                             $commentsCount = isset($detail['comments']['summary']['total_count']) ? (int)$detail['comments']['summary']['total_count'] : $commentsCount;
                             
+                            $sharesCount = 0;
                             try {
-                                $fbInsights = FacebookHandler::getInsights($token, $fbPostId, ['post_clicks']);
-                                if (!empty($fbInsights['data'])) {
-                                    foreach ($fbInsights['data'] as $insightItem) {
-                                        if ($insightItem['name'] === 'post_clicks' && !empty($insightItem['values'][0]['value'])) {
-                                            $viewsCount = (int)$insightItem['values'][0]['value'];
-                                        }
-                                    }
-                                }
-                            } catch (Exception $insightEx) {
-                                // Ignore insights errors
+                                $engagementData = FacebookHandler::getEngagementCounts($token, $fbPostId);
+                                $likesCount = isset($engagementData['likes']) ? (int)$engagementData['likes'] : $likesCount;
+                                $commentsCount = isset($engagementData['comments']) ? (int)$engagementData['comments'] : $commentsCount;
+                                $sharesCount = isset($engagementData['shares']) ? (int)$engagementData['shares'] : $sharesCount;
+                            } catch (Exception $engagementEx) {
+                                // Ignore engagement errors
                             }
                             
                             $metrics = [
-                                'impressions' => $viewsCount ?: null,
-                                'reach' => $viewsCount ?: null,
+                                'impressions' => null,
+                                'reach' => null,
                                 'clicks' => null,
                                 'engagement' => $likesCount + $commentsCount,
                                 'likes' => $likesCount,
                                 'comments' => $commentsCount,
+                                'shares' => $sharesCount,
                             ];
                         }
                     } elseif ($post['platform'] === 'instagram') {
@@ -331,10 +329,10 @@ function fetchCachedPlatformPosts(PDO $pdo, int $client_id, string $platformFilt
     return $posts;
 }
 
-function normalizeFacebookMetrics(array $postItem, array $insights = []): array {
-    $likes = (int)($postItem['likes']['summary']['total_count'] ?? 0);
-    $comments = (int)($postItem['comments']['summary']['total_count'] ?? 0);
-    $shares = (int)($postItem['shares']['count'] ?? 0);
+function normalizeFacebookMetrics(array $postItem, array $insights = [], array $engagementData = []): array {
+    $likes = (int)($engagementData['likes'] ?? $postItem['likes']['summary']['total_count'] ?? 0);
+    $comments = (int)($engagementData['comments'] ?? $postItem['comments']['summary']['total_count'] ?? 0);
+    $shares = (int)($engagementData['shares'] ?? $postItem['shares']['count'] ?? 0);
     $reach = null;
     $impressions = null;
     $clicks = null;
@@ -348,19 +346,8 @@ function normalizeFacebookMetrics(array $postItem, array $insights = []): array 
         if ($value === null) {
             continue;
         }
-        if ($insight['name'] === 'post_clicks') {
-            $clicks = (int)$value;
-            $impressions = (int)$value;
-            $reach = (int)$value;
-        } elseif ($insight['name'] === 'post_engaged_users') {
+        if ($insight['name'] === 'post_engaged_users') {
             $engagement = (int)$value;
-        } elseif ($insight['name'] === 'post_reactions_by_type_total') {
-            if (is_array($value)) {
-                $valSum = array_sum($value);
-            } else {
-                $valSum = (int)$value;
-            }
-            $engagement = $engagement ?? $valSum;
         }
     }
 
@@ -591,14 +578,26 @@ try {
                                 $metrics = ['likes' => 0, 'comments' => 0, 'shares' => 0, 'reach' => null, 'impressions' => null, 'clicks' => null, 'engagement' => null];
                                 $insights = [];
                                 $mediaPath = $postItem['attachments']['data'][0]['media']['image']['src'] ?? ($postItem['full_picture'] ?? null);
+                                $engagementData = [];
+                                $insights = [];
                                 try {
-                                    $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged_users', 'post_reactions_by_type_total', 'post_clicks']);
-                                    $insights = $rawInsights['data'] ?? [];
-                                    $metrics = normalizeFacebookMetrics($postItem, $insights);
-                                } catch (Exception $insightEx) {
-                                    log_message('warning', 'Facebook post insights unavailable', ['post_id' => $postIdValue, 'error' => $insightEx->getMessage()]);
-                                    $metrics = normalizeFacebookMetrics($postItem, []);
+                                    $engagementData = FacebookHandler::getEngagementCounts($token, $postIdValue);
+                                } catch (Exception $e) {
+                                    log_message('warning', 'Facebook post engagement fetch failed', [
+                                        'post_id' => $postIdValue,
+                                        'error'   => $e->getMessage()
+                                    ]);
                                 }
+                                try {
+                                    $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged_users']);
+                                    $insights = $rawInsights['data'] ?? [];
+                                } catch (Exception $e) {
+                                    log_message('warning', 'Facebook post insights fetch failed', [
+                                        'post_id' => $postIdValue,
+                                        'error'   => $e->getMessage()
+                                    ]);
+                                }
+                                $metrics = normalizeFacebookMetrics($postItem, $insights, $engagementData);
 
                                 $entry = [
                                     'id' => 0,
