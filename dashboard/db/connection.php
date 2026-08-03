@@ -7,7 +7,12 @@
 require_once __DIR__ . '/../config/config.php';
 
 if (isset($GLOBALS['dashboard_pdo']) && $GLOBALS['dashboard_pdo'] instanceof PDO) {
-    return $GLOBALS['dashboard_pdo'];
+    try {
+        @$GLOBALS['dashboard_pdo']->query('SELECT 1');
+        return $GLOBALS['dashboard_pdo'];
+    } catch (PDOException $e) {
+        unset($GLOBALS['dashboard_pdo']);
+    }
 }
 
 try {

@@ -282,6 +282,13 @@ class FacebookHandler {
             
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = array_merge($allData, $raw['data']);
+                
+                $lastPost = end($raw['data']);
+                if ($lastPost && !empty($lastPost['created_time'])) {
+                    if (strtotime($lastPost['created_time']) < strtotime('-12 months')) {
+                        break;
+                    }
+                }
             }
 
             if (!$unlimited && count($allData) >= $limit) {

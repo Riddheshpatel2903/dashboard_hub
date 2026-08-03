@@ -15,22 +15,33 @@ CREATE TABLE IF NOT EXISTS `client_hub_keys` (
   `client_id` INT NOT NULL UNIQUE,
   `hub_api_key` VARCHAR(255) NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `posts_cache` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `hub_post_id` INT NOT NULL, -- References the post ID returned from the Hub
+  `hub_post_id` INT NULL DEFAULT NULL,
   `client_id` INT NOT NULL,
   `content` TEXT NOT NULL,
   `status` VARCHAR(50) NOT NULL DEFAULT 'draft',
   `platform` VARCHAR(50) NOT NULL,
-  `media_path` VARCHAR(512) DEFAULT NULL, -- Local CDN media link cache
+  `media_path` VARCHAR(512) DEFAULT NULL,
   `scheduled_at` TIMESTAMP NULL DEFAULT NULL,
   `published_at` TIMESTAMP NULL DEFAULT NULL,
   `external_post_id` VARCHAR(255) NULL DEFAULT NULL,
+  `likes_count` INT NOT NULL DEFAULT 0,
+  `comments_count` INT NOT NULL DEFAULT 0,
+  `views_count` INT NOT NULL DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY `idx_hub_post` (`hub_post_id`)
+  UNIQUE KEY `idx_hub_post` (`hub_post_id`),
+  UNIQUE KEY `idx_platform_post` (`client_id`, `platform`, `external_post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Migration for existing databases
+ALTER TABLE `posts_cache` MODIFY `hub_post_id` INT NULL DEFAULT NULL;
+ALTER TABLE `posts_cache` ADD COLUMN `likes` INT DEFAULT 0 AFTER `external_post_id`;
+ALTER TABLE `posts_cache` ADD COLUMN `comments` INT DEFAULT 0 AFTER `likes`;
+ALTER TABLE `posts_cache` ADD COLUMN `shares` INT DEFAULT 0 AFTER `comments`;
+ALTER TABLE `posts_cache` ADD UNIQUE KEY `idx_client_external_platform` (`client_id`, `external_post_id`, `platform`);
 
 CREATE TABLE IF NOT EXISTS `password_resets` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,

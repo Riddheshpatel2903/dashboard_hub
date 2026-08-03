@@ -250,6 +250,11 @@ class YouTubeHandler
             foreach ($plRes['items'] as $item) {
                 if (!empty($item['contentDetails']['videoId'])) {
                     $videoIds[] = $item['contentDetails']['videoId'];
+                    if (!empty($item['contentDetails']['videoPublishedAt'])) {
+                        if (strtotime($item['contentDetails']['videoPublishedAt']) < strtotime('-12 months')) {
+                            break 2;
+                        }
+                    }
                     if (!$unlimited && count($videoIds) >= $maxResults) {
                         break 2;
                     }

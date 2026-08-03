@@ -277,6 +277,13 @@ class InstagramHandler {
             $raw = self::executeRequest('GET', $pageUrl);
             if (!empty($raw['data']) && is_array($raw['data'])) {
                 $allData = array_merge($allData, $raw['data']);
+                
+                $lastMedia = end($raw['data']);
+                if ($lastMedia && !empty($lastMedia['timestamp'])) {
+                    if (strtotime($lastMedia['timestamp']) < strtotime('-12 months')) {
+                        break;
+                    }
+                }
             }
 
             if (!$unlimited && count($allData) >= $limit) {

@@ -8,6 +8,8 @@ require_once __DIR__ . '/../includes/role_check.php'; // Ensures logged-in staff
 // Handle Stop Impersonation
 if (isset($_GET['stop_acting'])) {
     unset($_SESSION['acting_client_id']);
+    // D1: Clear cached client name so the top bar re-fetches the correct name on next load
+    unset($_SESSION['client_name']);
     header('Location: ' . DASHBOARD_BASE_URL . '/admin/clients_overview.php');
     exit();
 }
@@ -17,7 +19,9 @@ $targetClientId = isset($_GET['act_as_client_id']) ? (int)$_GET['act_as_client_i
 
 if ($targetClientId > 0) {
     $_SESSION['acting_client_id'] = $targetClientId;
-    
+    // D1: Clear cached client name so the top bar re-fetches the new client's name on next load
+    unset($_SESSION['client_name']);
+
     // Redirect staff/admin straight to client homepage, where session_check will automatically
     // map the active client override context.
     header('Location: ' . DASHBOARD_BASE_URL . '/pages/dashboard_home.php');

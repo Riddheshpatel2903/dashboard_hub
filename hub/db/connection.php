@@ -7,7 +7,12 @@
 require_once __DIR__ . '/../config/config.php';
 
 if (isset($GLOBALS['hub_pdo']) && $GLOBALS['hub_pdo'] instanceof PDO) {
-    return $GLOBALS['hub_pdo'];
+    try {
+        @$GLOBALS['hub_pdo']->query('SELECT 1');
+        return $GLOBALS['hub_pdo'];
+    } catch (PDOException $e) {
+        unset($GLOBALS['hub_pdo']);
+    }
 }
 
 try {

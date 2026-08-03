@@ -150,12 +150,45 @@ class GoogleBusinessHandler {
     }
 
     /**
-     * Lists recent Local Posts.
+     * Lists recent Local Posts with pagination and a 12-month cutoff.
      */
     public static function getRecentPosts($token, $locationId, $limit = 50) {
-        $url = "https://mybusinesslocalpost.googleapis.com/v1/" . ltrim($locationId, '/') . "/localPosts?pageSize=" . (int)$limit;
-        return self::executeRequest('GET', $token, $url);
-     }
+        $unlimited = ($limit <= 0);
+        $pageSize = $unlimited ? 100 : min($limit, 100);
+        $url = "https://mybusinesslocalpost.googleapis.com/v1/" . ltrim($locationId, '/') . "/localPosts?pageSize=" . $pageSize;
+        
+        $allPosts = [];
+        $nextPageToken = null;
+        $maxPages = 50;
+        
+        while ($url && ($unlimited || count($allPosts) < $limit) && $maxPages-- > 0) {
+            $pageUrl = $url;
+            if ($nextPageToken) {
+                $pageUrl .= '&pageToken=' . urlencode($nextPageToken);
+            }
+            $raw = self::executeRequest('GET', $token, $pageUrl);
+            if (!empty($raw['localPosts']) && is_array($raw['localPosts'])) {
+                $allPosts = array_merge($allPosts, $raw['localPosts']);
+                
+                $lastPost = end($raw['localPosts']);
+                if ($lastPost && !empty($lastPost['createTime'])) {
+                    if (strtotime($lastPost['createTime']) < strtotime('-12 months')) {
+                        break;
+                    }
+                }
+            }
+            $nextPageToken = $raw['nextPageToken'] ?? null;
+            if (!$nextPageToken) {
+                break;
+            }
+        }
+        
+        if (!$unlimited && count($allPosts) > $limit) {
+            $allPosts = array_slice($allPosts, 0, $limit);
+        }
+        
+        return ['localPosts' => $allPosts];
+    }
 
     /**
      * Shared helper to handle Google API requests.

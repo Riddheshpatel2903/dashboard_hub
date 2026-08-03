@@ -111,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(data => {
                         if (data.success) {
                             alert('Post deleted successfully.');
-                            window.location.reload();
+                            document.querySelectorAll(`.post-pin[data-id="${postId}"]`).forEach(el => el.remove());
+                            closeModal();
                         } else {
                             alert('Deletion Failed: ' + data.error);
                             deleteBtn.disabled = false;

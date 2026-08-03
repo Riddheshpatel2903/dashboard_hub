@@ -14,6 +14,10 @@ if ($client_id === null) {
 
 // 1. Fetch connection statuses from the Hub
 $connections = [];
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+unset($_SESSION['connections_status_' . $client_id]);
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
@@ -62,7 +66,7 @@ $platformMetadata = [
         'color' => '#0A66C2'
     ],
     'google_business' => [
-        'name' => 'Google Profile',
+        'name' => 'Google Business Profile',
         'desc' => 'Connect to manage your local business profile.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_google_business.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'store',

@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $platforms = $_POST['platforms'] ?? [];
+$postType = isset($_POST['post_type']) && strtolower($_POST['post_type']) === 'video' ? 'video' : 'image';
 $content = trim($_POST['content'] ?? '');
 $scheduleType = $_POST['schedule_type'] ?? 'now';
 $scheduledAt = $_POST['scheduled_at'] ?? null;
@@ -32,6 +33,38 @@ if (empty($content) && empty($_FILES['media'])) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Please provide either text content or upload a media attachment.']);
     exit();
+}
+
+$allowedByPostType = [
+    'image' => ['facebook', 'instagram', 'linkedin', 'google_business'],
+    'video' => ['facebook', 'instagram', 'youtube', 'google_business']
+];
+
+foreach ($platforms as $platform) {
+    if (!in_array($platform, $allowedByPostType[$postType] ?? [], true)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => ucfirst($postType) . ' posts cannot be sent to ' . ucfirst(str_replace('google_business', 'Google Business Profile', $platform)) . '.']);
+        exit();
+    }
+}
+
+if (!empty($_FILES['media']['name']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
+    $fileName = strtolower($_FILES['media']['name']);
+    $mimeType = strtolower($_FILES['media']['type'] ?? '');
+    $isVideo = strpos($mimeType, 'video/') === 0 || preg_match('/\.(mp4|mov|avi|mkv|webm)$/i', $fileName);
+    $isImage = strpos($mimeType, 'image/') === 0 || preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileName);
+
+    if ($postType === 'video' && !$isVideo) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Video posts require a video attachment.']);
+        exit();
+    }
+
+    if ($postType === 'image' && !$isImage) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Image posts require an image attachment.']);
+        exit();
+    }
 }
 
 // Convert HTML datetime-local format (YYYY-MM-DDTHH:MM) to SQL format

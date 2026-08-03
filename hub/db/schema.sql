@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `client_id` INT NOT NULL,
   `platform_connection_id` INT NOT NULL,
   `content` TEXT NOT NULL,
+  `title` VARCHAR(255) DEFAULT NULL,
   `media_temp_path` VARCHAR(512) DEFAULT NULL,
   `external_post_id` VARCHAR(255) DEFAULT NULL,
   `status` ENUM('draft', 'scheduled', 'queued', 'published', 'failed', 'deleted') NOT NULL DEFAULT 'draft',

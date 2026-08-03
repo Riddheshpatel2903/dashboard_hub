@@ -22,8 +22,8 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
 <aside class="w-[240px] h-screen fixed left-0 top-0 bg-surface-container-lowest border-r border-surface-variant flex flex-col py-lg px-md z-50">
     <!-- Brand / Logo -->
     <div class="mb-xl px-sm">
-        <h1 class="font-display-md text-display-md font-bold text-primary tracking-tight">CC</h1>
-        <p class="font-body-md text-body-md text-on-surface-variant opacity-70">Marketing Agency</p>
+        <h1 class="font-display-md text-display-md font-bold text-primary tracking-tight">Social Media</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant opacity-70">Dashboard</p>
     </div>
 
     <!-- Navigation Links -->

@@ -55,6 +55,27 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                 <form id="composer-form" class="col-span-12 lg:col-span-7 bg-surface-container-lowest border border-surface-variant rounded-xl p-lg space-y-lg shadow-sm" enctype="multipart/form-data">
                     <input type="hidden" id="schedule-type" name="schedule_type" value="now">
 
+                    <!-- Post Type Selection -->
+                    <div class="space-y-sm">
+                        <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block">Post Type</label>
+                        <div class="flex flex-wrap gap-sm">
+                            <label class="cursor-pointer">
+                                <input class="sr-only peer" type="radio" name="post_type" value="image" checked />
+                                <div class="flex items-center gap-xs px-md py-sm rounded-full border border-surface-variant bg-surface-container-low transition-all peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary">
+                                    <span class="material-symbols-outlined text-[18px]">image</span>
+                                    <span class="font-body-md font-semibold">Image Post</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input class="sr-only peer" type="radio" name="post_type" value="video" />
+                                <div class="flex items-center gap-xs px-md py-sm rounded-full border border-surface-variant bg-surface-container-low transition-all peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary">
+                                    <span class="material-symbols-outlined text-[18px]">videocam</span>
+                                    <span class="font-body-md font-semibold">Video Post</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Platform Selection -->
                     <div class="space-y-sm">
                         <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block">Select Platforms</label>
@@ -67,6 +88,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                                 <?php foreach ($connectedPlatforms as $plat): 
                                     $platIcon = 'face';
                                     $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1D4ED8] peer-checked:text-[#1D4ED8]';
+                                    $allowedTypes = 'image,video';
                                     if ($plat === 'facebook') {
                                         $platIcon = 'public';
                                         $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1877F2] peer-checked:text-[#1877F2]';
@@ -76,22 +98,24 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                                     } elseif ($plat === 'youtube') {
                                         $platIcon = 'play_circle';
                                         $platColor = 'peer-checked:bg-[#FEF2F2] peer-checked:border-[#FF0000] peer-checked:text-[#FF0000]';
+                                        $allowedTypes = 'video';
                                     } elseif ($plat === 'whatsapp') {
                                         $platIcon = 'chat';
                                         $platColor = 'peer-checked:bg-[#F0FDF4] peer-checked:border-[#25D366] peer-checked:text-[#25D366]';
                                     } elseif ($plat === 'linkedin') {
                                         $platIcon = 'work';
                                         $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#0A66C2] peer-checked:text-[#0A66C2]';
+                                        $allowedTypes = 'image';
                                     } elseif ($plat === 'google_business') {
                                         $platIcon = 'store';
                                         $platColor = 'peer-checked:bg-[#EEF2FF] peer-checked:border-[#4285F4] peer-checked:text-[#4285F4]';
                                     }
                                 ?>
-                                    <label class="platform-checkbox-label cursor-pointer" id="label-platform-<?php echo $plat; ?>">
+                                    <label class="platform-checkbox-label cursor-pointer" id="label-platform-<?php echo $plat; ?>" data-allowed-types="<?php echo htmlspecialchars($allowedTypes); ?>">
                                         <input class="hidden peer" type="checkbox" name="platforms[]" value="<?php echo htmlspecialchars($plat); ?>" id="platform-<?php echo $plat === 'instagram' ? 'ig' : $plat; ?>" />
                                         <div class="flex items-center gap-sm px-md py-sm rounded-lg border border-surface-variant bg-surface-container-low transition-all <?php echo $platColor; ?>">
                                             <span class="material-symbols-outlined text-[20px]"><?php echo $platIcon; ?></span>
-                                            <span class="font-body-md font-semibold capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Profile' : $plat); ?></span>
+                                            <span class="font-body-md font-semibold capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Business Profile' : $plat); ?></span>
                                             <?php if ($plat === 'youtube'): ?>
                                                 <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded border border-red-200 uppercase ml-1 yt-tag">(Video Only)</span>
                                             <?php endif; ?>
@@ -134,7 +158,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                     <div class="space-y-sm">
                         <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="media">Media Assets</label>
                         <div class="border-2 border-dashed border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group relative">
-                            <input type="file" id="media" name="media" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <input type="file" id="media" name="media" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
                             <div class="w-12 h-12 bg-primary-container/10 rounded-full flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
                                 <span class="material-symbols-outlined text-primary">cloud_upload</span>
                             </div>

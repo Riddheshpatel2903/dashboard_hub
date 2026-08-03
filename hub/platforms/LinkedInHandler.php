@@ -127,19 +127,43 @@ class LinkedInHandler {
     }
 
     /**
-     * Retrieves recent posts for a member from LinkedIn.
-     *
-     * @param string $token     LinkedIn access token
-     * @param string $authorUrn Member URN (format: urn:li:person:MEMBER_ID)
-     * @param int $count        Number of posts to retrieve
-     * @return array
-     * @throws Exception
+     * Retrieves recent posts for a member from LinkedIn with paging and 12-month cutoff check.
      */
-    public static function getRecentPosts($token, $authorUrn, $count = 50) {
-        $count = max(1, min(50, $count));
-        $authors = 'List(' . $authorUrn . ')';
-        $url = "https://api.linkedin.com/v2/ugcPosts?q=authors&authors=" . rawurlencode($authors) . "&count=" . (int)$count . "&fields=id,specificContent,created";
-        return self::executeRequestNoHeader('GET', $token, $url);
+    public static function getRecentPosts($token, $authorUrn, $limit = 50) {
+        $unlimited = ($limit <= 0);
+        $pageSize = 50;
+        $allPosts = [];
+        $start = 0;
+        $maxPages = 10;
+        
+        while (($unlimited || count($allPosts) < $limit) && $maxPages-- > 0) {
+            $authors = 'List(' . $authorUrn . ')';
+            $url = "https://api.linkedin.com/v2/ugcPosts?q=authors&authors=" . rawurlencode($authors) . "&count=" . $pageSize . "&start=" . $start . "&fields=id,specificContent,created";
+            $raw = self::executeRequestNoHeader('GET', $token, $url);
+            if (empty($raw['elements']) || !is_array($raw['elements'])) {
+                break;
+            }
+            
+            $allPosts = array_merge($allPosts, $raw['elements']);
+            
+            $lastPost = end($raw['elements']);
+            if ($lastPost && !empty($lastPost['created']['time'])) {
+                if (($lastPost['created']['time'] / 1000) < strtotime('-12 months')) {
+                    break;
+                }
+            }
+            
+            if (count($raw['elements']) < $pageSize) {
+                break;
+            }
+            $start += $pageSize;
+        }
+        
+        if (!$unlimited && count($allPosts) > $limit) {
+            $allPosts = array_slice($allPosts, 0, $limit);
+        }
+        
+        return ['elements' => $allPosts];
     }
 
     /**

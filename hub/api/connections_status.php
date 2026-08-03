@@ -9,15 +9,35 @@ $pdo = require __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../utils/logger.php';
 
 try {
-    // Query platform connections along with their token expiration details
-    $stmt = $pdo->prepare("
-        SELECT pc.id, pc.platform, pc.external_account_id, pc.status, pc.connected_at, pt.expires_at
-        FROM platform_connections pc
-        LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
-        WHERE pc.client_id = :client_id
-    ");
-    $stmt->execute(['client_id' => $client_id]);
-    $connections = $stmt->fetchAll();
+    // Try to query with last_synced_at; fall back gracefully if the column doesn't exist yet
+    $connections = [];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT pc.id, pc.platform, pc.external_account_id, pc.status, pc.connected_at, pc.last_synced_at, pt.expires_at
+            FROM platform_connections pc
+            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+            WHERE pc.client_id = :client_id
+        ");
+        $stmt->execute(['client_id' => $client_id]);
+        $connections = $stmt->fetchAll();
+    } catch (Exception $colEx) {
+        // last_synced_at column may not exist yet — run without it
+        $stmt = $pdo->prepare("
+            SELECT pc.id, pc.platform, pc.external_account_id, pc.status, pc.connected_at, NULL as last_synced_at, pt.expires_at
+            FROM platform_connections pc
+            LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+            WHERE pc.client_id = :client_id
+        ");
+        $stmt->execute(['client_id' => $client_id]);
+        $connections = $stmt->fetchAll();
+
+        // Attempt to add the missing column automatically
+        try {
+            $pdo->exec('ALTER TABLE `platform_connections` ADD COLUMN IF NOT EXISTS `last_synced_at` TIMESTAMP NULL DEFAULT NULL');
+        } catch (Exception $alterEx) {
+            // Non-fatal
+        }
+    }
 
     $responseList = [];
     $now = time();
@@ -28,7 +48,6 @@ try {
         
         if ($expiresAt) {
             $expiresTime = strtotime($expiresAt);
-            // Flag as expiring soon if expiration is within the next 7 days
             if ($expiresTime > $now && ($expiresTime - $now) <= (7 * 24 * 3600)) {
                 $expiresSoon = true;
             }
@@ -40,6 +59,7 @@ try {
             'external_account_id' => $conn['external_account_id'],
             'status'              => $conn['status'],
             'connected_at'        => $conn['connected_at'],
+            'last_synced_at'      => $conn['last_synced_at'] ?? null,
             'expires_at'          => $expiresAt,
             'expires_soon'        => $expiresSoon
         ];

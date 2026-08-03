@@ -39,6 +39,17 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
 // 2. Load posts dynamically from the dedicated posts endpoint
 $forceSync = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
 $allPosts = loadPlatformPosts($client_id, $forceSync);
+$filteredPosts = [];
+if (is_array($allPosts)) {
+    foreach ($allPosts as $p) {
+        $pStatus = strtolower($p['status'] ?? '');
+        if ($pStatus === 'deleted' || $pStatus === 'failed') {
+            continue;
+        }
+        $filteredPosts[] = $p;
+    }
+}
+$allPosts = $filteredPosts;
 
 // 3. Apply platform and date filters in PHP
 $totalCount = 0;
@@ -64,10 +75,14 @@ foreach ($allPosts as $post) {
     }
 }
 
+$maxSynced = getOverallLastSyncedTime($hubRes['connections'] ?? []);
+$lastSyncedStr = getRelativeTimeString($maxSynced);
+
 echo json_encode([
     'success'           => true,
     'connections_count' => $connCount,
     'total_posts'       => $totalCount,
     'published_posts'   => $publishedCount,
-    'scheduled_posts'   => $scheduledCount
+    'scheduled_posts'   => $scheduledCount,
+    'last_synced_str'   => $lastSyncedStr
 ]);

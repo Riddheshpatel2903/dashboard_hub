@@ -54,12 +54,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo = require __DIR__ . '/../db/connection.php';
             }
 
-            // Delete from local dashboard cache table (so it disappears from Calendar immediately)
-            $stmtDelCache = $pdo->prepare("DELETE FROM posts_cache WHERE hub_post_id = :hub_post_id AND client_id = :client_id");
-            $stmtDelCache->execute([
-                'hub_post_id' => $hubPostId,
-                'client_id'   => $client_id
-            ]);
+            // Delete from local dashboard cache table (so it disappears from Calendar/History immediately)
+            if ($hubPostId > 0) {
+                $stmtDelCache = $pdo->prepare("DELETE FROM posts_cache WHERE hub_post_id = :hub_post_id AND client_id = :client_id");
+                $stmtDelCache->execute([
+                    'hub_post_id' => $hubPostId,
+                    'client_id'   => $client_id
+                ]);
+            } elseif (!empty($platform) && !empty($externalPostId)) {
+                $stmtDelCache = $pdo->prepare("DELETE FROM posts_cache WHERE platform = :platform AND external_post_id = :external_post_id AND client_id = :client_id");
+                $stmtDelCache->execute([
+                    'platform'         => $platform,
+                    'external_post_id' => $externalPostId,
+                    'client_id'        => $client_id
+                ]);
+            }
             
             $msg = 'Post and associated media deleted successfully.';
             if (!empty($res['warning'])) {
@@ -233,7 +242,7 @@ if ($status === 'published') {
     <div class="flex justify-between items-center border-b border-surface-variant pb-md">
         <div class="flex items-center gap-xs px-md py-sm rounded-lg text-xs font-bold uppercase tracking-tight <?php echo $platColorClass; ?>">
             <span class="material-symbols-outlined !text-[14px]"><?php echo $platIcon; ?></span>
-            <span class="capitalize"><?php echo htmlspecialchars($platform === 'google_business' ? 'Google Profile' : $platform); ?></span>
+            <span class="capitalize"><?php echo htmlspecialchars($platform === 'google_business' ? 'Google Business Profile' : $platform); ?></span>
         </div>
         <span class="px-sm py-[2px] rounded-full text-[10px] font-bold uppercase tracking-tight <?php echo $statusClass; ?>">
             <?php echo strtoupper($status); ?>

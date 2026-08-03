@@ -63,6 +63,12 @@ function normalizePlatformMediaPath($mediaUrl, $client_id) {
     }
 
     $storedPath = StorageService::uploadFromUrl($mediaUrl, $client_id);
+    if (!$storedPath) {
+        log_message('warning', 'Media re-hosting failed — falling back to ephemeral platform URL which will expire', [
+            'client_id'    => $client_id,
+            'original_url' => $mediaUrl,
+        ]);
+    }
     return $storedPath ?: $mediaUrl;
 }
 
@@ -168,81 +174,7 @@ function formatLocalPost(PDO $pdo, array $post, int $client_id): array {
             // Ignore
         }
 
-        // Live API query fallback for media url and metrics if they are missing, local, or empty
-        if (!empty($post['external_post_id']) && ($viewsCount === 0 || $likesCount === 0 || empty($mediaPath) || !preg_match('/^https?:\/\//i', $mediaPath))) {
-            try {
-                $token = get_valid_platform_token($pdo, $client_id, $post['platform']);
-                if ($token) {
-                    if ($post['platform'] === 'facebook') {
-                        $fbPostId = ensureFacebookCompositeId($pdo, $client_id, $post['external_post_id']);
 
-                        $detail = FacebookHandler::getPostDetails($token, $fbPostId);
-                        if ($detail) {
-                            if (!empty($detail['full_picture'])) {
-                                $mediaPath = $detail['full_picture'];
-                            } elseif (!empty($detail['attachments']['data'][0]['media']['image']['src'])) {
-                                $mediaPath = $detail['attachments']['data'][0]['media']['image']['src'];
-                            }
-                            $likesCount = isset($detail['likes']['summary']['total_count']) ? (int)$detail['likes']['summary']['total_count'] : $likesCount;
-                            $commentsCount = isset($detail['comments']['summary']['total_count']) ? (int)$detail['comments']['summary']['total_count'] : $commentsCount;
-                            
-                            $sharesCount = 0;
-                            try {
-                                $engagementData = FacebookHandler::getEngagementCounts($token, $fbPostId);
-                                $likesCount = isset($engagementData['likes']) ? (int)$engagementData['likes'] : $likesCount;
-                                $commentsCount = isset($engagementData['comments']) ? (int)$engagementData['comments'] : $commentsCount;
-                                $sharesCount = isset($engagementData['shares']) ? (int)$engagementData['shares'] : $sharesCount;
-                            } catch (Exception $engagementEx) {
-                                // Ignore engagement errors
-                            }
-                            
-                            $metrics = [
-                                'impressions' => null,
-                                'reach' => null,
-                                'clicks' => null,
-                                'engagement' => $likesCount + $commentsCount,
-                                'likes' => $likesCount,
-                                'comments' => $commentsCount,
-                                'shares' => $sharesCount,
-                            ];
-                        }
-                    } elseif ($post['platform'] === 'instagram') {
-                        $detail = InstagramHandler::getMediaDetails($token, $post['external_post_id'], ['media_url', 'like_count', 'comments_count']);
-                        if ($detail) {
-                            if (!empty($detail['media_url'])) {
-                                $mediaPath = $detail['media_url'];
-                            }
-                            $likesCount = isset($detail['like_count']) ? (int)$detail['like_count'] : $likesCount;
-                            $commentsCount = isset($detail['comments_count']) ? (int)$detail['comments_count'] : $commentsCount;
-                            
-                            try {
-                                $igInsights = InstagramHandler::getInsights($token, $post['external_post_id'], ['reach']);
-                                if (!empty($igInsights['data'])) {
-                                    foreach ($igInsights['data'] as $insightItem) {
-                                        if ($insightItem['name'] === 'reach' && !empty($insightItem['values'][0]['value'])) {
-                                            $viewsCount = (int)$insightItem['values'][0]['value'];
-                                        }
-                                    }
-                                }
-                            } catch (Exception $insightEx) {
-                                // Ignore insights errors
-                            }
-                            
-                            $metrics = [
-                                'impressions' => $viewsCount ?: null,
-                                'reach' => $viewsCount ?: null,
-                                'clicks' => null,
-                                'engagement' => $likesCount + $commentsCount,
-                                'likes' => $likesCount,
-                                'comments' => $commentsCount,
-                            ];
-                        }
-                    }
-                }
-            } catch (Exception $apiEx) {
-                // Ignore API errors
-            }
-        }
     }
 
     return [
@@ -313,7 +245,6 @@ function fetchCachedPlatformPosts(PDO $pdo, int $client_id, string $platformFilt
             'views_count' => $viewsCount,
             'likes_count' => $likesCount,
             'comments_count' => $commentsCount,
-            'duration' => null,
             'metrics' => [
                 'impressions' => isset($row['impressions']) ? (int)$row['impressions'] : null,
                 'reach' => isset($row['reach']) ? (int)$row['reach'] : null,
@@ -337,6 +268,7 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
     $impressions = null;
     $clicks = null;
     $engagement = null;
+    $views = null;
 
     foreach ($insights as $insight) {
         if (empty($insight['name'])) {
@@ -348,7 +280,18 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
         }
         if ($insight['name'] === 'post_engaged_users') {
             $engagement = (int)$value;
+        } elseif ($insight['name'] === 'post_impressions') {
+            $impressions = (int)$value;
+            if ($views === null) {
+                $views = (int)$value;
+            }
+        } elseif ($insight['name'] === 'post_video_views') {
+            $views = (int)$value;
         }
+    }
+
+    if ($views === null) {
+        $views = $impressions ?? $reach;
     }
 
     return [
@@ -357,6 +300,7 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
         'shares' => $shares,
         'reach' => $reach,
         'impressions' => $impressions,
+        'views' => $views,
         'clicks' => $clicks,
         'engagement' => $engagement,
     ];
@@ -365,6 +309,7 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
 function normalizeInstagramMetrics(array $mediaItem, array $insights = []): array {
     $likes = isset($mediaItem['like_count']) ? (int)$mediaItem['like_count'] : 0;
     $comments = isset($mediaItem['comments_count']) ? (int)$mediaItem['comments_count'] : 0;
+    $views = null;
     $impressions = null;
     $reach = null;
     $engagement = $likes + $comments;
@@ -377,16 +322,23 @@ function normalizeInstagramMetrics(array $mediaItem, array $insights = []): arra
         if ($value === null) {
             continue;
         }
-        if ($insight['name'] === 'impressions') {
+        if ($insight['name'] === 'views') {
+            $views = (int)$value;
+        } elseif ($insight['name'] === 'impressions') {
             $impressions = (int)$value;
         } elseif ($insight['name'] === 'reach') {
             $reach = (int)$value;
         }
     }
 
+    if ($views === null) {
+        $views = $impressions ?? $reach;
+    }
+
     return [
         'likes' => $likes,
         'comments' => $comments,
+        'views' => $views,
         'impressions' => $impressions,
         'reach' => $reach,
         'engagement' => $engagement,
@@ -397,10 +349,8 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
     $views = isset($videoItem['statistics']['viewCount']) ? (int)$videoItem['statistics']['viewCount'] : 0;
     $likes = isset($videoItem['statistics']['likeCount']) ? (int)$videoItem['statistics']['likeCount'] : 0;
     $comments = isset($videoItem['statistics']['commentCount']) ? (int)$videoItem['statistics']['commentCount'] : 0;
-    $favorites = isset($videoItem['statistics']['favoriteCount']) ? (int)$videoItem['statistics']['favoriteCount'] : 0;
 
     $estimatedMinutesWatched = null;
-    $averageViewDuration = null;
     $subscribersGained = null;
 
     if (!empty($analytics['rows'][0])) {
@@ -409,7 +359,6 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
         $comments = isset($row[1]) ? (int)$row[1] : $comments;
         $likes = isset($row[2]) ? (int)$row[2] : $likes;
         $estimatedMinutesWatched = isset($row[4]) ? (int)$row[4] : null;
-        $averageViewDuration = isset($row[5]) ? (int)$row[5] : null;
         $subscribersGained = isset($row[6]) ? (int)$row[6] : null;
     }
 
@@ -417,11 +366,530 @@ function normalizeYouTubeMetrics(array $videoItem, array $analytics = []): array
         'views' => $views,
         'likes' => $likes,
         'comments' => $comments,
-        'favorites' => $favorites,
         'estimated_minutes_watched' => $estimatedMinutesWatched,
-        'average_view_duration' => $averageViewDuration,
         'subscribers_gained' => $subscribersGained,
     ];
+}
+
+/**
+ * Fetch live posts for a single platform connection.
+ *
+ * Returns null on total fetch failure (caller must NOT wipe cache).
+ * Returns array of ['upsert_data'=>..., 'formatted'=>...] on success (may be empty array if platform returned zero posts).
+ */
+function fetchLivePostsForPlatform(string $token, array $conn, string $platform, int $limit, array &$platformErrors): ?array {
+    $results = [];
+
+    try {
+        if ($platform === 'facebook') {
+            try {
+                $recentPostsRaw = FacebookHandler::getRecentPosts($token, $conn['external_account_id'], $limit);
+            } catch (Exception $e) {
+                $platformErrors[$platform] = $e->getMessage();
+                if (strpos($e->getMessage(), 'pages_read_engagement') !== false) {
+                    log_message('warning', 'Facebook fetch failed — token missing pages_read_engagement scope, reconnect required', ['platform' => $platform, 'client_id' => $conn['client_id'] ?? '']);
+                } else {
+                    log_message('warning', 'Platform post fetch failed', ['platform' => $platform, 'error' => $e->getMessage()]);
+                }
+                return null; // Signal: keep existing cache
+            }
+
+            if (!empty($recentPostsRaw['data'])) {
+                foreach ($recentPostsRaw['data'] as $postItem) {
+                    $postIdValue = $postItem['id'] ?? '';
+                    if (empty($postIdValue)) continue;
+
+                    $mediaPath = $postItem['attachments']['data'][0]['media']['image']['src'] ?? ($postItem['full_picture'] ?? null);
+                    $engagementData = [];
+                    $insights = [];
+                    try {
+                        $engagementData = FacebookHandler::getEngagementCounts($token, $postIdValue);
+                    } catch (Exception $e) {
+                        log_message('warning', 'Facebook post engagement fetch failed', ['post_id' => $postIdValue, 'error' => $e->getMessage()]);
+                    }
+                    try {
+$rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged_users', 'post_impressions']);
+                        $insights = $rawInsights['data'] ?? [];
+                    } catch (Exception $e) {
+                        log_message('warning', 'Facebook post insights fetch failed', ['post_id' => $postIdValue, 'error' => $e->getMessage()]);
+                    }
+                    $metrics = normalizeFacebookMetrics($postItem, $insights, $engagementData);
+
+                    $results[] = [
+                        'formatted' => [
+                            'id'              => 0,
+                            'hub_post_id'     => null,
+                            'content'         => $postItem['message'] ?? '',
+                            'status'          => 'published',
+                            'platform'        => 'facebook',
+                            'media_path'      => $mediaPath,
+                            'scheduled_at'    => null,
+                            'published_at'    => $postItem['created_time'] ?? null,
+                            'created_at'      => $postItem['created_time'] ?? null,
+                            'external_post_id'=> $postIdValue,
+                            'views_count'     => (int)($metrics['views'] ?? 0),
+                            'likes_count'     => (int)$metrics['likes'],
+                            'comments_count'  => (int)$metrics['comments'],
+                                'metrics'         => $metrics,
+                            'source'          => 'facebook',
+                        ],
+                        'upsert_data' => [
+                            'platform_post_id'     => $postIdValue,
+                            'message'              => $postItem['message'] ?? '',
+                            'created_time'         => $postItem['created_time'] ?? null,
+                            'permalink'            => $postItem['permalink_url'] ?? null,
+                            'picture'              => $mediaPath,
+                            'attachments'          => $postItem['attachments'] ?? null,
+                            'reactions'            => ['likes' => $metrics['likes'], 'comments' => $metrics['comments'], 'shares' => $metrics['shares']],
+                            'comments_count'       => $metrics['comments'],
+                            'shares_count'         => $metrics['shares'],
+                            'impressions'          => $metrics['impressions'],
+                            'reach'                => $metrics['reach'],
+                            'clicks'               => $metrics['clicks'],
+                            'engagement'           => $metrics['engagement'],
+                            'published_at'         => $postItem['created_time'] ?? null,
+                            'raw_platform_response'=> $postItem,
+                        ],
+                    ];
+                }
+            }
+
+        } elseif ($platform === 'instagram') {
+            try {
+                $recentMediaRaw = InstagramHandler::getRecentMedia($token, $conn['external_account_id'], $limit);
+            } catch (Exception $e) {
+                $platformErrors[$platform] = $e->getMessage();
+                log_message('warning', 'Instagram fetch failed', ['error' => $e->getMessage()]);
+                return null;
+            }
+
+            if (!empty($recentMediaRaw['data'])) {
+                foreach ($recentMediaRaw['data'] as $mediaItem) {
+                    $mediaId = $mediaItem['id'] ?? '';
+                    if (empty($mediaId)) continue;
+
+                    $mediaUrl = $mediaItem['media_url'] ?? null;
+                    $mediaPath = normalizePlatformMediaPath($mediaUrl, $conn['client_id'] ?? 0);
+                    $timestamp = $mediaItem['timestamp'] ?? null;
+                    $insights = [];
+                    try {
+                        $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach']);
+                        $insights = $rawInsights['data'] ?? [];
+                    } catch (Exception $insightEx) {
+                        log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'error' => $insightEx->getMessage()]);
+                    }
+                    $metrics = normalizeInstagramMetrics($mediaItem, $insights);
+
+                    $results[] = [
+                        'formatted' => [
+                            'id'              => 0,
+                            'hub_post_id'     => null,
+                            'content'         => $mediaItem['caption'] ?? '',
+                            'status'          => 'published',
+                            'platform'        => 'instagram',
+                            'media_path'      => $mediaPath,
+                            'scheduled_at'    => null,
+                            'published_at'    => $timestamp,
+                            'created_at'      => $timestamp,
+                            'external_post_id'=> $mediaId,
+                            'views_count'     => isset($metrics['views']) ? (int)$metrics['views'] : null,
+                            'likes_count'     => (int)($metrics['likes'] ?? 0),
+                            'comments_count'  => (int)($metrics['comments'] ?? 0),
+                            'metrics'         => $metrics,
+                            'source'          => 'instagram',
+                        ],
+                        'upsert_data' => [
+                            'platform_post_id'     => $mediaId,
+                            'message'              => $mediaItem['caption'] ?? '',
+                            'created_time'         => $timestamp,
+                            'permalink'            => null,
+                            'picture'              => $mediaPath,
+                            'attachments'          => ['media_type' => $mediaItem['media_type'] ?? null, 'thumbnail_url' => $mediaPath],
+                            'reactions'            => ['likes' => $metrics['likes'] ?? 0, 'comments' => $metrics['comments'] ?? 0],
+                            'comments_count'       => $metrics['comments'] ?? 0,
+                            'shares_count'         => 0,
+                            'impressions'          => $metrics['impressions'] ?? null,
+                            'reach'                => $metrics['reach'] ?? null,
+                            'clicks'               => null,
+                            'engagement'           => $metrics['engagement'] ?? null,
+                            'published_at'         => $timestamp,
+                            'raw_platform_response'=> $mediaItem,
+                        ],
+                    ];
+                }
+            }
+
+        } elseif ($platform === 'youtube') {
+            try {
+                $recentVideosRaw = YouTubeHandler::getRecentChannelVideos($token, $limit);
+            } catch (Exception $e) {
+                $platformErrors[$platform] = $e->getMessage();
+                log_message('warning', 'YouTube fetch failed', ['error' => $e->getMessage()]);
+                return null;
+            }
+
+            if (!empty($recentVideosRaw['items'])) {
+                foreach ($recentVideosRaw['items'] as $videoItem) {
+                    $videoId = $videoItem['id'] ?? '';
+                    if (empty($videoId)) continue;
+
+                    try {
+                        $analyticsRaw = YouTubeHandler::getVideoAnalytics($token, $videoId, date('Y-m-d', strtotime('-30 days')), date('Y-m-d'));
+                        $metrics = normalizeYouTubeMetrics($videoItem, $analyticsRaw);
+                    } catch (Exception $analyticsEx) {
+                        log_message('warning', 'YouTube video analytics unavailable', ['video_id' => $videoId, 'error' => $analyticsEx->getMessage()]);
+                        $metrics = normalizeYouTubeMetrics($videoItem, []);
+                    }
+
+                    $thumbs = $videoItem['snippet']['thumbnails'] ?? [];
+                    $thumbnailUrl = $thumbs['maxres']['url'] ?? $thumbs['high']['url'] ?? $thumbs['medium']['url'] ?? $thumbs['default']['url'] ?? '';
+
+                    $results[] = [
+                        'formatted' => [
+                            'id'              => 0,
+                            'hub_post_id'     => null,
+                            'content'         => $videoItem['snippet']['title'] ?? '',
+                            'status'          => 'published',
+                            'platform'        => 'youtube',
+                            'media_path'      => $thumbnailUrl,
+                            'scheduled_at'    => null,
+                            'published_at'    => $videoItem['snippet']['publishedAt'] ?? null,
+                            'created_at'      => $videoItem['snippet']['publishedAt'] ?? null,
+                            'external_post_id'=> $videoId,
+                            'views_count'     => (int)($metrics['views'] ?? 0),
+                            'likes_count'     => (int)($metrics['likes'] ?? 0),
+                            'comments_count'  => (int)($metrics['comments'] ?? 0),
+                                'metrics'         => $metrics,
+                            'source'          => 'youtube',
+                        ],
+                        'upsert_data' => [
+                            'platform_post_id'     => $videoId,
+                            'message'              => $videoItem['snippet']['title'] ?? '',
+                            'created_time'         => $videoItem['snippet']['publishedAt'] ?? null,
+                            'permalink'            => 'https://www.youtube.com/watch?v=' . $videoId,
+                            'picture'              => $thumbnailUrl,
+                            'attachments'          => ['description' => $videoItem['snippet']['description'] ?? '', 'duration' => $videoItem['contentDetails']['duration'] ?? null],
+                            'reactions'            => ['views' => $metrics['views'], 'likes' => $metrics['likes'], 'comments' => $metrics['comments']],
+                            'comments_count'       => $metrics['comments'],
+                            'shares_count'         => 0,
+                            'impressions'          => $metrics['views'],
+                            'reach'                => null,
+                            'clicks'               => null,
+                            'engagement'           => $metrics['likes'] + $metrics['comments'],
+                            'published_at'         => $videoItem['snippet']['publishedAt'] ?? null,
+                            'raw_platform_response'=> $videoItem,
+                        ],
+                    ];
+                }
+            }
+        } elseif ($platform === 'google_business') {
+            try {
+                $recentPostsRaw = GoogleBusinessHandler::getRecentPosts($token, $conn['external_account_id'], $limit);
+            } catch (Exception $e) {
+                $platformErrors[$platform] = $e->getMessage();
+                log_message('warning', 'Google Business fetch failed', ['error' => $e->getMessage()]);
+                return null;
+            }
+
+            if (!empty($recentPostsRaw['localPosts'])) {
+                foreach ($recentPostsRaw['localPosts'] as $postItem) {
+                    $postIdValue = $postItem['name'] ?? '';
+                    if (empty($postIdValue)) continue;
+
+                    $mediaUrl = null;
+                    if (!empty($postItem['media'][0]['googleUrl'])) {
+                        $mediaUrl = $postItem['media'][0]['googleUrl'];
+                    }
+                    $mediaPath = normalizePlatformMediaPath($mediaUrl, $conn['client_id'] ?? 0);
+
+                    $views = 0;
+                    $results[] = [
+                        'formatted' => [
+                            'id'              => 0,
+                            'hub_post_id'     => null,
+                            'content'         => $postItem['summary'] ?? '',
+                            'status'          => 'published',
+                            'platform'        => 'google_business',
+                            'media_path'      => $mediaPath,
+                            'scheduled_at'    => null,
+                            'published_at'    => $postItem['createTime'] ?? null,
+                            'created_at'      => $postItem['createTime'] ?? null,
+                            'external_post_id'=> $postIdValue,
+                            'views_count'     => $views,
+                            'likes_count'     => 0,
+                            'comments_count'  => 0,
+                            'metrics'         => [
+                                'impressions' => $views,
+                                'reach'       => $views,
+                                'clicks'      => 0,
+                                'engagement'  => 0,
+                                'likes'       => 0,
+                                'comments'    => 0,
+                            ],
+                            'source'          => 'google_business',
+                        ],
+                        'upsert_data' => [
+                            'platform_post_id'     => $postIdValue,
+                            'message'              => $postItem['summary'] ?? '',
+                            'created_time'         => $postItem['createTime'] ?? null,
+                            'permalink'            => null,
+                            'picture'              => $mediaPath,
+                            'attachments'          => $postItem['media'] ?? null,
+                            'reactions'            => ['likes' => 0, 'comments' => 0],
+                            'comments_count'       => 0,
+                            'shares_count'         => 0,
+                            'impressions'          => $views,
+                            'reach'                => $views,
+                            'clicks'               => 0,
+                            'engagement'           => 0,
+                            'published_at'         => $postItem['createTime'] ?? null,
+                            'raw_platform_response'=> $postItem,
+                        ],
+                    ];
+                }
+            }
+
+        } elseif ($platform === 'linkedin') {
+            try {
+                $recentPostsRaw = LinkedInHandler::getRecentPosts($token, $conn['external_account_id'], $limit);
+            } catch (Exception $e) {
+                $platformErrors[$platform] = $e->getMessage();
+                log_message('warning', 'LinkedIn fetch failed', ['error' => $e->getMessage()]);
+                return null;
+            }
+
+            if (!empty($recentPostsRaw['elements'])) {
+                foreach ($recentPostsRaw['elements'] as $postItem) {
+                    $postIdValue = $postItem['id'] ?? '';
+                    if (empty($postIdValue)) continue;
+
+                    $message = '';
+                    $shareContent = $postItem['specificContent']['com.linkedin.ugc.ShareContent'] ?? null;
+                    if ($shareContent && !empty($shareContent['shareCommentary']['text'])) {
+                        $message = $shareContent['shareCommentary']['text'];
+                    }
+
+                    $mediaPath = null;
+                    $publishedAt = null;
+                    if (!empty($postItem['created']['time'])) {
+                        $publishedAt = date('Y-m-d H:i:s', $postItem['created']['time'] / 1000);
+                    }
+
+                    $results[] = [
+                        'formatted' => [
+                            'id'              => 0,
+                            'hub_post_id'     => null,
+                            'content'         => $message,
+                            'status'          => 'published',
+                            'platform'        => 'linkedin',
+                            'media_path'      => $mediaPath,
+                            'scheduled_at'    => null,
+                            'published_at'    => $publishedAt,
+                            'created_at'      => $publishedAt,
+                            'external_post_id'=> $postIdValue,
+                            'views_count'     => 0,
+                            'likes_count'     => 0,
+                            'comments_count'  => 0,
+                            'metrics'         => [
+                                'impressions' => 0,
+                                'reach'       => 0,
+                                'clicks'      => 0,
+                                'engagement'  => 0,
+                                'likes'       => 0,
+                                'comments'    => 0,
+                            ],
+                            'source'          => 'linkedin',
+                        ],
+                        'upsert_data' => [
+                            'platform_post_id'     => $postIdValue,
+                            'message'              => $message,
+                            'created_time'         => $publishedAt,
+                            'permalink'            => null,
+                            'picture'              => $mediaPath,
+                            'attachments'          => $shareContent,
+                            'reactions'            => ['likes' => 0, 'comments' => 0],
+                            'comments_count'       => 0,
+                            'shares_count'         => 0,
+                            'impressions'          => 0,
+                            'reach'                => 0,
+                            'clicks'               => 0,
+                            'engagement'           => 0,
+                            'published_at'         => $publishedAt,
+                            'raw_platform_response'=> $postItem,
+                        ],
+                    ];
+                }
+            }
+        }
+    } catch (Exception $e) {
+        $platformErrors[$platform] = $e->getMessage();
+        log_message('warning', 'Platform post fetch failed', ['platform' => $platform, 'error' => $e->getMessage()]);
+        return null;
+    }
+
+    return $results;
+}
+
+/**
+ * Live sync for all connected platforms for a client.
+ *
+ * Fetch-first, delete-on-success: a failed API call never wipes good existing cache data.
+ * Returns array of freshly formatted posts ready to merge into $formatted.
+ */
+function performLiveSync(PDO $pdo, int $client_id, string $platformFilter, int $limit, array &$platformErrors): array {
+    $connStmt = $pdo->prepare("
+        SELECT pc.id, pc.client_id, pc.platform, pc.external_account_id, pt.access_token_encrypted
+        FROM platform_connections pc
+        LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
+        WHERE pc.client_id = :client_id AND pc.status = 'connected'
+        ORDER BY pc.id ASC
+    ");
+    $connStmt->execute(['client_id' => $client_id]);
+    $connections = $connStmt->fetchAll() ?: [];
+
+    // Filter connected platforms
+    $activeConns = [];
+    foreach ($connections as $conn) {
+        $platform = strtolower($conn['platform'] ?? '');
+        if ($platform === 'whatsapp') continue;
+        if (!empty($platformFilter) && $platform !== $platformFilter) continue;
+        $activeConns[] = $conn;
+    }
+
+    // Run concurrently via curl_multi if fetching all platforms and there are multiple connections
+    if (empty($platformFilter) && count($activeConns) > 1) {
+        $apiKeyStmt = $pdo->prepare("SELECT api_key FROM client_api_keys WHERE client_id = :client_id LIMIT 1");
+        $apiKeyStmt->execute(['client_id' => $client_id]);
+        $apiKey = $apiKeyStmt->fetchColumn();
+
+        if ($apiKey) {
+            $mh = curl_multi_init();
+            $handles = [];
+
+            $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $script = $_SERVER['SCRIPT_NAME'] ?? '/dashboard_hub/hub/api/posts.php';
+
+            foreach ($activeConns as $conn) {
+                $plat = strtolower($conn['platform']);
+                $subUrl = "{$scheme}://{$host}{$script}?force_sync=1&platform=" . urlencode($plat) . "&include_platform=1&limit=" . $limit;
+                
+                // Rewrite localhost/127.0.0.1 to [::1] matching executeCurl
+                $subUrl = preg_replace('/^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?\//i', '$1[::1]$3/', $subUrl);
+                
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $subUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 90);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'X-API-Key: ' . $apiKey,
+                    'Content-Type: application/json'
+                ]);
+                
+                curl_multi_add_handle($mh, $ch);
+                $handles[$plat] = $ch;
+            }
+
+            // Execute in parallel
+            $active = null;
+            do {
+                $status = curl_multi_exec($mh, $active);
+                if ($active) {
+                    curl_multi_select($mh);
+                }
+            } while ($active && $status == CURLM_OK);
+
+            $allFresh = [];
+            $failedPlatforms = [];
+
+            foreach ($handles as $plat => $ch) {
+                $resBody = curl_multi_getcontent($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_multi_remove_handle($mh, $ch);
+                curl_close($ch);
+
+                $parsed = json_decode($resBody, true);
+                if ($httpCode === 200 && !empty($parsed['success'])) {
+                    if (!empty($parsed['posts']) && is_array($parsed['posts'])) {
+                        foreach ($parsed['posts'] as $post) {
+                            $allFresh[] = $post;
+                        }
+                    }
+                    if (!empty($parsed['platform_errors'])) {
+                        foreach ($parsed['platform_errors'] as $p => $err) {
+                            $platformErrors[$p] = $err;
+                        }
+                    }
+                } else {
+                    $failedPlatforms[] = $plat;
+                }
+            }
+            curl_multi_close($mh);
+
+            // If any concurrent requests failed, fallback to sequential sync for those
+            if (!empty($failedPlatforms)) {
+                foreach ($activeConns as $conn) {
+                    $platform = strtolower($conn['platform']);
+                    if (!in_array($platform, $failedPlatforms, true)) continue;
+
+                    $token = get_valid_platform_token($pdo, $client_id, $platform);
+                    if (empty($token)) continue;
+
+                    $freshForPlatform = fetchLivePostsForPlatform($token, $conn, $platform, $limit, $platformErrors);
+                    if ($freshForPlatform === null) {
+                        continue;
+                    }
+
+                    $deleteStmt = $pdo->prepare("DELETE FROM platform_posts WHERE client_id = :client_id AND platform = :platform");
+                    $deleteStmt->execute(['client_id' => $client_id, 'platform' => $platform]);
+
+                    foreach ($freshForPlatform as $entry) {
+                        upsertPlatformPost($pdo, $client_id, $platform, $entry['upsert_data']);
+                        $allFresh[] = $entry['formatted'];
+                    }
+
+                    try {
+                        $pdo->prepare("UPDATE platform_connections SET last_synced_at = NOW() WHERE client_id = :client_id AND platform = :platform")
+                            ->execute(['client_id' => $client_id, 'platform' => $platform]);
+                    } catch (Exception $e) {}
+                }
+            }
+
+            return $allFresh;
+        }
+    }
+
+    // Normal sequential sync loop
+    $allFresh = [];
+    foreach ($activeConns as $conn) {
+        $platform = strtolower($conn['platform']);
+        $token = get_valid_platform_token($pdo, $client_id, $platform);
+        if (empty($token)) continue;
+
+        $freshForPlatform = fetchLivePostsForPlatform($token, $conn, $platform, $limit, $platformErrors);
+
+        if ($freshForPlatform === null) {
+            log_message('info', 'Keeping existing platform cache due to fetch failure', ['platform' => $platform, 'client_id' => $client_id]);
+            continue;
+        }
+
+        $deleteStmt = $pdo->prepare("DELETE FROM platform_posts WHERE client_id = :client_id AND platform = :platform");
+        $deleteStmt->execute(['client_id' => $client_id, 'platform' => $platform]);
+
+        foreach ($freshForPlatform as $entry) {
+            upsertPlatformPost($pdo, $client_id, $platform, $entry['upsert_data']);
+            $allFresh[] = $entry['formatted'];
+        }
+
+        try {
+            $pdo->prepare("UPDATE platform_connections SET last_synced_at = NOW() WHERE client_id = :client_id AND platform = :platform")
+                ->execute(['client_id' => $client_id, 'platform' => $platform]);
+        } catch (Exception $e) {}
+    }
+
+    return $allFresh;
 }
 
 try {
@@ -430,10 +898,7 @@ try {
     $postId = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
     $platformFilter = trim(strtolower($_GET['platform'] ?? ''));
     $includePlatform = !isset($_GET['include_platform']) || in_array(strtolower($_GET['include_platform'] ?? '1'), ['1', 'true', 'yes'], true);
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
-    if ($limit > 0) {
-        $limit = min(200, max(1, $limit));
-    }
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 5000;
 
     if ($postId > 0) {
         $stmt = $pdo->prepare("
@@ -524,260 +989,19 @@ try {
 
     $platformErrors = [];
     if ($includePlatform) {
-        $cachedPosts = fetchCachedPlatformPosts($pdo, $client_id, $platformFilter, $limit);
-        foreach ($cachedPosts as $post) {
-            $formatted[] = $post;
-        }
-
         $forceSync = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
+
         if ($forceSync) {
-            $connStmt = $pdo->prepare("
-                SELECT pc.id, pc.platform, pc.external_account_id, pt.access_token_encrypted
-                FROM platform_connections pc
-                LEFT JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
-                WHERE pc.client_id = :client_id AND pc.status = 'connected'
-                ORDER BY pc.id ASC
-            ");
-            $connStmt->execute(['client_id' => $client_id]);
-            $connections = $connStmt->fetchAll() ?: [];
-
-            foreach ($connections as $conn) {
-                $platform = strtolower($conn['platform'] ?? '');
-                if ($platform === 'whatsapp') {
-                    continue;
-                }
-                if (!empty($platformFilter) && $platform !== $platformFilter) {
-                    continue;
-                }
-
-                $token = get_valid_platform_token($pdo, $client_id, $platform);
-                if (empty($token)) {
-                    continue;
-                }
-
-                try {
-                    if ($platform === 'facebook') {
-                        try {
-                            $recentPostsRaw = FacebookHandler::getRecentPosts($token, $conn['external_account_id'], $limit);
-                        } catch (Exception $e) {
-                            $platformErrors[$platform] = $e->getMessage();
-                            if (strpos($e->getMessage(), 'pages_read_engagement') !== false) {
-                                log_message('warning', 'Platform post fetch failed — token likely missing pages_read_engagement scope, reconnect required', ['platform' => $platform, 'client_id' => $client_id]);
-                            } else {
-                                log_message('warning', 'Platform post fetch failed', ['platform' => $platform, 'error' => $e->getMessage()]);
-                            }
-                            $recentPostsRaw = ['data' => []];
-                        }
-                        if (!empty($recentPostsRaw['data'])) {
-                            foreach ($recentPostsRaw['data'] as $postItem) {
-                                $postIdValue = $postItem['id'] ?? '';
-                                if (empty($postIdValue)) {
-                                    continue;
-                                }
-
-                                $metrics = ['likes' => 0, 'comments' => 0, 'shares' => 0, 'reach' => null, 'impressions' => null, 'clicks' => null, 'engagement' => null];
-                                $insights = [];
-                                $mediaPath = $postItem['attachments']['data'][0]['media']['image']['src'] ?? ($postItem['full_picture'] ?? null);
-                                $engagementData = [];
-                                $insights = [];
-                                try {
-                                    $engagementData = FacebookHandler::getEngagementCounts($token, $postIdValue);
-                                } catch (Exception $e) {
-                                    log_message('warning', 'Facebook post engagement fetch failed', [
-                                        'post_id' => $postIdValue,
-                                        'error'   => $e->getMessage()
-                                    ]);
-                                }
-                                try {
-                                    $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged_users']);
-                                    $insights = $rawInsights['data'] ?? [];
-                                } catch (Exception $e) {
-                                    log_message('warning', 'Facebook post insights fetch failed', [
-                                        'post_id' => $postIdValue,
-                                        'error'   => $e->getMessage()
-                                    ]);
-                                }
-                                $metrics = normalizeFacebookMetrics($postItem, $insights, $engagementData);
-
-                                $entry = [
-                                    'id' => 0,
-                                    'hub_post_id' => null,
-                                    'content' => $postItem['message'] ?? '',
-                                    'status' => 'published',
-                                    'platform' => 'facebook',
-                                    'media_path' => $mediaPath,
-                                    'scheduled_at' => null,
-                                    'published_at' => $postItem['created_time'] ?? null,
-                                    'created_at' => $postItem['created_time'] ?? null,
-                                    'external_post_id' => $postIdValue,
-                                    'views_count' => (int)($metrics['impressions'] ?? 0),
-                                    'likes_count' => (int)$metrics['likes'],
-                                    'comments_count' => (int)$metrics['comments'],
-                                    'duration' => null,
-                                    'metrics' => $metrics,
-                                    'source' => 'facebook'
-                                ];
-
-                                $formatted[] = $entry;
-                                upsertPlatformPost($pdo, $client_id, 'facebook', [
-                                    'platform_post_id' => $postIdValue,
-                                    'message' => $postItem['message'] ?? '',
-                                    'created_time' => $postItem['created_time'] ?? null,
-                                    'permalink' => $postItem['permalink_url'] ?? null,
-                                    'picture' => $mediaPath,
-                                    'attachments' => $postItem['attachments'] ?? null,
-                                    'reactions' => [
-                                        'likes' => $metrics['likes'],
-                                        'comments' => $metrics['comments'],
-                                        'shares' => $metrics['shares'],
-                                    ],
-                                    'comments_count' => $metrics['comments'],
-                                    'shares_count' => $metrics['shares'],
-                                    'impressions' => $metrics['impressions'],
-                                    'reach' => $metrics['reach'],
-                                    'clicks' => $metrics['clicks'],
-                                    'engagement' => $metrics['engagement'],
-                                    'published_at' => $postItem['created_time'] ?? null,
-                                    'raw_platform_response' => $postItem,
-                                ]);
-                            }
-                        }
-                    } elseif ($platform === 'instagram') {
-                        $recentMediaRaw = InstagramHandler::getRecentMedia($token, $conn['external_account_id'], $limit);
-                        if (!empty($recentMediaRaw['data'])) {
-                            foreach ($recentMediaRaw['data'] as $mediaItem) {
-                                $mediaId = $mediaItem['id'] ?? '';
-                                if (empty($mediaId)) {
-                                    continue;
-                                }
-
-                                $mediaUrl = $mediaItem['media_url'] ?? null;
-                                $mediaPath = normalizePlatformMediaPath($mediaUrl, $client_id);
-                                $timestamp = $mediaItem['timestamp'] ?? null;
-                                $insights = [];
-                                try {
-                                    $metricsList = ['views', 'reach'];
-                                    $rawInsights = InstagramHandler::getInsights($token, $mediaId, $metricsList);
-                                    $insights = $rawInsights['data'] ?? [];
-                                } catch (Exception $insightEx) {
-                                    log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'error' => $insightEx->getMessage()]);
-                                }
-
-                                $metrics = normalizeInstagramMetrics($mediaItem, $insights);
-
-                                $entry = [
-                                    'id' => 0,
-                                    'hub_post_id' => null,
-                                    'content' => $mediaItem['caption'] ?? '',
-                                    'status' => 'published',
-                                    'platform' => 'instagram',
-                                    'media_path' => $mediaPath,
-                                    'scheduled_at' => null,
-                                    'published_at' => $timestamp,
-                                    'created_at' => $timestamp,
-                                    'external_post_id' => $mediaId,
-                                    'views_count' => (int)($metrics['impressions'] ?? $metrics['reach'] ?? 0),
-                                    'likes_count' => (int)($metrics['likes'] ?? 0),
-                                    'comments_count' => (int)($metrics['comments'] ?? 0),
-                                    'duration' => null,
-                                    'metrics' => $metrics,
-                                    'source' => 'instagram'
-                                ];
-
-                                $formatted[] = $entry;
-                                upsertPlatformPost($pdo, $client_id, 'instagram', [
-                                    'platform_post_id' => $mediaId,
-                                    'message' => $mediaItem['caption'] ?? '',
-                                    'created_time' => $timestamp,
-                                    'permalink' => null,
-                                    'picture' => $mediaPath,
-                                    'attachments' => [
-                                        'media_type' => $mediaItem['media_type'] ?? null,
-                                        'thumbnail_url' => $mediaPath,
-                                    ],
-                                    'reactions' => [
-                                        'likes' => $metrics['likes'] ?? 0,
-                                        'comments' => $metrics['comments'] ?? 0,
-                                    ],
-                                    'comments_count' => $metrics['comments'] ?? 0,
-                                    'shares_count' => 0,
-                                    'impressions' => $metrics['impressions'] ?? null,
-                                    'reach' => $metrics['reach'] ?? null,
-                                    'clicks' => $metrics['clicks'] ?? null,
-                                    'engagement' => $metrics['engagement'] ?? null,
-                                    'published_at' => $timestamp,
-                                    'raw_platform_response' => $mediaItem,
-                                ]);
-                            }
-                        }
-                    } elseif ($platform === 'youtube') {
-                        $recentVideosRaw = YouTubeHandler::getRecentChannelVideos($token, $limit);
-                        if (!empty($recentVideosRaw['items'])) {
-                            foreach ($recentVideosRaw['items'] as $videoItem) {
-                                $videoId = $videoItem['id'] ?? '';
-                                if (empty($videoId)) {
-                                    continue;
-                                }
-
-                                $metrics = ['views' => 0, 'likes' => 0, 'comments' => 0, 'favorites' => 0, 'watch_time' => null, 'estimated_minutes_watched' => null, 'average_view_duration' => null, 'ctr' => null, 'subscribers_gained' => null, 'subscribers_lost' => null];
-                                try {
-                                    $analyticsRaw = YouTubeHandler::getVideoAnalytics($token, $videoId, date('Y-m-d', strtotime('-30 days')), date('Y-m-d'));
-                                    $metrics = normalizeYouTubeMetrics($videoItem, $analyticsRaw);
-                                } catch (Exception $analyticsEx) {
-                                    log_message('warning', 'YouTube video analytics unavailable', ['video_id' => $videoId, 'error' => $analyticsEx->getMessage()]);
-                                    $metrics = normalizeYouTubeMetrics($videoItem, []);
-                                }
-
-                                $thumbs = $videoItem['snippet']['thumbnails'] ?? [];
-                                $thumbnailUrl = $thumbs['maxres']['url'] ?? $thumbs['high']['url'] ?? $thumbs['medium']['url'] ?? $thumbs['default']['url'] ?? '';
-                                $entry = [
-                                    'id' => 0,
-                                    'hub_post_id' => null,
-                                    'content' => $videoItem['snippet']['title'] ?? '',
-                                    'status' => 'published',
-                                    'platform' => 'youtube',
-                                    'media_path' => $thumbnailUrl,
-                                    'scheduled_at' => null,
-                                    'published_at' => $videoItem['snippet']['publishedAt'] ?? null,
-                                    'created_at' => $videoItem['snippet']['publishedAt'] ?? null,
-                                    'external_post_id' => $videoId,
-                                    'views_count' => (int)($metrics['views'] ?? 0),
-                                    'likes_count' => (int)($metrics['likes'] ?? 0),
-                                    'comments_count' => (int)($metrics['comments'] ?? 0),
-                                    'duration' => $videoItem['contentDetails']['duration'] ?? null,
-                                    'metrics' => $metrics,
-                                    'source' => 'youtube'
-                                ];
-
-                                $formatted[] = $entry;
-                                upsertPlatformPost($pdo, $client_id, 'youtube', [
-                                    'platform_post_id' => $videoId,
-                                    'message' => $videoItem['snippet']['title'] ?? '',
-                                    'created_time' => $videoItem['snippet']['publishedAt'] ?? null,
-                                    'permalink' => 'https://www.youtube.com/watch?v=' . $videoId,
-                                    'picture' => $thumbnailUrl,
-                                    'attachments' => ['description' => $videoItem['snippet']['description'] ?? '', 'duration' => $videoItem['contentDetails']['duration'] ?? null],
-                                    'reactions' => [
-                                        'views' => $metrics['views'],
-                                        'likes' => $metrics['likes'],
-                                        'comments' => $metrics['comments'],
-                                    ],
-                                    'comments_count' => $metrics['comments'],
-                                    'shares_count' => 0,
-                                    'impressions' => $metrics['views'],
-                                    'reach' => null,
-                                    'clicks' => null,
-                                    'engagement' => $metrics['likes'] + $metrics['comments'],
-                                    'published_at' => $videoItem['snippet']['publishedAt'] ?? null,
-                                    'raw_platform_response' => $videoItem,
-                                ]);
-                            }
-                        }
-                    }
-                } catch (Exception $e) {
-                    $platformErrors[$platform] = $e->getMessage();
-                    log_message('warning', 'Platform post fetch failed', ['platform' => $platform, 'error' => $e->getMessage()]);
-                }
+            // Full replace-on-sync: fetch live first, delete old cache only on success.
+            $freshPosts = performLiveSync($pdo, $client_id, $platformFilter, $limit, $platformErrors);
+            foreach ($freshPosts as $post) {
+                $formatted[] = $post;
+            }
+        } else {
+            // Normal page load: read from cache only, no live API calls.
+            $cachedPosts = fetchCachedPlatformPosts($pdo, $client_id, $platformFilter, $limit);
+            foreach ($cachedPosts as $post) {
+                $formatted[] = $post;
             }
         }
     }

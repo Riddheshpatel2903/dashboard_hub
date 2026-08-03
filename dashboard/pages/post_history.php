@@ -9,6 +9,7 @@ if ($client_id === null) {
 }
 
 require_once __DIR__ . '/../includes/hub_client.php';
+$hubRes = hubGetConnectionsStatus($client_id);
 
 $platformFilter = $_GET['platform'] ?? '';
 $dateFilter = $_GET['date'] ?? '';
@@ -89,12 +90,19 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                         <span class="font-body-sm font-bold text-primary">History</span>
                     </div>
                 </div>
-                <div class="flex gap-sm">
-                    <a href="post_history.php?force_sync=1" 
+                <div class="flex items-center gap-md">
+                    <?php
+                        $maxSynced = getOverallLastSyncedTime($hubRes['connections'] ?? []);
+                        $lastSyncedStr = getRelativeTimeString($maxSynced);
+                    ?>
+                    <span id="last-synced-label" class="text-xs text-on-surface-variant font-medium">Last synced: <?php echo $lastSyncedStr; ?></span>
+                    
+                    <button id="btn-refresh-posts" type="button"
+                       onclick="triggerPostRefresh(this)"
                        class="flex items-center gap-sm px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-body-md font-bold transition-all active:scale-95">
-                        <span class="material-symbols-outlined text-sm">sync</span>
-                        <span>Refresh Data</span>
-                    </a>
+                        <span class="material-symbols-outlined text-sm" id="refresh-icon">sync</span>
+                        <span id="refresh-label">Refresh Data</span>
+                    </button>
                     <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                        class="flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg font-body-md font-bold hover:opacity-90 transition-opacity">
                         <span class="material-symbols-outlined text-sm">add</span>
@@ -143,8 +151,13 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                 </form>
             </div>
 
-            <!-- Card Grid & Pagination Section -->
-            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
+            <!-- Card Grid & Pagination Section (AJAX target) -->
+            <div id="posts-grid-section" class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
+                <!-- Sync error banner (hidden by default, shown via JS) -->
+                <div id="sync-error-banner" class="hidden px-md py-sm bg-error-container/20 border-b border-error/20 text-error text-xs font-semibold flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-sm">warning</span>
+                    <span id="sync-error-msg"></span>
+                </div>
                 <?php if (!empty($postsError)): ?>
                     <div class="p-xl text-center text-error font-body-md space-y-sm">
                         <span class="material-symbols-outlined text-3xl">error</span>
@@ -181,7 +194,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                             } elseif ($post['platform'] === 'google_business') {
                                 $platIcon = 'store';
                                 $platColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
-                                $platLabel = 'Google Profile';
+                                $platLabel = 'Google Business Profile';
                             }
 
                             // Status style
@@ -195,7 +208,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                             }
 
                             $targetTime = $post['status'] === 'published' ? $post['published_at'] : ($post['scheduled_at'] ?: $post['created_at']);
-                            
+
                             // Media thumbnail
                             $hasMedia = !empty($post['media_path']);
                             $mediaUrl = '';
@@ -242,19 +255,10 @@ $posts = array_slice($filteredPosts, $offset, $limit);
 
                                 <!-- Card Footer -->
                                 <div class="pt-sm border-t border-surface-variant/60 flex justify-between items-center">
-                                    <!-- Interaction metrics -->
-                                    <div class="flex gap-sm text-[10px] font-bold text-on-surface-variant">
-                                        <?php if ($post['status'] === 'published'): ?>
-                                            <div class="flex items-center gap-0.5" title="Views"><span class="material-symbols-outlined text-[13px]">visibility</span> <?php echo number_format($post['views_count'] ?? 0); ?></div>
-                                            <div class="flex items-center gap-0.5" title="Likes"><span class="material-symbols-outlined text-[13px]">favorite</span> <?php echo number_format($post['likes_count'] ?? 0); ?></div>
-                                            <div class="flex items-center gap-0.5" title="Comments"><span class="material-symbols-outlined text-[13px]">chat</span> <?php echo number_format($post['comments_count'] ?? 0); ?></div>
-                                        <?php else: ?>
-                                            <span class="text-[9px] text-on-surface-variant/60 uppercase font-data-label flex items-center gap-0.5">
-                                                <span class="material-symbols-outlined text-[11px]">calendar_today</span>
-                                                <?php echo date('M d, H:i', strtotime($targetTime)); ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
+                                    <span class="text-[9px] text-on-surface-variant/60 uppercase font-data-label flex items-center gap-0.5">
+                                        <span class="material-symbols-outlined text-[11px]">calendar_today</span>
+                                        <?php echo date('M d, H:i', strtotime($targetTime)); ?>
+                                    </span>
                                     <button class="btn-view-detail px-sm h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center gap-xs text-xs" 
                                             data-id="<?php echo $post['id']; ?>"
                                             data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
@@ -304,8 +308,6 @@ $posts = array_slice($filteredPosts, $offset, $limit);
     </div>
 
     <script>
-
-
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('post-modal');
             const modalBody = document.getElementById('modal-body-content');
@@ -323,43 +325,41 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                 }
             });
 
-            document.querySelectorAll('.btn-view-detail, .btn-view-detail *').forEach(el => {
-                const btn = el.closest('.btn-view-detail');
+            // E: Event delegation to handle view details clicks even on dynamically reloaded cards
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-view-detail');
                 if (!btn) return;
                 
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const id = this.getAttribute('data-id');
-                    const hubId = this.getAttribute('data-hub-id');
-                    const platform = this.getAttribute('data-platform');
-                    const extId = this.getAttribute('data-external-id');
-                    
-                    modal.classList.remove('hidden');
-                    modal.style.display = 'flex';
-                    modalBody.innerHTML = '<p class="text-on-surface-variant text-center py-lg">Loading post details...</p>';
-                    
-                    const queryParams = new URLSearchParams({
-                        post_id: id,
-                        hub_post_id: hubId,
-                        platform: platform,
-                        external_post_id: extId
-                    }).toString();
-                    
-                    fetch(`post_detail.php?${queryParams}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(res => res.text())
-                    .then(html => {
-                        modalBody.innerHTML = html;
-                        // Bind dynamic action triggers in modal body
-                        attachModalActionListeners();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        modalBody.innerHTML = '<p class="text-error text-center py-lg">Failed to retrieve details.</p>';
-                    });
+                e.preventDefault();
+                const id = btn.getAttribute('data-id');
+                const hubId = btn.getAttribute('data-hub-id');
+                const platform = btn.getAttribute('data-platform');
+                const extId = btn.getAttribute('data-external-id');
+                
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                modalBody.innerHTML = '<p class="text-on-surface-variant text-center py-lg">Loading post details...</p>';
+                
+                const queryParams = new URLSearchParams({
+                    post_id: id,
+                    hub_post_id: hubId,
+                    platform: platform,
+                    external_post_id: extId
+                }).toString();
+                
+                fetch(`post_detail.php?${queryParams}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    modalBody.innerHTML = html;
+                    attachModalActionListeners();
+                })
+                .catch(err => {
+                    console.error(err);
+                    modalBody.innerHTML = '<p class="text-error text-center py-lg">Failed to retrieve details.</p>';
                 });
             });
 
@@ -395,7 +395,10 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                             .then(data => {
                                 if (data.success) {
                                     alert(data.message);
-                                    window.location.reload();
+                                    // E: Close details modal and update posts list via AJAX
+                                    modal.classList.add('hidden');
+                                    modal.style.display = 'none';
+                                    reloadPostsGrid();
                                 } else {
                                     alert('Failed: ' + data.error);
                                     deleteBtn.disabled = false;
@@ -407,6 +410,90 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                 }
             }
         });
+    </script>
+    <script>
+    /**
+     * E: Reusable AJAX posts grid reloader.
+     */
+    function reloadPostsGrid() {
+        const grid  = document.getElementById('posts-grid-section');
+        const errBanner = document.getElementById('sync-error-banner');
+        const errMsg    = document.getElementById('sync-error-msg');
+        const btn = document.getElementById('btn-refresh-posts');
+        const icon  = document.getElementById('refresh-icon');
+        const label = document.getElementById('refresh-label');
+
+        if (btn) btn.disabled = true;
+        if (icon)  { icon.classList.add('animate-spin'); }
+        if (label) { label.textContent = 'Syncing...'; }
+        if (errBanner) { errBanner.classList.add('hidden'); }
+
+        const params = new URLSearchParams(window.location.search);
+
+        return fetch('ajax_posts_refresh.php?' + params.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+        })
+        .then(html => {
+            if (grid) {
+                grid.innerHTML = html;
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const dataEl = doc.getElementById('posts-grid-data');
+                if (dataEl) {
+                    const lastSynced = dataEl.getAttribute('data-last-synced');
+                    const syncLabel = document.getElementById('last-synced-label');
+                    if (syncLabel) syncLabel.textContent = 'Last synced: ' + lastSynced;
+                }
+            }
+        })
+        .catch(err => {
+            if (errBanner && errMsg) {
+                errMsg.textContent = 'Refresh failed: ' + err.message + '. Your cached data is still shown.';
+                errBanner.classList.remove('hidden');
+            }
+        })
+        .finally(() => {
+            if (btn) btn.disabled = false;
+            if (icon)  { icon.classList.remove('animate-spin'); }
+            if (label) { label.textContent = 'Refresh Data'; }
+        });
+    }
+
+    /**
+     * E: Force sync triggers platform API fetch, then updates cache and swaps HTML grid.
+     */
+    function triggerPostRefresh(btn) {
+        // Set force_sync=1 for this specific reload call
+        const params = new URLSearchParams(window.location.search);
+        params.set('force_sync', '1');
+        
+        const oldQuery = window.location.search;
+        history.replaceState({}, '', '?' + params.toString());
+        
+        reloadPostsGrid().finally(() => {
+            // Restore URL query back to original
+            history.replaceState({}, '', oldQuery || '?');
+        });
+    }
+
+    // Platform filter dropdown: auto-trigger AJAX refresh on change
+    document.addEventListener('DOMContentLoaded', function() {
+        const platformSelect = document.getElementById('platform');
+        if (platformSelect) {
+            platformSelect.addEventListener('change', function() {
+                const params = new URLSearchParams(window.location.search);
+                params.set('platform', this.value);
+                // Update URL without reload, then trigger refresh
+                history.replaceState({}, '', '?' + params.toString());
+                reloadPostsGrid();
+            });
+        }
+    });
     </script>
 </body>
 </html>

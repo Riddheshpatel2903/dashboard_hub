@@ -81,6 +81,10 @@ function hubDelete($clientId, $postId, $platform = null, $externalPostId = null)
  * Gets analytics for a client.
  */
 function hubGetAnalytics($clientId, $platform, $postId = 0, $startDate = null, $endDate = null, $externalPostId = null) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     $params = [
         'platform' => $platform,
         'post_id'  => (int)$postId
@@ -89,20 +93,123 @@ function hubGetAnalytics($clientId, $platform, $postId = 0, $startDate = null, $
     if ($endDate) $params['end_date'] = $endDate;
     if ($externalPostId) $params['external_post_id'] = $externalPostId;
 
+    $cacheKey = 'analytics_' . $clientId . '_' . md5(serialize($params));
+    $now = time();
+
+    $bypassCache = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
+
+    if (!$bypassCache && isset($_SESSION[$cacheKey]) && isset($_SESSION[$cacheKey . '_expires']) && $_SESSION[$cacheKey . '_expires'] > $now) {
+        return $_SESSION[$cacheKey];
+    }
+
     $endpoint = '/api/analytics.php?' . http_build_query($params);
-    return hubRequest($clientId, $endpoint, 'GET');
+    $res = hubRequest($clientId, $endpoint, 'GET');
+
+    if (!empty($res['success'])) {
+        $_SESSION[$cacheKey] = $res;
+        $_SESSION[$cacheKey . '_expires'] = $now + 300; // 5 minutes cache
+    }
+
+    return $res;
 }
 
 /**
  * Gets local and platform posts from the Hub.
+ * If $forceSync is true, also syncs results into the Dashboard's own posts_cache.
  */
 function hubGetPlatformPosts($clientId, $limit = 100, $forceSync = false) {
     $url = '/api/posts.php?include_platform=1&limit=' . (int)$limit;
     if ($forceSync) {
         $url .= '&force_sync=1';
     }
-    return hubRequest($clientId, $url, 'GET');
+    $response = hubRequest($clientId, $url, 'GET');
+
+    // A3: After a force_sync, write the fresh platform posts into the Dashboard's own
+    // posts_cache using the Dashboard's already-working DB connection.
+    // This eliminates the need for a separate cross-database cron job.
+    if ($forceSync && !empty($response['platform_posts']) && is_array($response['platform_posts'])) {
+        try {
+            syncPostsCacheFromHubResponse($clientId, $response['platform_posts']);
+        } catch (Exception $cacheEx) {
+            // Non-fatal — log but don't break the response
+            error_log('[hub_client] posts_cache sync failed: ' . $cacheEx->getMessage());
+        }
+    }
+
+    return $response;
 }
+
+/**
+ * A3: Sync fresh platform posts into the Dashboard's own posts_cache table.
+ * Called immediately after a successful force_sync so the Calendar/Analytics pages
+ * see the same data as Post History without needing a separate cron.
+ */
+function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
+    $dashPdo = require __DIR__ . '/../db/connection.php';
+
+    // Group posts by platform so we can DELETE the old rows platform-by-platform
+    $platforms = array_unique(array_column($platformPosts, 'platform'));
+    foreach ($platforms as $platform) {
+        if (empty($platform)) continue;
+        $del = $dashPdo->prepare(
+            "DELETE FROM posts_cache WHERE client_id = :client_id AND platform = :platform AND hub_post_id IS NULL"
+        );
+        $del->execute(['client_id' => $clientId, 'platform' => $platform]);
+    }
+
+    $insert = $dashPdo->prepare("
+        INSERT INTO posts_cache
+            (hub_post_id, client_id, content, status, platform, media_path,
+             scheduled_at, published_at, external_post_id, likes_count, comments_count, views_count,
+             shares_count, impressions_count, reach_count, clicks_count, engagement_count)
+        VALUES
+            (NULL, :client_id, :content, :status, :platform, :media_path,
+             :scheduled_at, :published_at, :external_post_id, :likes_count, :comments_count, :views_count,
+             :shares_count, :impressions_count, :reach_count, :clicks_count, :engagement_count)
+        ON DUPLICATE KEY UPDATE
+            content           = VALUES(content),
+            media_path        = VALUES(media_path),
+            published_at      = VALUES(published_at),
+            likes_count       = VALUES(likes_count),
+            comments_count    = VALUES(comments_count),
+            views_count       = GREATEST(VALUES(views_count), views_count),
+            shares_count      = GREATEST(VALUES(shares_count), shares_count),
+            impressions_count = GREATEST(VALUES(impressions_count), impressions_count),
+            reach_count       = GREATEST(VALUES(reach_count), reach_count),
+            clicks_count      = GREATEST(VALUES(clicks_count), clicks_count),
+            engagement_count  = GREATEST(VALUES(engagement_count), engagement_count)
+    ");
+
+    foreach ($platformPosts as $post) {
+        if (empty($post['platform']) || empty($post['external_post_id'])) continue;
+        
+        $m = is_array($post['metrics'] ?? null) ? $post['metrics'] : [];
+        $viewsCount = (int)($post['views_count'] ?? $m['views'] ?? $m['view_count'] ?? $m['impressions'] ?? $m['reach'] ?? 0);
+        $likesCount = (int)($post['likes_count'] ?? $m['likes'] ?? $m['like_count'] ?? 0);
+        $commentsCount = (int)($post['comments_count'] ?? $m['comments'] ?? $m['comment_count'] ?? 0);
+
+        $insert->execute([
+            'client_id'         => $clientId,
+            'content'           => $post['content'] ?? '',
+            'status'            => $post['status'] ?? 'published',
+            'platform'          => $post['platform'],
+            'media_path'        => $post['media_path'] ?? null,
+            'scheduled_at'      => $post['scheduled_at'] ?? null,
+            'published_at'      => $post['published_at'] ?? null,
+            'external_post_id'  => $post['external_post_id'],
+            'likes_count'       => $likesCount,
+            'comments_count'    => $commentsCount,
+            'views_count'       => $viewsCount,
+            'shares_count'      => (int)($m['shares'] ?? $post['shares_count'] ?? 0),
+            'impressions_count' => (int)($m['impressions'] ?? $viewsCount ?? $post['impressions'] ?? 0),
+            'reach_count'       => (int)($m['reach'] ?? $post['reach'] ?? 0),
+            'clicks_count'      => (int)($m['clicks'] ?? $post['clicks'] ?? 0),
+            'engagement_count'  => (int)($m['engagement'] ?? $post['engagement'] ?? 0),
+        ]);
+    }
+}
+
+
 
 /**
  * Gets local scheduled, queued, and failed posts from the Hub.
@@ -123,7 +230,28 @@ function hubGetLocalPostDetails($clientId, $hubPostId) {
  * This replaces the old analytics-based reconstruction logic.
  */
 function loadPlatformPosts($clientId, $forceSync = false) {
-    $res = hubGetPlatformPosts($clientId, 100, $forceSync);
+    if (!$forceSync) {
+        // Read directly from local posts_cache to save network roundtrips!
+        try {
+            $dashPdo = require __DIR__ . '/../db/connection.php';
+            $stmt = $dashPdo->prepare("
+                SELECT hub_post_id, platform, content, media_path, status, 
+                       scheduled_at, published_at, external_post_id, 
+                       likes_count, comments_count, views_count, 
+                       shares_count, impressions_count, reach_count, clicks_count, engagement_count,
+                       id, id as post_id, created_at
+                FROM posts_cache
+                WHERE client_id = :client_id
+                ORDER BY COALESCE(published_at, scheduled_at, created_at) DESC
+            ");
+            $stmt->execute(['client_id' => $clientId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    $res = hubGetPlatformPosts($clientId, 5000, $forceSync);
     if (!empty($res['platform_errors'])) {
         $GLOBALS['platform_errors'] = $res['platform_errors'];
     }
@@ -219,7 +347,27 @@ function loadAllLivePosts($clientId) {
  * Gets active integration statuses.
  */
 function hubGetConnectionsStatus($clientId) {
-    return hubRequest($clientId, '/api/connections_status.php', 'GET');
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    $cacheKey = 'connections_status_' . $clientId;
+    $now = time();
+    
+    $bypassCache = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
+    
+    if (!$bypassCache && isset($_SESSION[$cacheKey]) && isset($_SESSION[$cacheKey . '_expires']) && $_SESSION[$cacheKey . '_expires'] > $now) {
+        return $_SESSION[$cacheKey];
+    }
+    
+    $status = hubRequest($clientId, '/api/connections_status.php', 'GET');
+    
+    if (!empty($status['success'])) {
+        $_SESSION[$cacheKey] = $status;
+        $_SESSION[$cacheKey . '_expires'] = $now + 300; // 5 minutes cache
+    }
+    
+    return $status;
 }
 
 /**
@@ -390,4 +538,49 @@ function executeCurl($url, $method, array $data = [], array $headers = [], $json
     }
 
     return $parsed;
+}
+
+function getRelativeTimeString($datetime) {
+    if (!$datetime) {
+        return 'Never';
+    }
+    $time = strtotime($datetime);
+    $now = time();
+    $diff = $now - $time;
+    if ($diff < 0) {
+        return 'Just now';
+    }
+    if ($diff < 60) {
+        return 'Just now';
+    }
+    $mins = round($diff / 60);
+    if ($mins < 60) {
+        return $mins . ' min' . ($mins > 1 ? 's' : '') . ' ago';
+    }
+    $hours = round($diff / 3600);
+    if ($hours < 24) {
+        return $hours . ' hr' . ($hours > 1 ? 's' : '') . ' ago';
+    }
+    $days = round($diff / 86400);
+    if ($days < 30) {
+        return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+    }
+    return date('M j, Y', $time);
+}
+
+function getOverallLastSyncedTime($connections) {
+    $maxTime = null;
+    if (is_array($connections)) {
+        foreach ($connections as $conn) {
+            if ($conn['status'] === 'connected' && $conn['platform'] !== 'whatsapp') {
+                if (!empty($conn['last_synced_at'])) {
+                    $t = strtotime($conn['last_synced_at']);
+                    if ($maxTime === null || $t > $maxTime) {
+                        $maxTime = $t;
+                    }
+                }
+            }
+        }
+    }
+    return $maxTime ? date('Y-m-d H:i:s', $maxTime) : null;
 }

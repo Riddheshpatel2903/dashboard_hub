@@ -72,20 +72,46 @@ foreach ($platformsInput as $platform) {
         
         $scheduledAt = !empty($input['scheduled_at']) ? $input['scheduled_at'] : null;
         $initialStatus = $scheduledAt ? 'scheduled' : 'queued';
+        $title = !empty($input['title']) ? $input['title'] : null;
+
+        $hasTitleColumn = false;
+        try {
+            $colStmt = $pdo->query("SHOW COLUMNS FROM posts LIKE 'title'");
+            $hasTitleColumn = (bool) $colStmt->fetch();
+            if (!$hasTitleColumn) {
+                $pdo->exec("ALTER TABLE posts ADD COLUMN title VARCHAR(255) DEFAULT NULL AFTER content");
+                $hasTitleColumn = true;
+                log_message('info', 'API Post: Added missing posts.title column to posts table');
+            }
+        } catch (Exception $e) {
+            log_message('warning', 'API Post: Missing posts.title column could not be fixed automatically', ['error' => $e->getMessage()]);
+        }
 
         // Define initial post entry
-        $stmt = $pdo->prepare("
-            INSERT INTO posts (client_id, platform_connection_id, content, media_temp_path, status, scheduled_at)
-            VALUES (:client_id, :connection_id, :content, :media_path, :status, :scheduled_at)
-        ");
-        $stmt->execute([
+        if ($hasTitleColumn) {
+            $stmt = $pdo->prepare("
+                INSERT INTO posts (client_id, platform_connection_id, content, title, media_temp_path, status, scheduled_at)
+                VALUES (:client_id, :connection_id, :content, :title, :media_path, :status, :scheduled_at)
+            ");
+        } else {
+            $stmt = $pdo->prepare("
+                INSERT INTO posts (client_id, platform_connection_id, content, media_temp_path, status, scheduled_at)
+                VALUES (:client_id, :connection_id, :content, :media_path, :status, :scheduled_at)
+            ");
+        }
+        $params = [
             'client_id'     => $client_id,
             'connection_id' => $connectionId,
             'content'       => $content,
             'media_path'    => $mediaTempPath,
             'status'        => $initialStatus,
             'scheduled_at'  => $scheduledAt
-        ]);
+        ];
+        if ($hasTitleColumn) {
+            $params['title'] = $title;
+        }
+
+        $stmt->execute($params);
         $postId = $pdo->lastInsertId();
 
         // If scheduled for later, do not publish immediately
@@ -136,8 +162,9 @@ foreach ($platformsInput as $platform) {
 
             case 'youtube':
                 // YouTube resumable upload requires local absolute path
-                // We resolve this from the temporary local path, or download B2 file to temp if needed.
-                // For simplicity, we search for the local temp file, or build placeholder absolute path.
+                if (empty($mediaTempPath)) {
+                    throw new Exception("YouTube requires a video file attachment. Please attach a video before posting.");
+                }
                 $localPath = __DIR__ . '/../uploads/' . ltrim($mediaTempPath, '/');
                 if (!file_exists($localPath)) {
                     $localPath = __DIR__ . '/../storage/temp/' . basename($mediaTempPath);

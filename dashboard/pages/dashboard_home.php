@@ -28,7 +28,17 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
 $recentPosts = [];
 try {
     $allLivePosts = loadPlatformPosts($client_id);
-    $recentPosts = array_slice($allLivePosts, 0, 5);
+    $filteredLivePosts = [];
+    if (is_array($allLivePosts)) {
+        foreach ($allLivePosts as $p) {
+            $pStatus = strtolower($p['status'] ?? '');
+            if ($pStatus === 'deleted' || $pStatus === 'failed') {
+                continue;
+            }
+            $filteredLivePosts[] = $p;
+        }
+    }
+    $recentPosts = array_slice($filteredLivePosts, 0, 5);
 } catch (Exception $e) {
     $recentPostsError = $e->getMessage();
 }
@@ -62,12 +72,18 @@ try {
                     <h1 class="font-display-lg text-display-lg text-on-surface">Dashboard Home</h1>
                     <p class="font-body-md text-on-surface-variant">Here's what's happening across your social landscape today.</p>
                 </div>
-                <div class="flex gap-sm">
-                    <a href="dashboard_home.php" 
+                <div class="flex items-center gap-md">
+                    <?php
+                        $maxSynced = getOverallLastSyncedTime($hubRes['connections'] ?? []);
+                        $lastSyncedStr = getRelativeTimeString($maxSynced);
+                    ?>
+                    <span id="last-synced-label" class="text-xs text-on-surface-variant font-medium">Last synced: <?php echo $lastSyncedStr; ?></span>
+                    
+                    <button id="btn-refresh-posts" type="button" onclick="triggerDashboardSync(this)"
                        class="px-md h-12 bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg font-bold flex items-center gap-sm transition-all shadow-sm active:scale-95">
-                        <span class="material-symbols-outlined">sync</span>
-                        <span>Refresh Data</span>
-                    </a>
+                        <span class="material-symbols-outlined text-sm" id="refresh-icon">sync</span>
+                        <span id="refresh-label">Refresh Data</span>
+                    </button>
                     <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                        class="px-lg h-12 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-sm hover:opacity-90 transition-all shadow-sm active:scale-95">
                         <span class="material-symbols-outlined">add_box</span>
@@ -86,7 +102,7 @@ try {
                             <option value="">All Channels</option>
                             <?php foreach ($connectedPlatforms as $p): ?>
                                 <option value="<?php echo htmlspecialchars($p); ?>">
-                                    <?php echo htmlspecialchars($p === 'google_business' ? 'Google Profile' : $p); ?>
+                                    <?php echo htmlspecialchars($p === 'google_business' ? 'Google Business Profile' : $p); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -196,7 +212,7 @@ try {
             <div id="dashboard-analytics-card" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg shadow-sm space-y-md">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-surface-variant pb-sm gap-md">
                     <div>
-                        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Performance Timeline</h3>
+                        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Performance Chart</h3>
                         <p class="text-on-surface-variant text-xs mt-xs">Real-time aggregate channel metrics and trends fetched from Hub.</p>
                     </div>
                     <div id="analytics-active-badge" class="px-sm py-[2px] rounded-full text-[10px] font-bold uppercase tracking-tight bg-primary-container/20 text-primary border border-primary-fixed capitalize">
@@ -226,7 +242,7 @@ try {
                                     <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-surface-variant">
+                            <tbody id="recent-activity-tbody" class="divide-y divide-surface-variant">
                                 <?php if (!empty($recentPostsError)): ?>
                                     <tr>
                                         <td colspan="5" class="px-lg py-md text-center text-error font-body-md">
@@ -343,7 +359,7 @@ try {
         }
         const queryParams = new URLSearchParams(params).toString();
 
-        fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_stats.php?${queryParams}`)
+        const p1 = fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_stats.php?${queryParams}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -353,6 +369,10 @@ try {
                     document.getElementById('stat-total-posts').textContent = data.total_posts;
                     document.getElementById('stat-published-posts').textContent = data.published_posts;
                     document.getElementById('stat-scheduled-posts').textContent = data.scheduled_posts;
+                    if (data.last_synced_str) {
+                        const lbl = document.getElementById('last-synced-label');
+                        if (lbl) lbl.textContent = 'Last synced: ' + data.last_synced_str;
+                    }
                 } else {
                     console.error("Failed to load stats:", data.error);
                 }
@@ -360,7 +380,7 @@ try {
             .catch(err => console.error("Error loading stats:", err));
 
         // 3. Fetch analytics timeline chart
-        fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_analytics.php?${queryParams}`)
+        const p2 = fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_analytics.php?${queryParams}`)
             .then(res => res.text())
             .then(html => {
                 const container = document.getElementById('dashboard-analytics-content');
@@ -379,6 +399,30 @@ try {
                 document.getElementById('dashboard-analytics-content').innerHTML = 
                     '<p class="text-error text-xs font-bold text-center">Failed to load live analytics metrics from Hub.</p>';
             });
+
+        // 4. Fetch recent activity ledger
+        const p3 = fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_recent_posts.php`)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('recent-activity-tbody').innerHTML = html;
+            })
+            .catch(err => console.error("Error loading recent posts:", err));
+
+        return Promise.all([p1, p2, p3]);
+    }
+
+    function triggerDashboardSync(btn) {
+        const icon = document.getElementById('refresh-icon');
+        const label = document.getElementById('refresh-label');
+        if (btn) btn.disabled = true;
+        if (icon) icon.classList.add('animate-spin');
+        if (label) label.textContent = 'Syncing...';
+
+        reloadDashboardData(true).finally(() => {
+            if (btn) btn.disabled = false;
+            if (icon) icon.classList.remove('animate-spin');
+            if (label) label.textContent = 'Refresh Data';
+        });
     }
 
     function clearDashboardFilters() {

@@ -85,7 +85,7 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
         <!-- Performance Area Chart (Exact Stitch Curve & Vertical Gridlines) -->
         <div class="lg:col-span-2 flex flex-col justify-between">
             <div class="flex justify-between items-center mb-xs">
-                <h4 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider">Performance Timeline Trend</h4>
+                <h4 class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider">Performance Chart Trend</h4>
                 <span class="text-[10px] font-bold text-primary uppercase font-data-label bg-primary-container/10 px-xs py-0.5 rounded border border-primary/20"><?php echo htmlspecialchars(strtoupper($activePlatform)); ?></span>
             </div>
             

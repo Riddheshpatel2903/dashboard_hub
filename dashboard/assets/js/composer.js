@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mediaInput = document.getElementById('media');
     const fileError = document.getElementById('file-error');
     const checkboxes = document.querySelectorAll('input[name="platforms[]"]');
+    const postTypeRadios = document.querySelectorAll('input[name="post_type"]');
     const igWarning = document.getElementById('ig-warning');
     const ytInfo = document.getElementById('yt-info');
     const ytTitleGroup = document.getElementById('youtube-title-group');
@@ -57,6 +58,72 @@ document.addEventListener('DOMContentLoaded', function() {
         updateScheduledAt();
     }
 
+    function getSelectedPostType() {
+        const checkedRadio = document.querySelector('input[name="post_type"]:checked');
+        return checkedRadio && checkedRadio.value === 'video' ? 'video' : 'image';
+    }
+
+    function clearSelectedMedia() {
+        if (mediaInput) {
+            mediaInput.value = '';
+        }
+        originalFile = null;
+        croppedBlob = null;
+        if (fileError) {
+            fileError.classList.add('hidden');
+            fileError.textContent = '';
+        }
+    }
+
+    function matchesSelectedPostType(file) {
+        if (!file) return true;
+
+        const selectedType = getSelectedPostType();
+        const type = file.type || '';
+        const name = file.name || '';
+
+        if (selectedType === 'video') {
+            return type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
+        }
+
+        return type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+    }
+
+    function updatePostTypeRestrictions() {
+        const selectedType = getSelectedPostType();
+        if (mediaInput) {
+            mediaInput.accept = selectedType === 'video' ? 'video/*' : 'image/*';
+        }
+
+        const currentFile = mediaInput.files[0] || originalFile;
+        if (currentFile && !matchesSelectedPostType(currentFile)) {
+            clearSelectedMedia();
+        }
+
+        checkboxes.forEach(chk => {
+            const label = chk.closest('.platform-checkbox-label');
+            const allowedTypes = (label?.dataset.allowedTypes || '')
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean);
+            const isAllowed = allowedTypes.length === 0 || allowedTypes.includes(selectedType);
+
+            if (!isAllowed) {
+                if (chk.checked) {
+                    chk.checked = false;
+                }
+                if (label) {
+                    label.classList.add('hidden');
+                    label.classList.remove('selected');
+                }
+            } else if (label) {
+                label.classList.remove('hidden');
+            }
+        });
+
+        updatePlatformStates();
+    }
+
     // 1. Textarea live sync
     textarea.addEventListener('input', function() {
         if (activePreviewPlatform) {
@@ -88,21 +155,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const ytCheckbox = document.getElementById('platform-youtube');
         if (ytCheckbox) {
             const ytLabel = ytCheckbox.closest('.platform-checkbox-label');
-            // If it's a video file, we enable YouTube. If no media or if it's an image, we disable YouTube.
-            if (isVideo) {
-                ytCheckbox.disabled = false;
-                if (ytLabel) {
-                    ytLabel.classList.remove('opacity-40', 'cursor-not-allowed');
-                    ytLabel.title = "YouTube Video Upload Supported";
-                }
-            } else {
-                if (ytCheckbox.checked) {
-                    ytCheckbox.checked = false;
-                }
+            const selectedType = getSelectedPostType();
+            const isAllowedByPostType = (ytLabel?.dataset.allowedTypes || '')
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean)
+                .includes(selectedType);
+
+            if (!isAllowedByPostType) {
+                const wasChecked = ytCheckbox.checked;
+                if (ytCheckbox.checked) ytCheckbox.checked = false;
                 ytCheckbox.disabled = true;
                 if (ytLabel) {
                     ytLabel.classList.add('opacity-40', 'cursor-not-allowed');
-                    ytLabel.title = "YouTube requires a video attachment";
+                    ytLabel.title = 'YouTube is not available for this post type';
+                }
+                if (wasChecked) {
+                    rebuildPreviewTabs();
+                }
+            } else if (isVideo) {
+                ytCheckbox.disabled = false;
+                if (ytLabel) {
+                    ytLabel.classList.remove('opacity-40', 'cursor-not-allowed');
+                    ytLabel.title = 'YouTube Video Upload Supported';
+                }
+            } else {
+                const wasChecked = ytCheckbox.checked;
+                if (ytCheckbox.checked) ytCheckbox.checked = false;
+                ytCheckbox.disabled = true;
+                if (ytLabel) {
+                    ytLabel.classList.add('opacity-40', 'cursor-not-allowed');
+                    ytLabel.title = 'YouTube requires a video attachment';
+                }
+                if (wasChecked) {
+                    rebuildPreviewTabs();
                 }
             }
         }
@@ -121,10 +207,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         updatePlatformNotices();
         rebuildPreviewTabs();
+        validatePublishButton();
     }
 
     checkboxes.forEach(chk => {
         chk.addEventListener('change', updatePlatformStates);
+    });
+
+    postTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updatePostTypeRestrictions);
     });
 
     function updatePlatformNotices() {
@@ -174,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? 'bg-primary text-on-primary border-primary shadow-xs' 
                 : 'bg-surface-container border-surface-variant text-on-surface hover:bg-surface-container-high'
             }`;
-            btn.textContent = p === 'google_business' ? 'Google Profile' : p;
+            btn.textContent = p === 'google_business' ? 'Google Business Profile' : p;
             btn.addEventListener('click', () => {
                 activePreviewPlatform = p;
                 rebuildPreviewTabs(); // update active class
@@ -183,6 +274,49 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         renderPreview(activePreviewPlatform);
+    }
+
+    /**
+     * C: Platform capability matrix — disable Publish button with inline messages
+     * when platform-specific media requirements are not satisfied.
+     */
+    function validatePublishButton() {
+        const checked = getCheckedPlatforms();
+        const file = mediaInput.files[0] || originalFile;
+        const hasFile = !!(file || croppedBlob);
+        const isVideo = hasFile && file && (file.type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(file.name || ''));
+
+        let blockReason = null;
+
+        if (checked.includes('youtube') && !isVideo) {
+            blockReason = '📹 YouTube requires a video attachment.';
+        } else if (checked.includes('instagram') && !hasFile) {
+            blockReason = '📷 Instagram requires a photo or video attachment.';
+        }
+
+        // Show/hide inline validation message
+        let validationMsg = document.getElementById('platform-validation-msg');
+        if (!validationMsg && btnPublish) {
+            validationMsg = document.createElement('p');
+            validationMsg.id = 'platform-validation-msg';
+            validationMsg.className = 'text-xs text-error font-semibold mt-xs hidden';
+            btnPublish.parentNode.insertBefore(validationMsg, btnPublish.nextSibling);
+        }
+
+        if (blockReason) {
+            btnPublish.disabled = true;
+            btnPublish.classList.add('opacity-50', 'cursor-not-allowed');
+            if (validationMsg) {
+                validationMsg.textContent = blockReason;
+                validationMsg.classList.remove('hidden');
+            }
+        } else {
+            btnPublish.disabled = false;
+            btnPublish.classList.remove('opacity-50', 'cursor-not-allowed');
+            if (validationMsg) {
+                validationMsg.classList.add('hidden');
+            }
+        }
     }
 
     // 3. Media file upload triggers cropping modal if image
@@ -588,5 +722,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Run initial state setup
-    updatePlatformStates();
+    updatePostTypeRestrictions();
+    validatePublishButton();
 });

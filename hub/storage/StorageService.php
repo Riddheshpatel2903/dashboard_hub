@@ -187,80 +187,97 @@ class StorageService {
             return false;
         }
 
+        // Use a longer timeout for video files which can be large
+        $isLikelyVideo = (bool)preg_match('/\.(mp4|mov|avi|mkv|webm)$/i', $urlParts['path'] ?? '');
+        $curlTimeout = $isLikelyVideo ? 90 : 30;
+
         $tempDir = sys_get_temp_dir();
         $extension = pathinfo($urlParts['path'] ?? '', PATHINFO_EXTENSION);
-        $tempFile = tempnam($tempDir, 'remote_media_');
-        if (!$tempFile) {
-            log_message('error', "StorageService::uploadFromUrl failed to create temp file", ['client_id' => $clientId]);
-            return false;
-        }
 
-        $downloaded = false;
-        try {
-            $ch = curl_init($mediaUrl);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            $fileData = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-            curl_close($ch);
+        $maxAttempts = 2;
+        $lastError = '';
 
-            if ($fileData === false || $httpCode >= 400 || empty($fileData)) {
-                log_message('warning', "StorageService::uploadFromUrl failed to download remote media", ['url' => $mediaUrl, 'http_code' => $httpCode, 'client_id' => $clientId]);
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $tempFile = tempnam($tempDir, 'remote_media_');
+            if (!$tempFile) {
+                log_message('error', "StorageService::uploadFromUrl failed to create temp file", ['client_id' => $clientId]);
                 return false;
             }
 
-            if (!empty($contentType) && empty($extension)) {
-                $extensionMap = [
-                    'image/jpeg' => 'jpg',
-                    'image/jpg' => 'jpg',
-                    'image/png' => 'png',
-                    'image/gif' => 'gif',
-                    'image/webp' => 'webp',
-                    'video/mp4' => 'mp4',
-                    'video/quicktime' => 'mov',
-                    'video/webm' => 'webm',
-                ];
-                if (isset($extensionMap[$contentType])) {
-                    $extension = $extensionMap[$contentType];
+            $downloaded = false;
+            try {
+                $ch = curl_init($mediaUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, $curlTimeout);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                $fileData = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+                $curlError = curl_error($ch);
+                curl_close($ch);
+
+                if ($fileData === false || $httpCode >= 400 || empty($fileData)) {
+                    $lastError = $curlError ?: "HTTP {$httpCode}";
+                    log_message('warning', "StorageService::uploadFromUrl attempt {$attempt}/{$maxAttempts} failed to download", ['url' => $mediaUrl, 'http_code' => $httpCode, 'curl_error' => $curlError, 'client_id' => $clientId]);
+                    if (file_exists($tempFile)) @unlink($tempFile);
+                    continue; // retry
                 }
+
+                if (!empty($contentType) && empty($extension)) {
+                    $extensionMap = [
+                        'image/jpeg'      => 'jpg',
+                        'image/jpg'       => 'jpg',
+                        'image/png'       => 'png',
+                        'image/gif'       => 'gif',
+                        'image/webp'      => 'webp',
+                        'video/mp4'       => 'mp4',
+                        'video/quicktime' => 'mov',
+                        'video/webm'      => 'webm',
+                    ];
+                    if (isset($extensionMap[$contentType])) {
+                        $extension = $extensionMap[$contentType];
+                    }
+                }
+
+                if (!empty($extension)) {
+                    $newTempFile = $tempFile . '.' . $extension;
+                    rename($tempFile, $newTempFile);
+                    $tempFile = $newTempFile;
+                }
+
+                file_put_contents($tempFile, $fileData);
+                $downloaded = true;
+            } catch (Exception $e) {
+                $lastError = $e->getMessage();
+                log_message('warning', "StorageService::uploadFromUrl attempt {$attempt}/{$maxAttempts} exception: " . $e->getMessage(), ['url' => $mediaUrl, 'client_id' => $clientId]);
+                if (file_exists($tempFile)) @unlink($tempFile);
+                continue; // retry
             }
 
-            if (!empty($extension)) {
-                $newTempFile = $tempFile . '.' . $extension;
-                rename($tempFile, $newTempFile);
-                $tempFile = $newTempFile;
+            if (!$downloaded) {
+                if (file_exists($tempFile)) @unlink($tempFile);
+                continue;
             }
 
-            file_put_contents($tempFile, $fileData);
-            $downloaded = true;
-        } catch (Exception $e) {
-            log_message('warning', "StorageService::uploadFromUrl exception while downloading remote media: " . $e->getMessage(), ['url' => $mediaUrl, 'client_id' => $clientId]);
-            if (file_exists($tempFile)) {
-                @unlink($tempFile);
+            $stored = self::uploadTempFile($tempFile, $clientId);
+            if ($stored === false) {
+                if (file_exists($tempFile)) @unlink($tempFile);
+                $lastError = 'uploadTempFile returned false';
+                continue; // retry
             }
-            return false;
+
+            return $stored; // success
         }
 
-        if (!$downloaded) {
-            if (file_exists($tempFile)) {
-                @unlink($tempFile);
-            }
-            return false;
-        }
-
-        $stored = self::uploadTempFile($tempFile, $clientId);
-        if ($stored === false) {
-            if (file_exists($tempFile)) {
-                @unlink($tempFile);
-            }
-            return false;
-        }
-
-        return $stored;
+        // All attempts exhausted
+        log_message('error', "StorageService::uploadFromUrl failed after {$maxAttempts} attempts — giving up", [
+            'url'       => $mediaUrl,
+            'client_id' => $clientId,
+            'last_error'=> $lastError,
+        ]);
+        return false;
     }
 
     /**

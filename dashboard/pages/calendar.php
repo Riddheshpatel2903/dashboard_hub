@@ -176,6 +176,12 @@ $monthName = date('F Y', $firstDayOfMonth);
                 </div>
                 
                 <div class="flex items-center gap-sm">
+                    <button id="btn-calendar-refresh" type="button"
+                            onclick="calendarRefresh(this)"
+                            class="flex items-center gap-xs px-md py-sm bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-lg hover:opacity-90 transition-all font-body-sm font-bold active:scale-95">
+                        <span class="material-symbols-outlined text-sm" id="cal-refresh-icon">sync</span>
+                        <span id="cal-refresh-label">Sync Posts</span>
+                    </button>
                     <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                        class="flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg hover:opacity-90 transition-all font-body-sm font-bold shadow-sm active:scale-95">
                         <span class="material-symbols-outlined text-sm">add</span>
@@ -303,5 +309,35 @@ $monthName = date('F Y', $firstDayOfMonth);
     </div>
 
     <script src="<?php echo DASHBOARD_BASE_URL; ?>/assets/js/calendar.js"></script>
+    <script>
+    /**
+     * E: Calendar sync refresh.
+     * Triggers hub force_sync silently via ajax_posts_refresh.php,
+     * then reloads the calendar page to show fresh posts_cache data.
+     */
+    function calendarRefresh(btn) {
+        const icon  = document.getElementById('cal-refresh-icon');
+        const label = document.getElementById('cal-refresh-label');
+        btn.disabled = true;
+        if (icon)  { icon.classList.add('animate-spin'); }
+        if (label) { label.textContent = 'Syncing...'; }
+
+        fetch('ajax_posts_refresh.php?force_sync=1', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(() => {
+            // Sync complete — reload the calendar page to show fresh DB data
+            const url = new URL(window.location.href);
+            url.searchParams.delete('force_sync');
+            window.location.href = url.toString();
+        })
+        .catch(() => {
+            btn.disabled = false;
+            if (icon)  { icon.classList.remove('animate-spin'); }
+            if (label) { label.textContent = 'Sync Posts'; }
+            alert('Sync failed. Please try again.');
+        });
+    }
+    </script>
 </body>
 </html>

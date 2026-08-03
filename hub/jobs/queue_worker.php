@@ -26,6 +26,27 @@ require_once __DIR__ . '/../platforms/YouTubeHandler.php';
 require_once __DIR__ . '/../platforms/LinkedInHandler.php';
 require_once __DIR__ . '/../platforms/GoogleBusinessHandler.php';
 
+/**
+ * Ensure the posts.title column exists before querying or inserting posts.
+ * If it is missing, attempt to add it automatically so scheduled/video posts can still work.
+ */
+function ensurePostsTitleColumn(PDO $pdo): bool {
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM posts LIKE 'title'");
+        $hasColumn = (bool) $stmt->fetch();
+        if ($hasColumn) {
+            return true;
+        }
+
+        $pdo->exec("ALTER TABLE posts ADD COLUMN title VARCHAR(255) DEFAULT NULL AFTER content");
+        log_message('info', 'Queue Worker: Added missing posts.title column to posts table');
+        return true;
+    } catch (Exception $e) {
+        log_message('warning', 'Queue Worker: posts.title column missing and could not be added', ['error' => $e->getMessage()]);
+        return false;
+    }
+}
+
 // 1. Endpoint Security
 $isCli = (PHP_SAPI === 'cli');
 $passedToken = $_GET['token'] ?? '';
@@ -39,12 +60,15 @@ if (!$isCli && $passedToken !== CRON_SECRET) {
 
 log_message('info', "Queue Worker: Started execution.");
 
+$hasTitleColumn = ensurePostsTitleColumn($pdo);
+$selectTitleColumn = $hasTitleColumn ? 'p.title, ' : '';
+
 try {
     $pdo->beginTransaction();
 
     // 2. Fetch and Lock queued posts limited by batch size
     $stmt = $pdo->prepare("
-        SELECT p.id as post_id, p.client_id, p.content, p.media_temp_path, 
+        SELECT p.id as post_id, p.client_id, p.content, {$selectTitleColumn}p.media_temp_path, 
                pc.platform, pc.external_account_id, pt.access_token_encrypted,
                p.retry_count
         FROM posts p
@@ -124,6 +148,7 @@ try {
         $clientId = $post['client_id'];
         $platform = $post['platform'];
         $content = $post['content'];
+        $title = isset($post['title']) && $post['title'] !== '' ? $post['title'] : null;
         $mediaTempPath = $post['media_temp_path'];
         $externalAccountId = $post['external_account_id'];
         $currentRetryCount = (int)$post['retry_count'];
@@ -189,7 +214,7 @@ try {
                             $localPath = $mediaTempPath;
                         }
                     }
-                    $res = YouTubeHandler::uploadVideo($token, $localPath, "Scheduled Video", $content);
+                    $res = YouTubeHandler::uploadVideo($token, $localPath, $title, $content);
                     $externalPostId = $res['id'] ?? null;
                     $responseBody = json_encode($res);
                     $success = true;
