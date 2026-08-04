@@ -274,19 +274,39 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
         if (empty($insight['name'])) {
             continue;
         }
-        $value = $insight['values'][0]['value'] ?? null;
+        // Support both legacy values[] format and new value format
+        $value = $insight['values'][0]['value'] ?? $insight['value'] ?? null;
         if ($value === null) {
             continue;
         }
-        if ($insight['name'] === 'post_engaged_users') {
-            $engagement = (int)$value;
-        } elseif ($insight['name'] === 'post_impressions') {
+        $name = $insight['name'];
+        // v22+ current metrics (post_media_view replaces post_impressions)
+        if ($name === 'post_media_view') {
             $impressions = (int)$value;
             if ($views === null) {
                 $views = (int)$value;
             }
-        } elseif ($insight['name'] === 'post_video_views') {
+        // v22+ unique reach (replaces post_impressions_unique)
+        } elseif ($name === 'post_total_media_view_unique') {
+            $reach = (int)$value;
+        // Legacy fallback — retained for backwards compatibility
+        } elseif ($name === 'post_impressions') {
+            if ($impressions === null) {
+                $impressions = (int)$value;
+            }
+            if ($views === null) {
+                $views = (int)$value;
+            }
+        } elseif ($name === 'post_engaged_users') {
+            if ($engagement === null) {
+                $engagement = (int)$value;
+            }
+        } elseif ($name === 'post_video_views') {
             $views = (int)$value;
+        } elseif ($name === 'post_reactions_by_type_total' || $name === 'post_engagement') {
+            if ($engagement === null && is_numeric($value)) {
+                $engagement = (int)$value;
+            }
         }
     }
 
@@ -295,13 +315,13 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
     }
 
     return [
-        'likes' => $likes,
-        'comments' => $comments,
-        'shares' => $shares,
-        'reach' => $reach,
-        'impressions' => $impressions,
-        'views' => $views,
-        'clicks' => $clicks,
+        'likes'      => $likes,
+        'comments'   => $comments,
+        'shares'     => $shares,
+        'reach'      => $reach,
+        'impressions'=> $impressions,
+        'views'      => $views,
+        'clicks'     => $clicks,
         'engagement' => $engagement,
     ];
 }
@@ -408,10 +428,14 @@ function fetchLivePostsForPlatform(string $token, array $conn, string $platform,
                         log_message('warning', 'Facebook post engagement fetch failed', ['post_id' => $postIdValue, 'error' => $e->getMessage()]);
                     }
                     try {
-$rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged_users', 'post_impressions']);
+                        // Use current v22+ metrics. post_media_view replaces deprecated post_impressions.
+                        // post_total_media_view_unique replaces deprecated post_impressions_unique.
+                        $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
                         $insights = $rawInsights['data'] ?? [];
                     } catch (Exception $e) {
                         log_message('warning', 'Facebook post insights fetch failed', ['post_id' => $postIdValue, 'error' => $e->getMessage()]);
+                        // Silently retry with no insights — engagement counts still populate from getEngagementCounts()
+                        $insights = [];
                     }
                     $metrics = normalizeFacebookMetrics($postItem, $insights, $engagementData);
 
@@ -472,11 +496,25 @@ $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_engaged
                     $mediaPath = normalizePlatformMediaPath($mediaUrl, $conn['client_id'] ?? 0);
                     $timestamp = $mediaItem['timestamp'] ?? null;
                     $insights = [];
+                    // Determine media type for correct metric selection
+                    $mediaType = strtoupper($mediaItem['media_type'] ?? 'IMAGE');
                     try {
-                        $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach']);
+                        if (in_array($mediaType, ['VIDEO', 'REELS'])) {
+                            // Video/Reels: 'views' metric is valid
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach']);
+                        } else {
+                            // Image/Carousel: 'views' is invalid — use 'reach' only
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach']);
+                        }
                         $insights = $rawInsights['data'] ?? [];
                     } catch (Exception $insightEx) {
-                        log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'error' => $insightEx->getMessage()]);
+                        // If 'views' still fails for video, retry with reach only
+                        try {
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach']);
+                            $insights = $rawInsights['data'] ?? [];
+                        } catch (Exception $fallbackEx) {
+                            log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'media_type' => $mediaType, 'error' => $fallbackEx->getMessage()]);
+                        }
                     }
                     $metrics = normalizeInstagramMetrics($mediaItem, $insights);
 

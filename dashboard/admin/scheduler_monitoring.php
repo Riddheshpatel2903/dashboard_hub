@@ -107,7 +107,7 @@ $logConsoleContent = getLastLogLines($logPath, 50);
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Post Scheduler Monitor | Command Center</title>
+    <title>Post Scheduler | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
@@ -123,7 +123,7 @@ $logConsoleContent = getLastLogLines($logPath, 50);
             <!-- Header -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
                 <div>
-                    <h1 class="font-display-lg text-display-lg text-on-surface">Scheduler & Worker Control</h1>
+                    <h1 class="font-display-lg text-display-lg text-on-surface">Post Scheduler</h1>
                     <p class="font-body-md text-on-surface-variant">Real-time cron scheduler status logs, processing queues, and error retries.</p>
                 </div>
                 <div>

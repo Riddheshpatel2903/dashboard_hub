@@ -58,7 +58,7 @@ $chartMetricName = 'Views / Reach';
 foreach ($metrics as $m) {
     $mName = strtolower($m['metric_name']);
     $val = is_numeric($m['value']) ? (float)$m['value'] : 0;
-    if (in_array($mName, ['view_count', 'views', 'reach', 'impressions', 'page_views_total', 'views_search', 'subscriber_count'])) {
+    if (in_array($mName, ['view_count', 'views', 'reach', 'impressions', 'page_views_total', 'page_media_view', 'post_media_view', 'post_total_media_view_unique', 'views_search', 'subscriber_count'])) {
         $chartViews += $val;
         $chartMetricName = ucwords(str_replace('_', ' ', $m['metric_name']));
     }

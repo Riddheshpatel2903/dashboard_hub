@@ -22,8 +22,8 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
 <aside class="w-[240px] h-screen fixed left-0 top-0 bg-surface-container-lowest border-r border-surface-variant flex flex-col py-lg px-md z-50">
     <!-- Brand / Logo -->
     <div class="mb-xl px-sm">
-        <h1 class="font-display-md text-display-md font-bold text-primary tracking-tight">Social Media</h1>
-        <p class="font-body-md text-body-md text-on-surface-variant opacity-70">Dashboard</p>
+        <h1 class="font-display-md text-display-md font-bold text-primary tracking-tight">Social Hub</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant opacity-70">Manage your social media</p>
     </div>
 
     <!-- Navigation Links -->
@@ -42,11 +42,10 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
             <span class="font-body-md text-body-md">Dashboard</span>
         </a>
 
-        <!-- Connections -->
         <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('connections.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/connections.php">
             <span class="material-symbols-outlined text-xl">sync_alt</span>
-            <span class="font-body-md text-body-md">Connections</span>
+            <span class="font-body-md text-body-md">Accounts</span>
         </a>
 
         <!-- Create Post -->
@@ -63,18 +62,18 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
             <span class="font-body-md text-body-md">Calendar</span>
         </a>
 
-        <!-- Post History -->
+        <!-- My Posts -->
         <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('post_history.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php">
             <span class="material-symbols-outlined text-xl">history</span>
-            <span class="font-body-md text-body-md">Post History</span>
+            <span class="font-body-md text-body-md">My Posts</span>
         </a>
 
-        <!-- Inbox -->
+        <!-- Messages -->
         <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('inbox.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/inbox.php">
             <span class="material-symbols-outlined text-xl">inbox</span>
-            <span class="font-body-md text-body-md">Inbox</span>
+            <span class="font-body-md text-body-md">Messages</span>
         </a>
 
         <!-- Settings -->
@@ -87,7 +86,7 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
         <!-- Admin-only Links -->
         <?php if ($user_role === 'staff' || $user_role === 'admin'): ?>
             <div class="pt-sm my-sm border-t border-surface-variant">
-                <span class="font-data-label text-data-label text-on-surface-variant/70 block px-sm py-xs uppercase tracking-wider text-[11px]">Agency Control</span>
+                <span class="font-data-label text-data-label text-on-surface-variant/70 block px-sm py-xs uppercase tracking-wider text-[11px]">Admin</span>
             </div>
 
             <!-- Client Accounts -->
@@ -97,11 +96,11 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
                 <span class="font-body-md text-body-md">Client Accounts</span>
             </a>
 
-            <!-- System Health -->
+            <!-- System Status -->
             <a class="flex items-center gap-3 px-sm py-2 rounded-lg transition-all duration-200 <?php echo getLinkClass('system_health.php', $current_script, $isAdminSection, true); ?>" 
                href="<?php echo DASHBOARD_BASE_URL; ?>/admin/system_health.php">
                 <span class="material-symbols-outlined text-xl">health_metrics</span>
-                <span class="font-body-md text-body-md">System Health</span>
+                <span class="font-body-md text-body-md">System Status</span>
             </a>
             </a>
         <?php endif; ?>
@@ -111,10 +110,10 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
     <div class="mt-auto border-t border-surface-variant/50 pt-md space-y-md">
         <div class="flex flex-col px-sm gap-xs">
             <span class="font-body-md font-bold text-on-surface">
-                <?php echo $user_role === 'admin' ? 'Administrator' : ($user_role === 'staff' ? 'Agency Staff' : 'Client'); ?>
+                <?php echo $user_role === 'admin' ? 'Administrator' : ($user_role === 'staff' ? 'Staff' : 'Client'); ?>
             </span>
             <span class="font-data-label text-data-label text-on-surface-variant/70 overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]">
-                User ID: #<?php echo $user_id; ?>
+                Account #<?php echo $user_id; ?>
             </span>
         </div>
         <a class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm rounded-lg font-bold hover:opacity-90 transition-all active:scale-95" 

@@ -46,7 +46,7 @@ try {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Dashboard Home | Stitch Social Mission Control</title>
+    <title>Home | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -69,8 +69,8 @@ try {
             <!-- Page Header Actions -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
                 <div>
-                    <h1 class="font-display-lg text-display-lg text-on-surface">Dashboard Home</h1>
-                    <p class="font-body-md text-on-surface-variant">Here's what's happening across your social landscape today.</p>
+                    <h1 class="font-display-lg text-display-lg text-on-surface">Home</h1>
+                    <p class="font-body-md text-on-surface-variant">Here's a quick look at how your social media is doing today.</p>
                 </div>
                 <div class="flex items-center gap-md">
                     <?php
@@ -97,7 +97,7 @@ try {
                 <form id="dashboard-filter-form" onsubmit="event.preventDefault(); reloadDashboardData();" class="flex flex-wrap items-end gap-md">
                     <!-- Platform Selector -->
                     <div class="flex-1 min-w-[200px] space-y-xs">
-                        <label class="font-data-label text-data-label text-on-surface-variant block uppercase" for="filter-platform">SELECT CHANNEL</label>
+                        <label class="font-data-label text-data-label text-on-surface-variant block uppercase" for="filter-platform">Platform</label>
                         <select id="filter-platform" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary capitalize">
                             <option value="">All Channels</option>
                             <?php foreach ($connectedPlatforms as $p): ?>
@@ -163,7 +163,7 @@ try {
                     </div>
                     <div class="z-10">
                         <h3 id="stat-total-posts" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
-                        <p class="text-on-surface-variant text-body-sm">All Cached Content</p>
+                        <p class="text-on-surface-variant text-body-sm">All your posts</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
@@ -180,7 +180,7 @@ try {
                     </div>
                     <div class="z-10">
                         <h3 id="stat-published-posts" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
-                        <p class="text-on-surface-variant text-body-sm">Released Publications</p>
+                        <p class="text-on-surface-variant text-body-sm">Posts live on social</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
@@ -197,7 +197,7 @@ try {
                     </div>
                     <div class="z-10">
                         <h3 id="stat-scheduled-posts" class="font-display-md text-display-md leading-none text-primary"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
-                        <p class="text-on-surface-variant text-body-sm">Awaiting Dispatch</p>
+                        <p class="text-on-surface-variant text-body-sm">Ready to publish</p>
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
@@ -213,7 +213,7 @@ try {
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-surface-variant pb-sm gap-md">
                     <div>
                         <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Performance Chart</h3>
-                        <p class="text-on-surface-variant text-xs mt-xs">Real-time aggregate channel metrics and trends fetched from Hub.</p>
+                        <p class="text-on-surface-variant text-xs mt-xs">How your posts are performing across your connected accounts.</p>
                     </div>
                     <div id="analytics-active-badge" class="px-sm py-[2px] rounded-full text-[10px] font-bold uppercase tracking-tight bg-primary-container/20 text-primary border border-primary-fixed capitalize">
                         All Channels
@@ -236,8 +236,8 @@ try {
                             <thead>
                                 <tr class="bg-surface-container-low border-b border-surface-variant">
                                     <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Platform</th>
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Content Summary</th>
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Release Date</th>
+                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Post Content</th>
+                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Date</th>
                                     <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Status</th>
                                     <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase text-right">Action</th>
                                 </tr>
@@ -252,7 +252,7 @@ try {
                                 <?php elseif (empty($recentPosts)): ?>
                                     <tr>
                                         <td colspan="5" class="px-lg py-md text-center text-on-surface-variant font-body-md">
-                                            No posts recorded in history yet. Start by creating a campaign post!
+                                            No posts yet. Start by creating your first post!
                                         </td>
                                     </tr>
                                 <?php else: ?>
@@ -315,7 +315,7 @@ try {
                                                 </span>
                                             </td>
                                             <td class="px-lg py-md text-right">
-                                                <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php" class="text-primary hover:underline font-bold text-xs">Inspect</a>
+                                                <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php" class="text-primary hover:underline font-bold text-xs">View</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

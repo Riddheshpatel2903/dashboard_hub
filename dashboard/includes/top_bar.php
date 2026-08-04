@@ -20,7 +20,7 @@ if (isset($client_id) && $client_id !== null) {
     <!-- Left: Client Context -->
     <div class="flex items-center gap-lg">
         <div class="flex items-center gap-sm">
-            <span class="text-on-surface-variant font-body-md">Managing:</span>
+            <span class="text-on-surface-variant font-body-md">Account:</span>
             <div class="flex items-center gap-sm px-sm py-xs bg-surface-container-low border border-surface-variant rounded-lg cursor-pointer hover:bg-surface-container-high transition-colors">
                 <span class="font-headline-sm text-headline-sm text-primary"><?php echo htmlspecialchars($topBarClientName); ?></span>
             </div>
@@ -28,8 +28,8 @@ if (isset($client_id) && $client_id !== null) {
         
         <?php if (($user_role === 'staff' || $user_role === 'admin') && isset($_SESSION['acting_client_id'])): ?>
             <div class="flex items-center gap-sm">
-                <span class="px-sm py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-bold uppercase tracking-tight">Impersonating Client #<?php echo $client_id; ?></span>
-                <a href="<?php echo DASHBOARD_BASE_URL; ?>/admin/client_detail.php?stop_acting=1" class="text-xs text-error hover:underline font-bold">Stop Impersonation</a>
+                <span class="px-sm py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-bold uppercase tracking-tight">Viewing as: <?php echo htmlspecialchars($topBarClientName); ?></span>
+                <a href="<?php echo DASHBOARD_BASE_URL; ?>/admin/client_detail.php?stop_acting=1" class="text-xs text-error hover:underline font-bold">Switch Back</a>
             </div>
         <?php endif; ?>
     </div>

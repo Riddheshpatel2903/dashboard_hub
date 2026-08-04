@@ -33,17 +33,19 @@ $stateData = [
 ];
 $state = base64_encode(json_encode($stateData));
 
-// Scopes required for Facebook Pages and Instagram Business posting and read
+// Scopes required for Facebook Pages and Instagram Business posting and read (v22+ compatible)
 $scopes = [
     'pages_show_list',
     'pages_read_engagement',
+    'pages_read_user_content',
     'pages_manage_posts',
     'pages_manage_metadata',
     'instagram_basic',
+    'instagram_business_basic',
     'instagram_content_publish',
+    'instagram_manage_insights',
     'business_management',
     'read_insights',
-    'instagram_manage_insights'
 ];
 
 $authUrl = sprintf(

@@ -97,7 +97,7 @@ foreach ($platformMetadata as $key => $meta) {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Platform Connections | Command Center</title>
+    <title>Connected Accounts | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
@@ -112,8 +112,8 @@ foreach ($platformMetadata as $key => $meta) {
         <div class="max-w-[1440px] mx-auto p-lg space-y-lg">
             <!-- Page Header -->
             <div>
-                <h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Connections Manager</h1>
-                <p class="font-body-md text-on-surface-variant">Sync and manage your social media and business API profiles.</p>
+                <h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Connected Accounts</h1>
+                <p class="font-body-md text-on-surface-variant">Connect your social media accounts to start posting and viewing analytics.</p>
             </div>
 
             <!-- Stats Row -->
@@ -124,7 +124,7 @@ foreach ($platformMetadata as $key => $meta) {
                         <span class="material-symbols-outlined text-green-700">check_circle</span>
                     </div>
                     <div>
-                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Active Connected</p>
+                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Connected</p>
                         <p class="font-headline-sm text-headline-sm font-bold"><?php echo $activeCount; ?></p>
                     </div>
                 </div>

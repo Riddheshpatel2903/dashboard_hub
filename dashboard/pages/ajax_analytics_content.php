@@ -229,10 +229,10 @@ foreach ($metrics as $m) {
     $val = is_numeric($m['value']) ? (float) $m['value'] : 0;
     $metricValues[$mName] = $m['value'];
 
-    if (in_array($mName, ['reach', 'views', 'view_count', 'views_search', 'views_maps'])) {
+    if (in_array($mName, ['reach', 'views', 'view_count', 'views_search', 'views_maps', 'post_total_media_view_unique'])) {
         $sumReach += $val;
     }
-    if (in_array($mName, ['impressions', 'page_views_total', 'view_count', 'views_search'])) {
+    if (in_array($mName, ['impressions', 'page_views_total', 'page_media_view', 'post_media_view', 'view_count', 'views_search'])) {
         $sumImpressions += $val;
     }
     if (in_array($mName, ['engagement', 'page_post_engagements', 'post_engaged_users', 'post_reactions_by_type_total', 'saved', 'comment_count', 'interactions', 'like_count'])) {
@@ -373,7 +373,7 @@ echo $platform === 'instagram'
             </div>
             <div>
                 <h3 class="font-headline-sm text-lg font-bold text-on-surface capitalize"><?php echo htmlspecialchars($platform === 'google_business' ? 'Google Business Profile' : $platform); ?> Performance</h3>
-                <p class="text-xs text-on-surface-variant">Live portal analytics metrics and dynamic channel ledger</p>
+                <p class="text-xs text-on-surface-variant">Your account stats at a glance</p>
             </div>
         </div>
         
@@ -383,7 +383,7 @@ echo $platform === 'instagram'
                 <span class="font-display-md text-xl font-bold text-primary"><?php echo $kpiFollowers; ?></span>
             </div>
             <div>
-                <span class="text-[10px] font-data-label uppercase text-on-surface-variant font-bold block">Total Portal Views</span>
+                <span class="text-[10px] font-data-label uppercase text-on-surface-variant font-bold block">Total Views</span>
                 <span class="font-display-md text-xl font-bold text-primary"><?php echo $kpiViews; ?></span>
             </div>
             <div>
@@ -423,20 +423,20 @@ echo $platform === 'instagram'
             <!-- 2. Reach of Channel / Account -->
             <div class="bg-surface-container-lowest border border-surface-variant p-lg rounded-xl hover:shadow-sm transition-all group shadow-xs">
                 <div class="flex justify-between items-start mb-xs">
-                    <span class="text-on-surface-variant text-xs font-bold tracking-wider uppercase font-data-label">CHANNEL / ACCOUNT REACH</span>
+                    <span class="text-on-surface-variant text-xs font-bold tracking-wider uppercase font-data-label">PEOPLE REACHED</span>
                     <span class="text-primary material-symbols-outlined text-xl">wifi_tethering</span>
                 </div>
                 <div class="font-display-md text-3xl font-bold leading-none mb-2 text-on-surface"><?php echo $kpiReach; ?></div>
                 <div class="flex items-center gap-1 text-xs font-bold text-[#1F9D6B]">
                     <span class="material-symbols-outlined text-sm">trending_up</span>
-                    <span>Active Audience Reach</span>
+                    <span>People who saw your posts</span>
                 </div>
             </div>
 
             <!-- 3. Engagements -->
             <div class="bg-surface-container-lowest border border-surface-variant p-lg rounded-xl hover:shadow-sm transition-all group shadow-xs">
                 <div class="flex justify-between items-start mb-xs">
-                    <span class="text-on-surface-variant text-xs font-bold tracking-wider uppercase font-data-label">ENGAGED USERS</span>
+                    <span class="text-on-surface-variant text-xs font-bold tracking-wider uppercase font-data-label">LIKES &amp; COMMENTS</span>
                     <span class="text-primary material-symbols-outlined text-xl">thumb_up</span>
                 </div>
                 <div class="font-display-md text-3xl font-bold leading-none mb-2 text-on-surface"><?php echo $kpiEngagement; ?></div>
@@ -449,13 +449,13 @@ echo $platform === 'instagram'
             <!-- 4. Total View Counts -->
             <div class="bg-surface-container-lowest border border-surface-variant p-lg rounded-xl hover:shadow-sm transition-all group shadow-xs">
                 <div class="flex justify-between items-start mb-xs">
-                    <span class="text-on-surface-variant text-xs font-bold tracking-wider uppercase font-data-label">TOTAL VIEW COUNT</span>
+                    <span class="text-on-surface-variant text-xs font-bold tracking-wider uppercase font-data-label">TOTAL VIEWS</span>
                     <span class="text-primary material-symbols-outlined text-xl">visibility</span>
                 </div>
                 <div class="font-display-md text-3xl font-bold leading-none mb-2 text-on-surface"><?php echo $kpiViews; ?></div>
                 <div class="flex items-center gap-1 text-xs font-bold text-[#1F9D6B]">
                     <span class="material-symbols-outlined text-sm">trending_up</span>
-                    <span>Aggregate Channel Views</span>
+                    <span>Across all your posts</span>
                 </div>
             </div>
         </div>
@@ -464,8 +464,8 @@ echo $platform === 'instagram'
         <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg shadow-sm relative">
             <div class="flex justify-between items-center mb-md">
                 <div>
-                    <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Performance Chart Trend</h3>
-                    <p class="text-xs text-on-surface-variant mt-0.5">DB and API synchronized reach performance trajectory</p>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Views Over Time</h3>
+                    <p class="text-xs text-on-surface-variant mt-0.5">How your posts performed over the selected dates</p>
                 </div>
                 <span class="text-xs font-bold text-primary font-data-label uppercase bg-primary-container/20 px-md py-1 rounded-full border border-primary/20">
                     <?php echo !empty($platform) ? htmlspecialchars(strtoupper($platform)) : 'ALL CHANNELS'; ?>

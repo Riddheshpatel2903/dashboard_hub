@@ -159,10 +159,28 @@ try {
                     $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'comments', 'value' => 0, 'period' => 'lifetime'];
                     $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares',   'value' => 0, 'period' => 'lifetime'];
                 }
-            } else {
-                // Page-level: page views via /me/insights, plus followers/fans via /me account info
+
+                // Try fetching v22+ post-level media view insights
                 try {
-                    $metrics = ['page_views_total'];
+                    $postInsightsRaw = FacebookHandler::getInsights($token, $externalId, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
+                    if (!empty($postInsightsRaw['data'])) {
+                        foreach ($postInsightsRaw['data'] as $item) {
+                            $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
+                            $normalizedMetrics[] = [
+                                'platform'    => 'facebook',
+                                'metric_name' => $item['name'],
+                                'value'       => is_numeric($val) ? (int)$val : $val,
+                                'period'      => 'lifetime'
+                            ];
+                        }
+                    }
+                } catch (Exception $e) {
+                    log_message('warning', "Failed to fetch Facebook post media view insights: " . $e->getMessage());
+                }
+            } else {
+                // Page-level: page_media_view replaces deprecated page_views_total in v22+
+                try {
+                    $metrics = ['page_media_view'];
                     $raw = FacebookHandler::getPageInsights($token, $metrics, 'day');
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
@@ -181,7 +199,7 @@ try {
                         }
                     }
                 } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Facebook page insights: " . $e->getMessage());
+                    log_message('warning', "Failed to fetch Facebook page media view insights: " . $e->getMessage());
                 }
 
                 try {
@@ -210,26 +228,25 @@ try {
                         $mediaType = $mediaDetail['media_type'] ?? 'IMAGE';
                         $likeCount = (int)($mediaDetail['like_count'] ?? 0);
                         $commentCount = (int)($mediaDetail['comments_count'] ?? 0);
-                        
-                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'like_count', 'value' => $likeCount, 'period' => 'lifetime'];
+
+                        $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'like_count',    'value' => $likeCount,    'period' => 'lifetime'];
                         $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => 'comment_count', 'value' => $commentCount, 'period' => 'lifetime'];
                     }
                 } catch (Exception $e) {
                     log_message('warning', "Failed to fetch Instagram media details: " . $e->getMessage());
                 }
 
+                // Choose correct insight metrics based on media type
+                // 'views' is valid for VIDEO/REELS; 'reach' is universally valid
+                $insightMetrics = in_array(strtoupper($mediaType), ['VIDEO', 'REELS']) ? ['views', 'reach'] : ['reach'];
                 try {
-                    $metrics = ['reach', 'saved', 'views'];
-                    $raw = InstagramHandler::getInsights($token, $externalId, $metrics);
+                    $raw = InstagramHandler::getInsights($token, $externalId, $insightMetrics);
 
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
                             $name = $item['name'];
                             $period = $item['period'] ?? 'lifetime';
-                            $val = 0;
-                            if (!empty($item['values'])) {
-                                $val = end($item['values'])['value'] ?? 0;
-                            }
+                            $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
                             $normalizedMetrics[] = [
                                 'platform'    => 'instagram',
                                 'metric_name' => $name,
@@ -239,22 +256,34 @@ try {
                         }
                     }
                 } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Instagram post insights: " . $e->getMessage());
+                    // Fallback: try reach only if full request failed
+                    try {
+                        $raw = InstagramHandler::getInsights($token, $externalId, ['reach']);
+                        if (!empty($raw['data'])) {
+                            foreach ($raw['data'] as $item) {
+                                $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
+                                $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => $item['name'], 'value' => $val, 'period' => 'lifetime'];
+                            }
+                        }
+                    } catch (Exception $fallback) {
+                        log_message('warning', "Failed to fetch Instagram post insights: " . $fallback->getMessage());
+                    }
                 }
             } else {
+                // Account-level reach with date range (since/until params)
                 try {
-                    $metrics = ['reach'];
-                    $raw = getCachedOrFetch($pdo, $client_id, 'instagram', "instagram_account_insights:{$externalId}:reach:total_value", function () use ($token, $externalId, $metrics) {
-                        return InstagramHandler::getInsights($token, $externalId, $metrics, 'day', 'total_value');
+                    $sinceTs = strtotime($startDate ?? date('Y-m-d', strtotime('-30 days')));
+                    $untilTs = strtotime($endDate ?? date('Y-m-d'));
+                    $cacheKey = "instagram_account_insights:{$externalId}:reach:{$sinceTs}:{$untilTs}";
+                    $raw = getCachedOrFetch($pdo, $client_id, 'instagram', $cacheKey, function () use ($token, $externalId, $sinceTs, $untilTs) {
+                        return InstagramHandler::getInsights($token, $externalId, ['reach'], 'day', 'total_value', $sinceTs, $untilTs);
                     }, 900);
                     if (!empty($raw['data'])) {
                         foreach ($raw['data'] as $item) {
                             $name = $item['name'];
-                            $period = $item['period'] ?? 'lifetime';
-                            $val = 0;
-                            if (!empty($item['values'])) {
-                                $val = end($item['values'])['value'] ?? 0;
-                            }
+                            $period = $item['period'] ?? 'total_value';
+                            // total_value format: {'value': N} or legacy values[] array
+                            $val = $item['total_value']['value'] ?? (end($item['values'] ?? [])['value'] ?? 0);
                             $normalizedMetrics[] = [
                                 'platform'    => 'instagram',
                                 'metric_name' => $name,
@@ -264,7 +293,7 @@ try {
                         }
                     }
                 } catch (Exception $e) {
-                    log_message('warning', "Failed to fetch Instagram insights: " . $e->getMessage());
+                    log_message('warning', "Failed to fetch Instagram account reach insights: " . $e->getMessage());
                 }
 
                 try {

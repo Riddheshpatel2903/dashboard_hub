@@ -26,7 +26,7 @@ if (!empty($hubRes['success'])) {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>System Health | Command Center</title>
+    <title>System Status | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
@@ -41,7 +41,7 @@ if (!empty($hubRes['success'])) {
         <div class="p-lg max-w-[1440px] mx-auto space-y-lg">
             <!-- Header -->
             <div>
-                <h1 class="font-display-lg text-display-lg text-on-surface">System Health Checks</h1>
+                <h1 class="font-display-lg text-display-lg text-on-surface">System Status</h1>
                 <p class="font-body-md text-on-surface-variant">Cross-client connection status logs and API endpoint monitoring dashboard.</p>
             </div>
 

@@ -51,7 +51,7 @@ if ($activeTab === 'reviews') {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Unified Social Inbox | Command Center</title>
+    <title>Messages &amp; Comments | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
     <style>
         .active-thread-bar {
@@ -72,7 +72,7 @@ if ($activeTab === 'reviews') {
     <main class="ml-[240px] pt-16 min-h-screen flex flex-col">
         <!-- Tab Navigation Bar -->
         <div class="flex gap-sm border-b border-surface-variant px-lg py-sm bg-surface-container-lowest z-30">
-                <a href="?tab=comments" class="px-md py-sm font-semibold rounded-lg text-xs tracking-wide uppercase transition-all <?php echo $activeTab === 'comments' ? 'bg-primary/10 text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'; ?>">Platform post comments</a>
+                <a href="?tab=comments" class="px-md py-sm font-semibold rounded-lg text-xs tracking-wide uppercase transition-all <?php echo $activeTab === 'comments' ? 'bg-primary/10 text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'; ?>">Post Comments</a>
             <a href="?tab=reviews" class="px-md py-sm font-semibold rounded-lg text-xs tracking-wide uppercase transition-all <?php echo $activeTab === 'reviews' ? 'bg-primary/10 text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'; ?>">Google Reviews</a>
         </div>
 

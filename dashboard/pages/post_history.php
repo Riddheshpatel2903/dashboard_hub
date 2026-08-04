@@ -67,7 +67,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Post History | Command Center</title>
+    <title>My Posts | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
@@ -83,7 +83,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
             <!-- Title -->
             <div class="flex items-center justify-between mb-lg">
                 <div>
-                    <h2 class="font-display-lg text-display-lg font-bold text-on-surface">Post History</h2>
+                    <h2 class="font-display-lg text-display-lg font-bold text-on-surface">My Posts</h2>
                     <div class="flex items-center gap-xs text-on-surface-variant mt-1">
                         <span class="font-body-sm">Dashboard</span>
                         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
@@ -116,7 +116,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                 <form method="GET" action="" class="flex flex-wrap items-end gap-md">
                     <!-- Platform Selector -->
                     <div class="flex-1 min-w-[200px] space-y-xs">
-                        <label class="font-data-label text-data-label text-on-surface-variant block" for="platform">PLATFORM</label>
+                        <label class="font-data-label text-data-label text-on-surface-variant block" for="platform">Platform</label>
                         <select id="platform" name="platform" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                             <option value="">All Platforms</option>
                             <option value="facebook" <?php echo $platformFilter === 'facebook' ? 'selected' : ''; ?>>Facebook</option>

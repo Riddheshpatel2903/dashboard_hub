@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['run'])) {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Storage Cleanup Maintenance | Mission Control</title>
+    <title>Storage Cleanup | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-background text-on-surface font-body-md antialiased min-h-screen">
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['run'])) {
     <main class="ml-[240px] pt-16 p-lg">
         <div class="max-w-4xl mx-auto space-y-lg">
             <div>
-                <h1 class="font-display-lg text-display-lg text-on-surface font-bold">Storage Cleanup Maintenance</h1>
+                <h1 class="font-display-lg text-display-lg text-on-surface font-bold">Storage Cleanup</h1>
                 <p class="font-body-md text-on-surface-variant">Purge unreferenced media files from deleted posts to free up server disk space.</p>
             </div>
 

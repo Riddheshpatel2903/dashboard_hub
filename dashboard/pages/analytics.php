@@ -43,7 +43,7 @@ if ($selectedHubPostId > 0 || (!empty($selectedPlatform) && !empty($selectedExte
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Analytics Command Center | Stitch Social Mission Control</title>
+    <title>Analytics | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
     <style>
         .sparkline-container svg {
@@ -66,8 +66,8 @@ if ($selectedHubPostId > 0 || (!empty($selectedPlatform) && !empty($selectedExte
             <!-- Page Title Header -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
                 <div>
-                    <h1 class="font-display-lg text-display-lg text-on-surface font-bold">Analytics Command Center</h1>
-                    <p class="font-body-md text-on-surface-variant">Real-time performance analytics, views, reach, and detailed post inspection.</p>
+                    <h1 class="font-display-lg text-display-lg text-on-surface font-bold">Analytics</h1>
+                    <p class="font-body-md text-on-surface-variant">See how your posts are performing — views, reach, likes and more.</p>
                 </div>
                 <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/composer.php" 
                    class="px-lg h-10 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-xs hover:opacity-90 transition-all shadow-sm active:scale-95">
@@ -85,7 +85,7 @@ if ($selectedHubPostId > 0 || (!empty($selectedPlatform) && !empty($selectedExte
                             <p class="text-xs text-red-700">
                                 <?php
                                 if (strpos($err, 'pages_read_engagement') !== false || strpos($err, 'permission') !== false || strpos($err, 'OAuth') !== false || strpos($err, 'Code: 10') !== false) {
-                                    echo 'The Facebook connection is missing the required permissions (e.g., <code>pages_read_engagement</code>). Please disconnect and reconnect your Facebook account in settings, making sure to approve all requested Page permission checkboxes.';
+                                    echo 'Your Facebook account is missing some permissions. Please go to <strong>Connected Accounts</strong>, disconnect Facebook, and reconnect it — making sure to accept all permission requests.';
                                 } else {
                                     echo htmlspecialchars($err);
                                 }
@@ -102,7 +102,7 @@ if ($selectedHubPostId > 0 || (!empty($selectedPlatform) && !empty($selectedExte
             <!-- Global Channel Filter Pills & Date Selector Bar -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-surface-container-lowest border border-surface-variant p-md rounded-xl shadow-sm gap-md">
                 <div class="flex flex-wrap items-center gap-md">
-                    <span class="font-data-label text-data-label text-on-surface-variant uppercase font-bold text-xs">PORTAL FILTER:</span>
+                    <span class="font-data-label text-data-label text-on-surface-variant uppercase font-bold text-xs">Filter by platform:</span>
                     <div class="flex flex-wrap items-center gap-2" id="platform-filters-container">
                         <button data-platform="" 
                                 class="btn-platform-filter px-md py-1.5 rounded-full text-xs font-bold transition-all <?php echo empty($platform) ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'; ?>">

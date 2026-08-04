@@ -143,7 +143,7 @@ $monthName = date('F Y', $firstDayOfMonth);
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Post Calendar | Command Center</title>
+    <title>Content Calendar | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
     <style>
         /* Calendar grid layout styling */

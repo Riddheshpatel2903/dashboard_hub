@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Workspace Settings | Command Center</title>
+    <title>Settings | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="p-lg max-w-[1440px] mx-auto space-y-lg">
             <!-- Header -->
             <div>
-                <h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Workspace Settings</h1>
+                <h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Settings</h1>
                 <p class="font-body-md text-on-surface-variant">Update business information and account security credentials.</p>
             </div>
 

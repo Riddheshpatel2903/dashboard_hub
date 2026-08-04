@@ -161,7 +161,7 @@ class InstagramHandler {
      * @return array
      * @throws Exception
      */
-    public static function getInsights($token, $mediaId, array $metrics, $period = null, $metricType = null) {
+    public static function getInsights($token, $mediaId, array $metrics, $period = null, $metricType = null, $since = null, $until = null) {
         self::initVersion();
         $urlParams = [
             'metric'       => implode(',', $metrics),
@@ -172,6 +172,12 @@ class InstagramHandler {
         }
         if ($metricType) {
             $urlParams['metric_type'] = $metricType;
+        }
+        if ($since !== null) {
+            $urlParams['since'] = (int)$since;
+        }
+        if ($until !== null) {
+            $urlParams['until'] = (int)$until;
         }
         $endpoint = sprintf(
             "https://graph.facebook.com/%s/%s/insights?%s",

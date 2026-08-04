@@ -27,7 +27,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Create Post | Command Center</title>
+    <title>New Post | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
     <!-- Cropper.js CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />

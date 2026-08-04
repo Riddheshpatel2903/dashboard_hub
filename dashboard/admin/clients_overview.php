@@ -20,7 +20,7 @@ if (!empty($hubRes['success']) && is_array($hubRes['clients'])) {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <title>Clients Overview | Command Center</title>
+    <title>Client Accounts | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
