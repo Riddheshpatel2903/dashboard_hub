@@ -32,9 +32,7 @@ $state = base64_encode(json_encode($stateData));
 $scopes = [
     'openid',
     'profile',
-    'w_member_social',
-    'r_organization_social',
-    'r_member_postAnalytics'
+    'w_member_social'
 ];
 
 $authUrl = sprintf(

@@ -177,9 +177,15 @@ if ($status === 'published' && !empty($externalPostId) && $platform !== 'google_
             foreach ($inspectRes['metrics'] as $m) {
                 $name = strtolower($m['metric_name']);
                 $val = $m['value'];
-                // Normalize common metric names
-                if (in_array($name, ['views', 'view_count', 'impressions', 'reach'])) {
+                if (in_array($name, ['views', 'view_count', 'impressions', 'post_media_view', 'post_impressions'])) {
                     $map['views'] = (int)$val;
+                    $map['views_type'] = 'views';
+                } elseif (in_array($name, ['reach', 'post_total_media_view_unique', 'post_impressions_unique'])) {
+                    if (empty($map['views_type']) || $map['views_type'] !== 'views') {
+                        $map['views'] = (int)$val;
+                        $map['views_type'] = 'reach';
+                    }
+                    $map['reach'] = (int)$val;
                 } elseif (in_array($name, ['likes', 'like_count', 'post_reactions_by_type_total'])) {
                     $map['likes'] = is_numeric($val) ? (int)$val : $map['likes'] ?? 0;
                 } elseif (in_array($name, ['comments', 'comment_count'])) {

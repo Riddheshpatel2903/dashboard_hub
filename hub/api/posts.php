@@ -432,14 +432,13 @@ function fetchLivePostsForPlatform(string $token, array $conn, string $platform,
                         log_message('warning', 'Facebook post engagement fetch failed', ['post_id' => $postIdValue, 'error' => $e->getMessage()]);
                     }
                     try {
-                        // Use current v22+ metrics. post_media_view replaces deprecated post_impressions.
-                        // post_total_media_view_unique replaces deprecated post_impressions_unique.
-                        $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
+                        // Query standard post impressions and unique impressions (reach) first
+                        $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_impressions', 'post_impressions_unique'], 'lifetime');
                         $insights = $rawInsights['data'] ?? [];
                     } catch (Exception $e) {
-                        // Fallback: text-only/link posts don't support media metrics in v22+, try standard impressions metrics
+                        // Fallback to media view metrics if post_impressions fails
                         try {
-                            $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_impressions', 'post_impressions_unique'], 'lifetime');
+                            $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
                             $insights = $rawInsights['data'] ?? [];
                         } catch (Exception $fallbackEx) {
                             log_message('warning', 'Facebook post insights fetch failed', ['post_id' => $postIdValue, 'error' => $fallbackEx->getMessage()]);
@@ -509,21 +508,23 @@ function fetchLivePostsForPlatform(string $token, array $conn, string $platform,
                     // Determine media type for correct metric selection
                     $mediaType = strtoupper($mediaItem['media_type'] ?? 'IMAGE');
                     try {
-                        if (in_array($mediaType, ['VIDEO', 'REELS'])) {
-                            // Video/Reels: 'views' metric is valid
-                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach'], 'lifetime');
-                        } else {
-                            // Image/Carousel: 'views' is invalid — use 'reach' only
-                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach'], 'lifetime');
-                        }
+                        // In Graph API v22.0+, 'views' is the unified metric for ALL media types (including images/carousels)
+                        $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach'], 'lifetime');
                         $insights = $rawInsights['data'] ?? [];
-                    } catch (Exception $insightEx) {
-                        // If 'views' still fails for video, retry with reach only
+                    } catch (Exception $e) {
+                        // Fallback for older API versions where 'views' is only valid for video, try impressions and reach
                         try {
-                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach'], 'lifetime');
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['impressions', 'reach'], 'lifetime');
                             $insights = $rawInsights['data'] ?? [];
                         } catch (Exception $fallbackEx) {
-                            log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'media_type' => $mediaType, 'error' => $fallbackEx->getMessage()]);
+                            // Last resort fallback: try reach only
+                            try {
+                                $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach'], 'lifetime');
+                                $insights = $rawInsights['data'] ?? [];
+                            } catch (Exception $lastEx) {
+                                log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'media_type' => $mediaType, 'error' => $lastEx->getMessage()]);
+                                $insights = [];
+                            }
                         }
                     }
                     $metrics = normalizeInstagramMetrics($mediaItem, $insights);
@@ -995,6 +996,13 @@ try {
             ], $client_id)
         ]);
         exit();
+    }
+
+    // Auto clean up failed posts from Hub database (only if they don't have an external post ID)
+    try {
+        $pdo->prepare("DELETE FROM posts WHERE client_id = :client_id AND status = 'failed' AND (external_post_id IS NULL OR external_post_id = '')")->execute(['client_id' => $client_id]);
+    } catch (Exception $e) {
+        // Ignore
     }
 
     $formatted = [];

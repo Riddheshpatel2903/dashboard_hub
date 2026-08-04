@@ -206,6 +206,15 @@ foreach ($platformsInput as $platform) {
                 throw new Exception("Platform '{$platform}' not supported.");
         }
 
+        // 2.5 Ensure the Hub database connection is alive before writing results
+        try {
+            $pdo->query("SELECT 1");
+        } catch (Exception $dbEx) {
+            log_message('info', "API Post: Reconnecting Hub database due to timeout: " . $dbEx->getMessage());
+            $GLOBALS['hub_pdo'] = null; // Clear cached connection
+            $pdo = require __DIR__ . '/../db/connection.php';
+        }
+
         // 3. Update internal post status and log attempt
         if ($success) {
             $stmt = $pdo->prepare("
@@ -240,6 +249,15 @@ foreach ($platformsInput as $platform) {
         $httpStatusCode = $e->getCode() ?: 500;
         $responseBody = $e->getMessage();
         log_message('error', "Publish failed on {$platform}", ['message' => $responseBody]);
+
+        // Reconnect DB if MySQL has gone away during publication
+        try {
+            $pdo->query("SELECT 1");
+        } catch (Exception $dbEx) {
+            log_message('info', "API Post Catch: Reconnecting Hub database due to timeout: " . $dbEx->getMessage());
+            $GLOBALS['hub_pdo'] = null; // Clear cached connection
+            $pdo = require __DIR__ . '/../db/connection.php';
+        }
 
         if (isset($postId)) {
             $stmt = $pdo->prepare("

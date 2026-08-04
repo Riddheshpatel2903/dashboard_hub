@@ -160,13 +160,14 @@ try {
                     $normalizedMetrics[] = ['platform' => 'facebook', 'metric_name' => 'shares',   'value' => 0, 'period' => 'lifetime'];
                 }
 
-                // Try fetching v22+ post-level media view insights, fall back to post_impressions / post_impressions_unique for text/link posts
+                // Query standard post impressions and unique impressions (reach) first
                 try {
-                    $postInsightsRaw = FacebookHandler::getInsights($token, $externalId, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
+                    $postInsightsRaw = FacebookHandler::getInsights($token, $externalId, ['post_impressions', 'post_impressions_unique'], 'lifetime');
                     $insightsData = $postInsightsRaw['data'] ?? [];
                 } catch (Exception $e) {
+                    // Fallback to media view metrics if post_impressions fails
                     try {
-                        $postInsightsRaw = FacebookHandler::getInsights($token, $externalId, ['post_impressions', 'post_impressions_unique'], 'lifetime');
+                        $postInsightsRaw = FacebookHandler::getInsights($token, $externalId, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
                         $insightsData = $postInsightsRaw['data'] ?? [];
                     } catch (Exception $fallbackEx) {
                         log_message('warning', "Failed to fetch Facebook post insights: " . $fallbackEx->getMessage());
@@ -178,12 +179,6 @@ try {
                     foreach ($insightsData as $item) {
                         $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
                         $metricName = $item['name'];
-                        // Normalize metrics so downstream dashboard components receive expected keys
-                        if ($metricName === 'post_impressions') {
-                            $metricName = 'post_media_view';
-                        } elseif ($metricName === 'post_impressions_unique') {
-                            $metricName = 'post_total_media_view_unique';
-                        }
                         $normalizedMetrics[] = [
                             'platform'    => 'facebook',
                             'metric_name' => $metricName,
@@ -251,37 +246,36 @@ try {
                     log_message('warning', "Failed to fetch Instagram media details: " . $e->getMessage());
                 }
 
-                // Choose correct insight metrics based on media type
-                // 'views' is valid for VIDEO/REELS; 'reach' is universally valid
-                $insightMetrics = in_array(strtoupper($mediaType), ['VIDEO', 'REELS']) ? ['views', 'reach'] : ['reach'];
+                // Try fetching views first (unified v22.0+ metric), fall back to impressions/reach for older versions
                 try {
-                    $raw = InstagramHandler::getInsights($token, $externalId, $insightMetrics, 'lifetime');
-
-                    if (!empty($raw['data'])) {
-                        foreach ($raw['data'] as $item) {
-                            $name = $item['name'];
-                            $period = $item['period'] ?? 'lifetime';
-                            $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
-                            $normalizedMetrics[] = [
-                                'platform'    => 'instagram',
-                                'metric_name' => $name,
-                                'value'       => $val,
-                                'period'      => $period
-                            ];
+                    $raw = InstagramHandler::getInsights($token, $externalId, ['views', 'reach'], 'lifetime');
+                    $insightsData = $raw['data'] ?? [];
+                } catch (Exception $e) {
+                    try {
+                        $raw = InstagramHandler::getInsights($token, $externalId, ['impressions', 'reach'], 'lifetime');
+                        $insightsData = $raw['data'] ?? [];
+                    } catch (Exception $fallbackEx) {
+                        try {
+                            $raw = InstagramHandler::getInsights($token, $externalId, ['reach'], 'lifetime');
+                            $insightsData = $raw['data'] ?? [];
+                        } catch (Exception $lastEx) {
+                            log_message('warning', "Failed to fetch Instagram post insights: " . $lastEx->getMessage());
+                            $insightsData = [];
                         }
                     }
-                } catch (Exception $e) {
-                    // Fallback: try reach only if full request failed
-                    try {
-                        $raw = InstagramHandler::getInsights($token, $externalId, ['reach'], 'lifetime');
-                        if (!empty($raw['data'])) {
-                            foreach ($raw['data'] as $item) {
-                                $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
-                                $normalizedMetrics[] = ['platform' => 'instagram', 'metric_name' => $item['name'], 'value' => $val, 'period' => 'lifetime'];
-                            }
-                        }
-                    } catch (Exception $fallback) {
-                        log_message('warning', "Failed to fetch Instagram post insights: " . $fallback->getMessage());
+                }
+
+                if (!empty($insightsData)) {
+                    foreach ($insightsData as $item) {
+                        $name = $item['name'];
+                        $period = $item['period'] ?? 'lifetime';
+                        $val = $item['values'][0]['value'] ?? $item['value'] ?? 0;
+                        $normalizedMetrics[] = [
+                            'platform'    => 'instagram',
+                            'metric_name' => $name,
+                            'value'       => $val,
+                            'period'      => $period
+                        ];
                     }
                 }
             } else {
@@ -338,10 +332,15 @@ try {
                                 // We query the insights for each media item individually (max 50, but usually fast enough).
                                 try {
                                     $mType = strtoupper($mItem['media_type'] ?? 'IMAGE');
-                                    if (in_array($mType, ['VIDEO', 'REELS'])) {
+                                    try {
+                                        // In Graph API v22.0+, 'views' is valid for all media types
                                         $rawInsights = InstagramHandler::getInsights($token, $mId, ['views', 'reach'], 'lifetime');
-                                    } else {
-                                        $rawInsights = InstagramHandler::getInsights($token, $mId, ['reach'], 'lifetime');
+                                    } catch (Exception $e) {
+                                        try {
+                                            $rawInsights = InstagramHandler::getInsights($token, $mId, ['impressions', 'reach'], 'lifetime');
+                                        } catch (Exception $fallbackEx) {
+                                            $rawInsights = InstagramHandler::getInsights($token, $mId, ['reach'], 'lifetime');
+                                        }
                                     }
                                     if (!empty($rawInsights['data'])) {
                                         foreach ($rawInsights['data'] as $insight) {
@@ -349,13 +348,12 @@ try {
                                                 continue;
                                             }
                                             $metricValue = (int)$insight['values'][0]['value'];
-                                            if ($insight['name'] === 'views' || $insight['name'] === 'reach') {
+                                            if ($insight['name'] === 'views' || $insight['name'] === 'impressions' || $insight['name'] === 'reach') {
                                                 $views = max($views, $metricValue);
                                             }
                                         }
                                     }
                                 } catch (Exception $insightEx) {
-                                    // If views/reach fail, default to 0 views
                                     $views = 0;
                                 }
 

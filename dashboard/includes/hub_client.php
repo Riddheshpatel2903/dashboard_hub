@@ -157,6 +157,30 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
         $del->execute(['client_id' => $clientId, 'platform' => $platform]);
     }
 
+    // Delete any published posts from posts_cache that are no longer in the fetched list but fall within the date range of fetched posts
+    $fetchedExternalIds = array_filter(array_column($platformPosts, 'external_post_id'));
+    $fetchedDates = array_filter(array_map(function($p) {
+        return !empty($p['published_at']) ? strtotime($p['published_at']) : null;
+    }, $platformPosts));
+    
+    if (!empty($fetchedExternalIds) && !empty($fetchedDates) && !empty($platforms)) {
+        $minDate = date('Y-m-d H:i:s', min($fetchedDates));
+        $placeholders = implode(',', array_fill(0, count($fetchedExternalIds), '?'));
+        $platformsStr = implode("','", array_map('addslashes', $platforms));
+        
+        $deleteStmt = $dashPdo->prepare("
+            DELETE FROM posts_cache 
+            WHERE client_id = ? 
+              AND platform IN ('$platformsStr') 
+              AND external_post_id IS NOT NULL 
+              AND published_at >= ?
+              AND external_post_id NOT IN ($placeholders)
+        ");
+        
+        $params = array_merge([$clientId, $minDate], $fetchedExternalIds);
+        $deleteStmt->execute($params);
+    }
+
     $insert = $dashPdo->prepare("
         INSERT INTO posts_cache
             (hub_post_id, client_id, content, status, platform, media_path,
@@ -172,12 +196,12 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
             published_at      = VALUES(published_at),
             likes_count       = VALUES(likes_count),
             comments_count    = VALUES(comments_count),
-            views_count       = GREATEST(VALUES(views_count), views_count),
-            shares_count      = GREATEST(VALUES(shares_count), shares_count),
-            impressions_count = GREATEST(VALUES(impressions_count), impressions_count),
-            reach_count       = GREATEST(VALUES(reach_count), reach_count),
-            clicks_count      = GREATEST(VALUES(clicks_count), clicks_count),
-            engagement_count  = GREATEST(VALUES(engagement_count), engagement_count)
+            views_count       = VALUES(views_count),
+            shares_count      = VALUES(shares_count),
+            impressions_count = VALUES(impressions_count),
+            reach_count       = VALUES(reach_count),
+            clicks_count      = VALUES(clicks_count),
+            engagement_count  = VALUES(engagement_count)
     ");
 
     foreach ($platformPosts as $post) {
@@ -232,13 +256,43 @@ function hubGetLocalPostDetails($clientId, $hubPostId) {
  * This replaces the old analytics-based reconstruction logic.
  */
 function loadPlatformPosts($clientId, $forceSync = false) {
-    if (!$forceSync) {
-        // Read directly from local posts_cache to save network roundtrips!
+    $dashPdo = null;
+    try {
+        $dashPdo = require __DIR__ . '/../db/connection.php';
+    } catch (Exception $e) {
+        // Ignore and proceed
+    }
+
+    if (!$forceSync && $dashPdo) {
+        // Time-based cache expiry: automatically sync if cache is empty or older than 15 minutes
         try {
-            $dashPdo = require __DIR__ . '/../db/connection.php';
             // Auto clean up failed posts from cache table so they don't show up in calendar or history
             $dashPdo->prepare("DELETE FROM posts_cache WHERE client_id = :client_id AND status = 'failed'")->execute(['client_id' => $clientId]);
 
+            $stmt = $dashPdo->prepare("SELECT MAX(created_at) FROM posts_cache WHERE client_id = :client_id");
+            $stmt->execute(['client_id' => $clientId]);
+            $lastSync = $stmt->fetchColumn();
+            
+            $cacheExpired = true;
+            if ($lastSync) {
+                $lastSyncTs = strtotime($lastSync);
+                // Expire cache after 15 minutes (900 seconds)
+                if ((time() - $lastSyncTs) < 900) {
+                    $cacheExpired = false;
+                }
+            }
+            
+            if ($cacheExpired) {
+                $forceSync = true;
+            }
+        } catch (Exception $e) {
+            // Proceed with fallback reading from DB if cache check fails
+        }
+    }
+
+    if (!$forceSync) {
+        // Read directly from local posts_cache to save network roundtrips!
+        try {
             $stmt = $dashPdo->prepare("
                 SELECT hub_post_id, platform, content, media_path, status, 
                        scheduled_at, published_at, external_post_id, 

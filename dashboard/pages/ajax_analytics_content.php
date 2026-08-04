@@ -269,7 +269,7 @@ foreach ($allLivePosts as $p) {
     $pComments = $p['comments_count'] ?? $platformMetrics['comments'] ?? $platformMetrics['comment_count'] ?? 0;
     
     $postViewsSum += (int)($pViews ?? 0);
-    $postReachSum += (int)($platformMetrics['reach'] ?? $pViews ?? 0);
+    $postReachSum += (int)($p['reach_count'] ?? $platformMetrics['reach'] ?? $pViews ?? 0);
     $postEngagementSum += ((int)$pLikes + (int)$pComments);
 }
 

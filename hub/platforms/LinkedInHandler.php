@@ -33,6 +33,12 @@ class LinkedInHandler {
                     'owner' => $authorUrn,
                     'supportedUploadMechanism' => [
                         'SYNCHRONOUS_UPLOAD'
+                    ],
+                    'serviceRelationships' => [
+                        [
+                            'relationshipType' => 'OWNER',
+                            'identifier' => 'urn:li:userGeneratedContent'
+                        ]
                     ]
                 ]
             ];
@@ -43,14 +49,24 @@ class LinkedInHandler {
                 $uploadUrl = $regRes['value']['uploadMechanism']['com.linkedin.digitalmedia.uploading.MediaUploadMechanism']['uploadUrl'];
                 $assetUrn = $regRes['value']['asset'] ?? null;
                 
+                $mimeType = 'application/octet-stream';
+                if (function_exists('mime_content_type')) {
+                    $detectedMime = mime_content_type($localFilePath);
+                    if ($detectedMime && strpos($detectedMime, 'image/') === 0) {
+                        $mimeType = $detectedMime;
+                    }
+                }
+
                 // Step B: Upload the binary file to the uploadUrl via PUT
                 $ch = curl_init($uploadUrl);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
                 curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($localFilePath));
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     'Authorization: Bearer ' . $token,
-                    'Content-Type: application/octet-stream'
+                    'Content-Type: ' . $mimeType
                 ]);
                 $uploadRes = curl_exec($ch);
                 $uploadCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -59,6 +75,9 @@ class LinkedInHandler {
                 if ($uploadCode < 200 || $uploadCode >= 300) {
                     throw new Exception("LinkedIn binary asset upload failed with HTTP Code {$uploadCode}. Response: {$uploadRes}");
                 }
+
+                // Give LinkedIn asset processing a brief moment to ingest and mark the asset as READY/AVAILABLE
+                sleep(3);
             }
         }
         

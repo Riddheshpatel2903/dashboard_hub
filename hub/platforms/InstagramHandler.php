@@ -101,10 +101,10 @@ class InstagramHandler {
         // If it's a video, wait/poll for it to finish processing (Instagram needs a few seconds to ingest videos)
         if ($isVideo) {
             $statusUrl = "https://graph.facebook.com/" . self::$version . "/{$creationId}?fields=status_code&access_token=" . urlencode($token);
-            $maxPoll = 10;
+            $maxPoll = 15;
             $poll = 0;
             do {
-                sleep(3);
+                sleep(4);
                 $statusRes = self::executeRequest('GET', $statusUrl);
                 $statusCode = $statusRes['status_code'] ?? 'EXPIRED';
                 $poll++;
@@ -125,8 +125,37 @@ class InstagramHandler {
             'creation_id'  => $creationId
         ];
 
-        $publishRes = self::executeRequest('POST', $publishUrl, $publishPayload);
-        log_message('debug', "Instagram publish response", ['response' => $publishRes]);
+        $publishRes = null;
+        $maxPublishRetries = 3;
+        $publishRetry = 0;
+        
+        while ($publishRetry < $maxPublishRetries) {
+            try {
+                $publishRes = self::executeRequest('POST', $publishUrl, $publishPayload);
+                log_message('debug', "Instagram publish response", ['response' => $publishRes]);
+                break; // Succeeded!
+            } catch (Exception $e) {
+                $publishRetry++;
+                $errStr = strtolower($e->getMessage());
+                
+                // If it's a "media not ready" or "processing" error, wait and retry
+                if ($publishRetry < $maxPublishRetries && 
+                    (strpos($errStr, 'not ready') !== false || 
+                     strpos($errStr, 'processing') !== false || 
+                     strpos($errStr, '2207027') !== false || 
+                     strpos($errStr, '9007') !== false)) {
+                    log_message('info', "Instagram media not ready for publishing. Retrying in 5 seconds...", [
+                        'creation_id' => $creationId,
+                        'retry'       => $publishRetry,
+                        'error'       => $e->getMessage()
+                    ]);
+                    sleep(5);
+                } else {
+                    // Other errors, or out of retries: rethrow the exception
+                    throw $e;
+                }
+            }
+        }
 
         return $publishRes;
     }
