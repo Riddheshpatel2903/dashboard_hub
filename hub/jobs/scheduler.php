@@ -98,32 +98,22 @@ try {
                     }
                 }
             } else {
-                // Exceeded max retries, mark as permanently failed
+                // Exceeded max retries, delete instead of marking failed
                 $stmtFail = $pdo->prepare("
-                    UPDATE posts 
-                    SET status = 'failed', last_attempt_at = NOW() 
-                    WHERE id = :id
+                    DELETE FROM posts WHERE id = :id
                 ");
                 $stmtFail->execute(['id' => $stuckId]);
 
-                $stmtLog = $pdo->prepare("
-                    INSERT INTO post_logs (post_id, http_status_code, response_body, success)
-                    VALUES (:post_id, 504, 'Stuck post recovered and marked failed after exceeding retries.', 0)
-                ");
-                $stmtLog->execute(['post_id' => $stuckId]);
-
-                log_message('error', "Scheduler Recovery: Post ID {$stuckId} was stuck in '{$stuckStatus}' and exceeded MAX_RETRIES. Setting status to failed.");
+                log_message('error', "Scheduler Recovery: Post ID {$stuckId} was stuck in '{$stuckStatus}' and exceeded MAX_RETRIES. Deleting failed post.");
 
                 if ($dashPdo) {
                     try {
                         $stmtDash = $dashPdo->prepare("
-                            UPDATE posts_cache 
-                            SET status = 'failed', last_attempt_at = NOW() 
-                            WHERE hub_post_id = :id
+                            DELETE FROM posts_cache WHERE hub_post_id = :id
                         ");
                         $stmtDash->execute(['id' => $stuckId]);
                     } catch (Exception $dashEx) {
-                        log_message('error', "Scheduler Recovery: Failed to update status in posts_cache to failed for post ID {$stuckId}", ['error' => $dashEx->getMessage()]);
+                        log_message('error', "Scheduler Recovery: Failed to delete posts_cache entry for post ID {$stuckId}", ['error' => $dashEx->getMessage()]);
                     }
                 }
             }

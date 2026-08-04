@@ -297,6 +297,10 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
             if ($views === null) {
                 $views = (int)$value;
             }
+        } elseif ($name === 'post_impressions_unique') {
+            if ($reach === null) {
+                $reach = (int)$value;
+            }
         } elseif ($name === 'post_engaged_users') {
             if ($engagement === null) {
                 $engagement = (int)$value;
@@ -433,9 +437,15 @@ function fetchLivePostsForPlatform(string $token, array $conn, string $platform,
                         $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_media_view', 'post_total_media_view_unique'], 'lifetime');
                         $insights = $rawInsights['data'] ?? [];
                     } catch (Exception $e) {
-                        log_message('warning', 'Facebook post insights fetch failed', ['post_id' => $postIdValue, 'error' => $e->getMessage()]);
-                        // Silently retry with no insights — engagement counts still populate from getEngagementCounts()
-                        $insights = [];
+                        // Fallback: text-only/link posts don't support media metrics in v22+, try standard impressions metrics
+                        try {
+                            $rawInsights = FacebookHandler::getInsights($token, $postIdValue, ['post_impressions', 'post_impressions_unique'], 'lifetime');
+                            $insights = $rawInsights['data'] ?? [];
+                        } catch (Exception $fallbackEx) {
+                            log_message('warning', 'Facebook post insights fetch failed', ['post_id' => $postIdValue, 'error' => $fallbackEx->getMessage()]);
+                            // Silently retry with no insights — engagement counts still populate from getEngagementCounts()
+                            $insights = [];
+                        }
                     }
                     $metrics = normalizeFacebookMetrics($postItem, $insights, $engagementData);
 
@@ -501,16 +511,16 @@ function fetchLivePostsForPlatform(string $token, array $conn, string $platform,
                     try {
                         if (in_array($mediaType, ['VIDEO', 'REELS'])) {
                             // Video/Reels: 'views' metric is valid
-                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach']);
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['views', 'reach'], 'lifetime');
                         } else {
                             // Image/Carousel: 'views' is invalid — use 'reach' only
-                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach']);
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach'], 'lifetime');
                         }
                         $insights = $rawInsights['data'] ?? [];
                     } catch (Exception $insightEx) {
                         // If 'views' still fails for video, retry with reach only
                         try {
-                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach']);
+                            $rawInsights = InstagramHandler::getInsights($token, $mediaId, ['reach'], 'lifetime');
                             $insights = $rawInsights['data'] ?? [];
                         } catch (Exception $fallbackEx) {
                             log_message('warning', 'Instagram media insights unavailable', ['media_id' => $mediaId, 'media_type' => $mediaType, 'error' => $fallbackEx->getMessage()]);

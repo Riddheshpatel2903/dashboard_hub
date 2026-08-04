@@ -133,22 +133,29 @@ try {
                 $pdo = require __DIR__ . '/../db/connection.php';
             }
 
-            $stmt = $pdo->prepare("
-                INSERT INTO posts_cache (hub_post_id, client_id, content, status, platform, media_path, scheduled_at, published_at, external_post_id)
-                VALUES (:hub_post_id, :client_id, :content, :status, :platform, :media_path, :scheduled_at, :published_at, :ext_id)
-                ON DUPLICATE KEY UPDATE status = VALUES(status), external_post_id = VALUES(external_post_id), media_path = VALUES(media_path)
-            ");
-            $stmt->execute([
-                'hub_post_id'  => $hubPostId,
-                'client_id'    => $client_id,
-                'content'      => $content,
-                'status'       => $status,
-                'platform'     => $platform,
-                'media_path'   => $mediaTempPath,
-                'scheduled_at' => $sqlScheduledAt,
-                'published_at' => $publishedAt,
-                'ext_id'       => $externalPostId
-            ]);
+            if ($status === 'failed') {
+                if ($hubPostId) {
+                    $stmtDel = $pdo->prepare("DELETE FROM posts_cache WHERE hub_post_id = :hub_post_id");
+                    $stmtDel->execute(['hub_post_id' => $hubPostId]);
+                }
+            } else {
+                $stmt = $pdo->prepare("
+                    INSERT INTO posts_cache (hub_post_id, client_id, content, status, platform, media_path, scheduled_at, published_at, external_post_id)
+                    VALUES (:hub_post_id, :client_id, :content, :status, :platform, :media_path, :scheduled_at, :published_at, :ext_id)
+                    ON DUPLICATE KEY UPDATE status = VALUES(status), external_post_id = VALUES(external_post_id), media_path = VALUES(media_path)
+                ");
+                $stmt->execute([
+                    'hub_post_id'  => $hubPostId,
+                    'client_id'    => $client_id,
+                    'content'      => $content,
+                    'status'       => $status,
+                    'platform'     => $platform,
+                    'media_path'   => $mediaTempPath,
+                    'scheduled_at' => $sqlScheduledAt,
+                    'published_at' => $publishedAt,
+                    'ext_id'       => $externalPostId
+                ]);
+            }
         }
 
         if ($isSuccess) {

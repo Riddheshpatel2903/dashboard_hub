@@ -207,6 +207,8 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
             'engagement_count'  => (int)($m['engagement'] ?? $post['engagement'] ?? 0),
         ]);
     }
+    // Auto clean up failed posts from cache table
+    $dashPdo->prepare("DELETE FROM posts_cache WHERE client_id = :client_id AND status = 'failed'")->execute(['client_id' => $clientId]);
 }
 
 
@@ -234,6 +236,9 @@ function loadPlatformPosts($clientId, $forceSync = false) {
         // Read directly from local posts_cache to save network roundtrips!
         try {
             $dashPdo = require __DIR__ . '/../db/connection.php';
+            // Auto clean up failed posts from cache table so they don't show up in calendar or history
+            $dashPdo->prepare("DELETE FROM posts_cache WHERE client_id = :client_id AND status = 'failed'")->execute(['client_id' => $clientId]);
+
             $stmt = $dashPdo->prepare("
                 SELECT hub_post_id, platform, content, media_path, status, 
                        scheduled_at, published_at, external_post_id, 

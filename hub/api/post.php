@@ -243,19 +243,9 @@ foreach ($platformsInput as $platform) {
 
         if (isset($postId)) {
             $stmt = $pdo->prepare("
-                UPDATE posts SET status = 'failed' WHERE id = :post_id
+                DELETE FROM posts WHERE id = :post_id
             ");
             $stmt->execute(['post_id' => $postId]);
-
-            $stmt = $pdo->prepare("
-                INSERT INTO post_logs (post_id, http_status_code, response_body, success)
-                VALUES (:post_id, :http_code, :response, 0)
-            ");
-            $stmt->execute([
-                'post_id'   => $postId,
-                'http_code' => $httpStatusCode,
-                'response'  => $responseBody
-            ]);
         }
 
         $results[$platform] = [

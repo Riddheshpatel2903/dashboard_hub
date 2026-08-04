@@ -397,13 +397,11 @@ try {
 
                         log_message('info', "Queue Worker: Scheduled retry #{$newRetryCount} for post ID {$postId} at {$newScheduledTime}");
                     } else {
-                        // Max retries exceeded or non-retryable error
-                        $stmtUpdateFailed = $pdo->prepare("
-                            UPDATE posts 
-                            SET status = 'failed', last_attempt_at = CURRENT_TIMESTAMP
-                            WHERE id = :post_id
+                        // Max retries exceeded or non-retryable error, delete post
+                        $stmtDeleteFailed = $pdo->prepare("
+                            DELETE FROM posts WHERE id = :post_id
                         ");
-                        $stmtUpdateFailed->execute(['post_id' => $postId]);
+                        $stmtDeleteFailed->execute(['post_id' => $postId]);
 
                         // Delete media file from disk to save space
                         if (!empty($mediaTempPath)) {
@@ -414,27 +412,15 @@ try {
                             }
                         }
 
-                        $stmtLog = $pdo->prepare("
-                            INSERT INTO post_logs (post_id, http_status_code, response_body, success)
-                            VALUES (:post_id, :http_code, :response, 0)
-                        ");
-                        $stmtLog->execute([
-                            'post_id'   => $postId,
-                            'http_code' => $httpStatusCode,
-                            'response'  => "Failure: " . $cleanErrorMsg
-                        ]);
-
-                        // Sync with Dashboard Cache
+                        // Sync with Dashboard Cache (delete instead of setting to failed)
                         if ($dashPdo) {
                             try {
                                 $stmtDash = $dashPdo->prepare("
-                                    UPDATE posts_cache 
-                                    SET status = 'failed', last_attempt_at = CURRENT_TIMESTAMP
-                                    WHERE hub_post_id = :hub_post_id
+                                    DELETE FROM posts_cache WHERE hub_post_id = :hub_post_id
                                 ");
                                 $stmtDash->execute(['hub_post_id' => $postId]);
                             } catch (Exception $dashEx) {
-                                log_message('error', "Queue Worker: Failed to update dashboard cache to failed for post ID {$postId}", ['error' => $dashEx->getMessage()]);
+                                log_message('error', "Queue Worker: Failed to delete dashboard cache post for post ID {$postId}", ['error' => $dashEx->getMessage()]);
                             }
                         }
 
