@@ -62,11 +62,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'client_id'   => $client_id
                 ]);
             } elseif (!empty($platform) && !empty($externalPostId)) {
-                $stmtDelCache = $pdo->prepare("DELETE FROM posts_cache WHERE platform = :platform AND external_post_id = :external_post_id AND client_id = :client_id");
+                $rawId = $externalPostId;
+                if ($platform === 'linkedin' && preg_match('/^urn:li:\w+:(.+)$/', $externalPostId, $matches)) {
+                    $rawId = $matches[1];
+                }
+                $urnId1 = 'urn:li:share:' . $rawId;
+                $urnId2 = 'urn:li:ugcPost:' . $rawId;
+
+                $stmtDelCache = $pdo->prepare("
+                    DELETE FROM posts_cache 
+                    WHERE platform = :platform 
+                      AND (external_post_id = :ext_id OR external_post_id = :raw_id OR external_post_id = :urn1 OR external_post_id = :urn2)
+                      AND client_id = :client_id
+                ");
                 $stmtDelCache->execute([
-                    'platform'         => $platform,
-                    'external_post_id' => $externalPostId,
-                    'client_id'        => $client_id
+                    'platform'  => $platform,
+                    'ext_id'    => $externalPostId,
+                    'raw_id'    => $rawId,
+                    'urn1'      => $urnId1,
+                    'urn2'      => $urnId2,
+                    'client_id' => $client_id
                 ]);
             }
             

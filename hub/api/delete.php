@@ -140,9 +140,34 @@ try {
     }
 
     // 4. Hard delete post from Hub posts table only if external delete succeeded
-    if ($dbPostFound && $externalDeleteSucceeded) {
-        $stmt = $pdo->prepare("DELETE FROM posts WHERE id = :post_id");
-        $stmt->execute(['post_id' => $postId]);
+    if ($externalDeleteSucceeded) {
+        if ($dbPostFound) {
+            $stmt = $pdo->prepare("DELETE FROM posts WHERE id = :post_id");
+            $stmt->execute(['post_id' => $postId]);
+        } elseif (!empty($platform) && !empty($externalPostId)) {
+            $rawId = $externalPostId;
+            if ($platform === 'linkedin' && preg_match('/^urn:li:\w+:(.+)$/', $externalPostId, $matches)) {
+                $rawId = $matches[1];
+            }
+            $urnId1 = 'urn:li:share:' . $rawId;
+            $urnId2 = 'urn:li:ugcPost:' . $rawId;
+
+            $stmtDel = $pdo->prepare("
+                DELETE p FROM posts p
+                JOIN platform_connections pc ON p.platform_connection_id = pc.id
+                WHERE pc.platform = :platform
+                  AND (p.external_post_id = :ext_id OR p.external_post_id = :raw_id OR p.external_post_id = :urn1 OR p.external_post_id = :urn2)
+                  AND p.client_id = :client_id
+            ");
+            $stmtDel->execute([
+                'platform'  => $platform,
+                'ext_id'    => $externalPostId,
+                'raw_id'    => $rawId,
+                'urn1'      => $urnId1,
+                'urn2'      => $urnId2,
+                'client_id' => $client_id
+            ]);
+        }
     }
 
     if ($externalDeleteSucceeded) {
