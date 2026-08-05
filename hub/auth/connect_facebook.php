@@ -1,16 +1,16 @@
 <?php
+
 /**
  * Initiates the Facebook OAuth flow.
  * Expects client_id as a query parameter.
  */
-
 session_start();
 $platforms = require_once __DIR__ . '/../config/platforms.php';
 
-$clientId = isset($_GET['client_id']) ? (int)$_GET['client_id'] : 0;
+$clientId = isset($_GET['client_id']) ? (int) $_GET['client_id'] : 0;
 if ($clientId <= 0) {
     http_response_code(400);
-    echo "Error: Missing or invalid client_id parameter.";
+    echo 'Error: Missing or invalid client_id parameter.';
     exit();
 }
 
@@ -26,9 +26,9 @@ $platform = $_GET['platform'] ?? 'facebook';
 
 // Base64 encode JSON containing client_id, nonce, target platform, and dashboard_url
 $stateData = [
-    'client_id'     => $clientId,
-    'nonce'         => $nonce,
-    'platform'      => $platform,
+    'client_id' => $clientId,
+    'nonce' => $nonce,
+    'platform' => $platform,
     'dashboard_url' => $_GET['dashboard_url'] ?? ''
 ];
 $state = base64_encode(json_encode($stateData));
@@ -49,7 +49,7 @@ $scopes = [
 ];
 
 $authUrl = sprintf(
-    "https://www.facebook.com/%s/dialog/oauth?client_id=%s&redirect_uri=%s&state=%s&scope=%s&response_type=code&auth_type=rerequest",
+    'https://www.facebook.com/%s/dialog/oauth?client_id=%s&redirect_uri=%s&state=%s&scope=%s&response_type=code&auth_type=rerequest',
     $fbConfig['graph_api_version'],
     $fbConfig['app_id'],
     urlencode($fbConfig['redirect_uri']),
@@ -57,5 +57,5 @@ $authUrl = sprintf(
     urlencode(implode(',', $scopes))
 );
 
-header("Location: " . $authUrl);
+header('Location: ' . $authUrl);
 exit();
