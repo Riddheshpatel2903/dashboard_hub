@@ -169,6 +169,21 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                         No matching posts found in history.
                     </div>
                 <?php else: ?>
+                    <!-- Bulk Action Bar -->
+                    <div id="bulk-action-bar" class="px-md py-sm bg-surface-container-low border-b border-surface-variant flex items-center justify-between gap-md">
+                        <div class="flex items-center gap-md">
+                            <label class="flex items-center gap-sm cursor-pointer select-none">
+                                <input type="checkbox" id="select-all-posts-checkbox" class="w-4 h-4 text-primary rounded border-surface-variant focus:ring-primary">
+                                <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Select All</span>
+                            </label>
+                            <span id="selected-count-label" class="text-xs font-bold text-primary">0 selected</span>
+                        </div>
+                        <button id="btn-bulk-delete" class="px-md py-sm bg-error-container text-error hover:bg-error-container-high rounded-lg text-xs font-bold transition-all flex items-center gap-xs opacity-50 cursor-not-allowed" disabled>
+                            <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                            <span>Delete Selected</span>
+                        </button>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter p-md">
                         <?php foreach ($posts as $post):
                             // Resolve Platform Icon/Color
@@ -227,9 +242,17 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                                 <div class="space-y-sm">
                                     <!-- Card Header -->
                                     <div class="flex justify-between items-center">
-                                        <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none border <?php echo $platColorClass; ?>">
-                                            <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
-                                            <span class="capitalize"><?php echo htmlspecialchars($platLabel); ?></span>
+                                        <div class="flex items-center gap-xs">
+                                            <input type="checkbox" class="post-select-checkbox w-4 h-4 text-primary rounded border-surface-variant focus:ring-primary cursor-pointer mr-xs" 
+                                                   data-id="<?php echo $post['id']; ?>"
+                                                   data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                                   data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                                   data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
+                                                   data-media-path="<?php echo htmlspecialchars($post['media_path'] ?? ''); ?>">
+                                            <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none border <?php echo $platColorClass; ?>">
+                                                <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
+                                                <span class="capitalize"><?php echo htmlspecialchars($platLabel); ?></span>
+                                            </div>
                                         </div>
                                         <span class="px-sm py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tight <?php echo $statusClass; ?>">
                                             <?php echo htmlspecialchars($post['status']); ?>
@@ -259,14 +282,25 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                                         <span class="material-symbols-outlined text-[11px]">calendar_today</span>
                                         <?php echo date('M d, H:i', strtotime($targetTime)); ?>
                                     </span>
-                                    <button class="btn-view-detail px-sm h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center gap-xs text-xs" 
-                                            data-id="<?php echo $post['id']; ?>"
-                                            data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
-                                            data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
-                                            data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>">
-                                        <span class="material-symbols-outlined text-sm">visibility</span>
-                                        <span>Inspect</span>
-                                    </button>
+                                    <div class="flex items-center gap-xs">
+                                        <button class="btn-view-detail px-xs h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center justify-center text-xs" 
+                                                data-id="<?php echo $post['id']; ?>"
+                                                data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                                data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                                data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
+                                                title="Inspect Post">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                        </button>
+                                        <button class="btn-card-delete-post px-xs h-8 bg-error-container hover:bg-error-container-high rounded text-error font-body-sm font-semibold transition-all inline-flex items-center justify-center text-xs" 
+                                                data-id="<?php echo $post['id']; ?>"
+                                                data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                                data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                                data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
+                                                data-media-path="<?php echo htmlspecialchars($post['media_path'] ?? ''); ?>"
+                                                title="Delete Post">
+                                            <span class="material-symbols-outlined text-sm">delete</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -363,6 +397,139 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                 });
             });
 
+            function deletePostRequest(hubId, platform, extId, mediaPath) {
+                return fetch('post_detail.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ 
+                        action: 'delete', 
+                        hub_post_id: hubId,
+                        platform: platform,
+                        external_post_id: extId,
+                        media_path: mediaPath
+                    })
+                }).then(res => res.json());
+            }
+
+            // Single card-level delete click handler (delegated)
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.btn-card-delete-post');
+                if (!btn) return;
+                
+                e.preventDefault();
+                const hubId = btn.getAttribute('data-hub-id');
+                const platform = btn.getAttribute('data-platform');
+                const extId = btn.getAttribute('data-external-id');
+                const mediaPath = btn.getAttribute('data-media-path');
+                
+                if (confirm("Are you sure you want to delete this post? This is irreversible.")) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    
+                    deletePostRequest(hubId, platform, extId, mediaPath)
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            reloadPostsGrid();
+                        } else {
+                            alert('Failed: ' + data.error);
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('An error occurred during deletion.');
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    });
+                }
+            });
+
+            // Update state of bulk actions bar
+            function updateBulkActionState() {
+                const checkboxes = document.querySelectorAll('.post-select-checkbox');
+                const checked = document.querySelectorAll('.post-select-checkbox:checked');
+                const selectAll = document.getElementById('select-all-posts-checkbox');
+                const selectedCountLabel = document.getElementById('selected-count-label');
+                const btnBulkDelete = document.getElementById('btn-bulk-delete');
+                
+                if (selectedCountLabel) {
+                    selectedCountLabel.textContent = `${checked.length} selected`;
+                }
+                
+                if (btnBulkDelete) {
+                    if (checked.length > 0) {
+                        btnBulkDelete.disabled = false;
+                        btnBulkDelete.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        btnBulkDelete.disabled = true;
+                        btnBulkDelete.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+                
+                if (selectAll && checkboxes.length > 0) {
+                    selectAll.checked = checkboxes.length === checked.length;
+                }
+            }
+
+            // Checkbox change delegated listener
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('post-select-checkbox')) {
+                    updateBulkActionState();
+                }
+            });
+
+            // Select All checkbox change listener
+            document.addEventListener('change', function(e) {
+                if (e.target.id === 'select-all-posts-checkbox') {
+                    const checked = e.target.checked;
+                    document.querySelectorAll('.post-select-checkbox').forEach(cb => {
+                        cb.checked = checked;
+                    });
+                    updateBulkActionState();
+                }
+            });
+
+            // Bulk Delete button click listener
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('#btn-bulk-delete');
+                if (!btn) return;
+                
+                e.preventDefault();
+                const checkedCbs = document.querySelectorAll('.post-select-checkbox:checked');
+                if (checkedCbs.length === 0) return;
+                
+                if (confirm(`Are you sure you want to permanently delete the ${checkedCbs.length} selected posts? This action cannot be undone.`)) {
+                    btn.disabled = true;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">sync</span><span>Deleting...</span>';
+                    
+                    const promises = Array.from(checkedCbs).map(cb => {
+                        const hubId = cb.getAttribute('data-hub-id');
+                        const platform = cb.getAttribute('data-platform');
+                        const extId = cb.getAttribute('data-external-id');
+                        const mediaPath = cb.getAttribute('data-media-path');
+                        return deletePostRequest(hubId, platform, extId, mediaPath)
+                            .catch(err => ({ success: false, error: err.message }));
+                    });
+                    
+                    Promise.all(promises).then(results => {
+                        const failures = results.filter(r => !r.success);
+                        if (failures.length > 0) {
+                            alert(`Bulk deletion finished. ${results.length - failures.length} succeeded, ${failures.length} failed.`);
+                        } else {
+                            alert('All selected posts were deleted successfully.');
+                        }
+                        btn.innerHTML = originalText;
+                        reloadPostsGrid();
+                    });
+                }
+            });
+
             function attachModalActionListeners() {
                 const deleteBtn = modalBody.querySelector('#btn-delete-post');
                 if (deleteBtn) {
@@ -377,25 +544,10 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                             deleteBtn.disabled = true;
                             deleteBtn.textContent = 'Deleting...';
                             
-                            fetch('post_detail.php', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: JSON.stringify({ 
-                                    action: 'delete', 
-                                    hub_post_id: hubId,
-                                    platform: platform,
-                                    external_post_id: extId,
-                                    media_path: mediaPath
-                                })
-                            })
-                            .then(res => res.json())
+                            deletePostRequest(hubId, platform, extId, mediaPath)
                             .then(data => {
                                 if (data.success) {
                                     alert(data.message);
-                                    // E: Close details modal and update posts list via AJAX
                                     modal.classList.add('hidden');
                                     modal.style.display = 'none';
                                     reloadPostsGrid();
@@ -449,6 +601,9 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                     const syncLabel = document.getElementById('last-synced-label');
                     if (syncLabel) syncLabel.textContent = 'Last synced: ' + lastSynced;
                 }
+            }
+            if (typeof updateBulkActionState === 'function') {
+                updateBulkActionState();
             }
         })
         .catch(err => {

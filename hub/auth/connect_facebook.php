@@ -43,6 +43,7 @@ $scopes = [
     'instagram_basic',
     'instagram_content_publish',
     'instagram_manage_insights',
+    'instagram_manage_contents',
     'business_management',
     'read_insights',
 ];

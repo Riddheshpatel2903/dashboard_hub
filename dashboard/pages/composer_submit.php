@@ -19,6 +19,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $platforms = $_POST['platforms'] ?? [];
 $postType = isset($_POST['post_type']) && strtolower($_POST['post_type']) === 'video' ? 'video' : 'image';
 $content = trim($_POST['content'] ?? '');
+$keywordsInput = trim($_POST['keywords'] ?? '');
+if (!empty($keywordsInput)) {
+    $kwList = array_map('trim', explode(',', $keywordsInput));
+    $hashtagStr = '';
+    foreach ($kwList as $kw) {
+        if (empty($kw)) continue;
+        $cleaned = preg_replace('/[^A-Za-z0-9]/', '', $kw);
+        if (!empty($cleaned)) {
+            $hashtagStr .= ' #' . $cleaned;
+        }
+    }
+    if (!empty($hashtagStr)) {
+        $content .= "\n\n" . trim($hashtagStr);
+    }
+}
 $scheduleType = $_POST['schedule_type'] ?? 'now';
 $scheduledAt = $_POST['scheduled_at'] ?? null;
 $title = $_POST['title'] ?? 'New Dashboard Upload'; // Supported for YouTube titles

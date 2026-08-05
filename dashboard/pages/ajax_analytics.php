@@ -149,8 +149,8 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
 
                 const ctx = canvas.getContext('2d');
                 const gradient = ctx.createLinearGradient(0, 0, 0, 240);
-                gradient.addColorStop(0, 'rgba(32, 49, 169, 0.22)');
-                gradient.addColorStop(1, 'rgba(32, 49, 169, 0.0)');
+                gradient.addColorStop(0, 'rgba(0, 122, 135, 0.22)');
+                gradient.addColorStop(1, 'rgba(0, 122, 135, 0.0)');
 
                 new Chart(ctx, {
                     type: 'line',
@@ -159,12 +159,12 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
                         datasets: [{
                             label: 'Reach / Views',
                             data: <?php echo json_encode($chartValues); ?>,
-                            borderColor: '#2031a9',
+                            borderColor: '#007a87',
                             borderWidth: 3,
                             backgroundColor: gradient,
                             fill: true,
                             tension: 0.4,
-                            pointBackgroundColor: '#2031a9',
+                            pointBackgroundColor: '#007a87',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
                             pointRadius: 4,

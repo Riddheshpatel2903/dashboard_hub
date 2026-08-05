@@ -76,6 +76,21 @@ $platformErrors = $GLOBALS['platform_errors'] ?? [];
         No matching posts found in history.
     </div>
 <?php else: ?>
+    <!-- Bulk Action Bar -->
+    <div id="bulk-action-bar" class="px-md py-sm bg-surface-container-low border-b border-surface-variant flex items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <label class="flex items-center gap-sm cursor-pointer select-none">
+                <input type="checkbox" id="select-all-posts-checkbox" class="w-4 h-4 text-primary rounded border-surface-variant focus:ring-primary">
+                <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Select All</span>
+            </label>
+            <span id="selected-count-label" class="text-xs font-bold text-primary">0 selected</span>
+        </div>
+        <button id="btn-bulk-delete" class="px-md py-sm bg-error-container text-error hover:bg-error-container-high rounded-lg text-xs font-bold transition-all flex items-center gap-xs opacity-50 cursor-not-allowed" disabled>
+            <span class="material-symbols-outlined text-sm">delete_sweep</span>
+            <span>Delete Selected</span>
+        </button>
+    </div>
+
     <?php if (!empty($platformErrors)): ?>
         <div class="px-md py-sm bg-warning-container/20 border-b border-warning/20 text-warning text-xs font-semibold flex flex-wrap gap-sm items-center">
             <span class="material-symbols-outlined text-sm">warning</span>
@@ -143,9 +158,17 @@ $platformErrors = $GLOBALS['platform_errors'] ?? [];
                 <div class="space-y-sm">
                     <!-- Card Header -->
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none border <?php echo $platColorClass; ?>">
-                            <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
-                            <span class="capitalize"><?php echo htmlspecialchars($platLabel); ?></span>
+                        <div class="flex items-center gap-xs">
+                            <input type="checkbox" class="post-select-checkbox w-4 h-4 text-primary rounded border-surface-variant focus:ring-primary cursor-pointer mr-xs" 
+                                   data-id="<?php echo $post['id']; ?>"
+                                   data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                   data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                   data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
+                                   data-media-path="<?php echo htmlspecialchars($post['media_path'] ?? ''); ?>">
+                            <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none border <?php echo $platColorClass; ?>">
+                                <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
+                                <span class="capitalize"><?php echo htmlspecialchars($platLabel); ?></span>
+                            </div>
                         </div>
                         <span class="px-sm py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tight <?php echo $statusClass; ?>">
                             <?php echo htmlspecialchars($post['status']); ?>
@@ -184,14 +207,25 @@ $platformErrors = $GLOBALS['platform_errors'] ?? [];
                             </span>
                         <?php endif; ?>
                     </div>
-                    <button class="btn-view-detail px-sm h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center gap-xs text-xs" 
-                            data-id="<?php echo $post['id']; ?>"
-                            data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
-                            data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
-                            data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>">
-                        <span class="material-symbols-outlined text-sm">visibility</span>
-                        <span>Inspect</span>
-                    </button>
+                    <div class="flex items-center gap-xs">
+                        <button class="btn-view-detail px-xs h-8 bg-surface-container hover:bg-surface-container-high rounded text-on-surface-variant font-body-sm font-semibold transition-all inline-flex items-center justify-center text-xs" 
+                                data-id="<?php echo $post['id']; ?>"
+                                data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
+                                title="Inspect Post">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                        </button>
+                        <button class="btn-card-delete-post px-xs h-8 bg-error-container hover:bg-error-container-high rounded text-error font-body-sm font-semibold transition-all inline-flex items-center justify-center text-xs" 
+                                data-id="<?php echo $post['id']; ?>"
+                                data-hub-id="<?php echo $post['hub_post_id'] ?? ''; ?>"
+                                data-platform="<?php echo htmlspecialchars($post['platform']); ?>"
+                                data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
+                                data-media-path="<?php echo htmlspecialchars($post['media_path'] ?? ''); ?>"
+                                title="Delete Post">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>

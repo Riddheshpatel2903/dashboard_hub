@@ -47,7 +47,8 @@ define('DASHBOARD_BASE_URL', $dashboardBaseUrl);
 // Hub API Access Coordinates
 // Dashboard always targets the production hub regardless of dev/prod environment.
 // Run /dashboard/admin/sync_hub.php once to register local clients in the production hub DB.
-$defaultHubUrl = 'https://rbfitness.in/new-site/hub';
+$isLocalhost = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1'], true) || (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] === '127.0.0.1');
+$defaultHubUrl = $isLocalhost ? 'http://localhost/dashboard_hub/hub' : 'https://rbfitness.in/new-site/hub';
 
 // Hub API URL — override via HUB_BASE_URL env var to use a local hub during development.
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultHubUrl, '/'));

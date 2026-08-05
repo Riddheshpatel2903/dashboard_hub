@@ -164,7 +164,7 @@ $platform = $post['platform'];
 $hubPostId = $post['hub_post_id'] ?: 0;
 $externalPostId = $post['external_post_id'];
 
-// Fetch live metrics from the Hub if post is published
+// Fetch live metrics from the Hub if post is published (only views and likes)
 $metrics = [];
 if ($status === 'published' && $platform !== 'google_business') {
     if (isset($post['views_count'])) {
@@ -172,9 +172,6 @@ if ($status === 'published' && $platform !== 'google_business') {
     }
     if (isset($post['likes_count'])) {
         $metrics[] = ['metric_name' => 'likes', 'value' => $post['likes_count']];
-    }
-    if (isset($post['comments_count'])) {
-        $metrics[] = ['metric_name' => 'comments', 'value' => $post['comments_count']];
     }
 }
 
@@ -198,29 +195,16 @@ if ($status === 'published' && !empty($externalPostId) && $platform !== 'google_
                 } elseif (in_array($name, ['reach', 'post_total_media_view_unique', 'post_impressions_unique'])) {
                     if (empty($map['views_type']) || $map['views_type'] !== 'views') {
                         $map['views'] = (int)$val;
-                        $map['views_type'] = 'reach';
                     }
-                    $map['reach'] = (int)$val;
                 } elseif (in_array($name, ['likes', 'like_count', 'post_reactions_by_type_total'])) {
                     $map['likes'] = is_numeric($val) ? (int)$val : $map['likes'] ?? 0;
-                } elseif (in_array($name, ['comments', 'comment_count'])) {
-                    $map['comments'] = (int)$val;
-                } else {
-                    // keep raw names as fallback
-                    $map[$name] = $val;
                 }
             }
 
-            // Rebuild metrics array from map for rendering
+            // Rebuild metrics array from map for rendering (only views and likes)
             $metrics = [];
             if (isset($map['views'])) $metrics[] = ['metric_name' => 'views', 'value' => $map['views']];
             if (isset($map['likes'])) $metrics[] = ['metric_name' => 'likes', 'value' => $map['likes']];
-            if (isset($map['comments'])) $metrics[] = ['metric_name' => 'comments', 'value' => $map['comments']];
-            // Append any remaining mapped items
-            foreach ($map as $k => $v) {
-                if (in_array($k, ['views','likes','comments'], true)) continue;
-                $metrics[] = ['metric_name' => $k, 'value' => $v];
-            }
         }
     } catch (Exception $e) {
         // non-fatal
@@ -311,16 +295,7 @@ if ($status === 'published') {
         </div>
     <?php endif; ?>
 
-    <!-- Metadata Details -->
-    <div class="text-[11px] font-data-label text-on-surface-variant grid grid-cols-2 gap-md border-t border-surface-variant pt-md leading-relaxed">
-        <div><strong>Hub Post ID:</strong> #<?php echo $hubPostId; ?></div>
-        <div><strong>External ID:</strong> <?php echo htmlspecialchars($post['external_post_id'] ?? 'n/a'); ?></div>
-        <div><strong>Created At:</strong> <?php echo date('Y-m-d H:i', strtotime($post['created_at'])); ?></div>
-        <div>
-            <strong><?php echo $status === 'published' ? 'Published' : 'Scheduled'; ?> At:</strong> 
-            <?php echo $status === 'published' ? date('Y-m-d H:i', strtotime($post['published_at'])) : (!empty($post['scheduled_at']) ? date('Y-m-d H:i', strtotime($post['scheduled_at'])) : 'n/a'); ?>
-        </div>
-    </div>
+
 
     <!-- Actions Row -->
     <div class="flex justify-between items-center border-t border-surface-variant pt-md">

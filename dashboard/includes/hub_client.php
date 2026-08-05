@@ -127,9 +127,9 @@ function hubGetPlatformPosts($clientId, $limit = 100, $forceSync = false) {
     // A3: After a force_sync, write the fresh platform posts into the Dashboard's own
     // posts_cache using the Dashboard's already-working DB connection.
     // This eliminates the need for a separate cross-database cron job.
-    if ($forceSync && !empty($response['platform_posts']) && is_array($response['platform_posts'])) {
+    if ($forceSync && !empty($response['posts']) && is_array($response['posts'])) {
         try {
-            syncPostsCacheFromHubResponse($clientId, $response['platform_posts']);
+            syncPostsCacheFromHubResponse($clientId, $response['posts']);
         } catch (Exception $cacheEx) {
             // Non-fatal — log but don't break the response
             error_log('[hub_client] posts_cache sync failed: ' . $cacheEx->getMessage());
@@ -147,38 +147,23 @@ function hubGetPlatformPosts($clientId, $limit = 100, $forceSync = false) {
 function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
     $dashPdo = require __DIR__ . '/../db/connection.php';
 
-    // Group posts by platform so we can DELETE the old rows platform-by-platform
-    $platforms = array_unique(array_column($platformPosts, 'platform'));
+    // Group posts by platform so we can DELETE the old cached rows platform-by-platform
+    $platforms = array_unique(array_filter(array_column($platformPosts, 'platform')));
     foreach ($platforms as $platform) {
         if (empty($platform)) continue;
-        $del = $dashPdo->prepare(
-            "DELETE FROM posts_cache WHERE client_id = :client_id AND platform = :platform AND hub_post_id IS NULL"
-        );
-        $del->execute(['client_id' => $clientId, 'platform' => $platform]);
-    }
-
-    // Delete any published posts from posts_cache that are no longer in the fetched list but fall within the date range of fetched posts
-    $fetchedExternalIds = array_filter(array_column($platformPosts, 'external_post_id'));
-    $fetchedDates = array_filter(array_map(function($p) {
-        return !empty($p['published_at']) ? strtotime($p['published_at']) : null;
-    }, $platformPosts));
-    
-    if (!empty($fetchedExternalIds) && !empty($fetchedDates) && !empty($platforms)) {
-        $minDate = date('Y-m-d H:i:s', min($fetchedDates));
-        $placeholders = implode(',', array_fill(0, count($fetchedExternalIds), '?'));
-        $platformsStr = implode("','", array_map('addslashes', $platforms));
         
-        $deleteStmt = $dashPdo->prepare("
+        // Completely clear the cache of published, failed, and pending_delete posts for this platform
+        // This ensures the local database is rewritten with the fresh live portal data only
+        $del = $dashPdo->prepare("
             DELETE FROM posts_cache 
-            WHERE client_id = ? 
-              AND platform IN ('$platformsStr') 
-              AND external_post_id IS NOT NULL 
-              AND published_at >= ?
-              AND external_post_id NOT IN ($placeholders)
+            WHERE client_id = :client_id 
+              AND platform = :platform 
+              AND status IN ('published', 'failed', 'pending_delete')
         ");
-        
-        $params = array_merge([$clientId, $minDate], $fetchedExternalIds);
-        $deleteStmt->execute($params);
+        $del->execute([
+            'client_id' => $clientId,
+            'platform'  => $platform
+        ]);
     }
 
     $insert = $dashPdo->prepare("
@@ -187,12 +172,15 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
              scheduled_at, published_at, external_post_id, likes_count, comments_count, views_count,
              shares_count, impressions_count, reach_count, clicks_count, engagement_count)
         VALUES
-            (NULL, :client_id, :content, :status, :platform, :media_path,
+            (:hub_post_id, :client_id, :content, :status, :platform, :media_path,
              :scheduled_at, :published_at, :external_post_id, :likes_count, :comments_count, :views_count,
              :shares_count, :impressions_count, :reach_count, :clicks_count, :engagement_count)
         ON DUPLICATE KEY UPDATE
+            hub_post_id       = COALESCE(VALUES(hub_post_id), hub_post_id),
             content           = VALUES(content),
+            status            = VALUES(status),
             media_path        = VALUES(media_path),
+            scheduled_at      = VALUES(scheduled_at),
             published_at      = VALUES(published_at),
             likes_count       = VALUES(likes_count),
             comments_count    = VALUES(comments_count),
@@ -205,7 +193,7 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
     ");
 
     foreach ($platformPosts as $post) {
-        if (empty($post['platform']) || empty($post['external_post_id'])) continue;
+        if (empty($post['platform'])) continue;
         
         $m = is_array($post['metrics'] ?? null) ? $post['metrics'] : [];
         $viewsCount = (int)($post['views_count'] ?? $m['views'] ?? $m['view_count'] ?? $m['impressions'] ?? $m['reach'] ?? 0);
@@ -213,6 +201,7 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
         $commentsCount = (int)($post['comments_count'] ?? $m['comments'] ?? $m['comment_count'] ?? 0);
 
         $insert->execute([
+            'hub_post_id'       => !empty($post['hub_post_id']) ? (int)$post['hub_post_id'] : null,
             'client_id'         => $clientId,
             'content'           => $post['content'] ?? '',
             'status'            => $post['status'] ?? 'published',
@@ -220,7 +209,7 @@ function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
             'media_path'        => $post['media_path'] ?? null,
             'scheduled_at'      => $post['scheduled_at'] ?? null,
             'published_at'      => $post['published_at'] ?? null,
-            'external_post_id'  => $post['external_post_id'],
+            'external_post_id'  => !empty($post['external_post_id']) ? $post['external_post_id'] : null,
             'likes_count'       => $likesCount,
             'comments_count'    => $commentsCount,
             'views_count'       => $viewsCount,
@@ -521,6 +510,46 @@ function hubGetClient($clientId) {
 }
 
 /**
+ * Sends a POST request to permanently delete a client and all associated data from the Hub.
+ */
+function hubDeleteClient($clientId) {
+    $url = HUB_BASE_URL . '/api/clients.php';
+    return executeCurl($url, 'POST', [
+        'action'    => 'delete',
+        'client_id' => (int)$clientId
+    ], [
+        'X-Hub-Admin-Key: ' . HUB_ADMIN_MASTER_KEY
+    ]);
+}
+
+/**
+ * Sends a POST request to extend a client's subscription by 1 year.
+ */
+function hubExtendClient($clientId) {
+    $url = HUB_BASE_URL . '/api/clients.php';
+    return executeCurl($url, 'POST', [
+        'action'    => 'extend',
+        'client_id' => (int)$clientId
+    ], [
+        'X-Hub-Admin-Key: ' . HUB_ADMIN_MASTER_KEY
+    ]);
+}
+
+/**
+ * Sends a POST request to change a client's status (active/inactive).
+ */
+function hubToggleClientStatus($clientId, $status) {
+    $url = HUB_BASE_URL . '/api/clients.php';
+    return executeCurl($url, 'POST', [
+        'action'    => 'status',
+        'status'    => $status,
+        'client_id' => (int)$clientId
+    ], [
+        'X-Hub-Admin-Key: ' . HUB_ADMIN_MASTER_KEY
+    ]);
+}
+
+/**
  * Lists all clients onboarded on the Hub (Admin tool).
  */
 function hubListClients() {
@@ -557,6 +586,7 @@ function executeCurl($url, $method, array $data = [], array $headers = [], $json
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     
     // Disable SSL verification to avoid self-signed cert / local issuer issues in local XAMPP environments
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

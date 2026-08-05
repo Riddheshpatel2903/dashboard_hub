@@ -56,7 +56,7 @@ if ($activeTab === 'reviews') {
     <style>
         .active-thread-bar {
             border-left-width: 4px;
-            border-left-color: #2031a9; /* primary */
+            border-left-color: #007a87; /* primary */
             background-color: rgba(217, 223, 248, 0.4); /* secondary-container */
         }
     </style>

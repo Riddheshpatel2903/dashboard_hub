@@ -79,11 +79,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($user && $passwordValid) {
-                    // Success: Clear login attempts history for this IP & email
-                    $stmt = $pdo->prepare("
-                        DELETE FROM login_attempts 
-                        WHERE email = :email AND ip_address = :ip
-                    ");
+                    $blockedBySub = false;
+                    if ($user['role'] === 'client' && $user['client_id'] !== null) {
+                        require_once __DIR__ . '/../includes/hub_client.php';
+                        $clientCheck = hubGetClient($user['client_id']);
+                        if (empty($clientCheck['success']) || empty($clientCheck['client'])) {
+                            $error = 'Unable to verify account subscription. Please try again.';
+                            $blockedBySub = true;
+                        } else {
+                            $client = $clientCheck['client'];
+                            if (($client['status'] ?? 'active') === 'inactive') {
+                                $error = 'Your account subscription has expired or is inactive. Please contact the administrator.';
+                                $blockedBySub = true;
+                            }
+                        }
+                    }
+
+                    if ($blockedBySub) {
+                        if ($isAjax) {
+                            if (ob_get_length()) ob_end_clean();
+                            header('Content-Type: application/json', true, 403);
+                            echo json_encode(['success' => false, 'error' => $error]);
+                            exit();
+                        }
+                        $passwordValid = false; // forces login failure to show error on non-ajax redirect
+                    } else {
+                        // Success: Clear login attempts history for this IP & email
+                        $stmt = $pdo->prepare("
+                            DELETE FROM login_attempts 
+                            WHERE email = :email AND ip_address = :ip
+                        ");
                     $stmt->execute(['email' => $email, 'ip' => $ipAddress]);
 
                     // Update last login timestamp
@@ -117,7 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         header('Location: ' . $redirectUrl);
                         exit();
                     }
-                } else {
+                }
+            } else {
                     // Record failure for rate limiting
                     $stmt = $pdo->prepare("
                         INSERT INTO login_attempts (email, ip_address) 

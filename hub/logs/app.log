@@ -6048,3 +6048,68 @@
 [2026-08-04 11:17:48] [INFO]: Unlinked physical post media: D:\xampp\htdocs\dashboard_hub\hub/uploads/clients/1/1784547089_1784547089_c6ed503c-adde-4adf-8f18-82baef1acf95.png
 [2026-08-04 16:27:24] [DEBUG]: Instagram pre-flight URL check {"url":"http://localhost/dashboard_hub/hub/uploads/clients/3/test_dummy.jpg","http_code":404,"content_type":"text/html; charset=iso-8859-1","curl_error":""}
 [2026-08-04 16:27:24] [ERROR]: Publish failed on instagram {"message":"Instagram media URL returned HTTP 404. Ensure the tunnel is running and the file exists at: http://localhost/dashboard_hub/hub/uploads/clients/3/test_dummy.jpg"}
+[2026-08-05 16:38:43] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:38:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1373}
+[2026-08-05 16:38:43] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:38:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0432}
+[2026-08-05 16:48:49] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:48:49] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.146}
+[2026-08-05 16:48:49] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:48:49] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.021}
+[2026-08-05 16:49:04] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:49:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.6163}
+[2026-08-05 16:49:05] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:49:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0397}
+[2026-08-05 16:49:09] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:49:10] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.3981}
+[2026-08-05 16:49:10] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:49:10] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0325}
+[2026-08-05 16:49:15] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:49:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.5135}
+[2026-08-05 16:49:16] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:49:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0194}
+[2026-08-05 16:49:27] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:49:29] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":2.2069}
+[2026-08-05 16:49:29] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:49:29] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0464}
+[2026-08-05 16:59:58] [INFO]: Scheduler: Started execution.
+[2026-08-05 16:59:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1212}
+[2026-08-05 16:59:58] [INFO]: Queue Worker: Started execution.
+[2026-08-05 16:59:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0493}
+[2026-08-05 17:02:41] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:02:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.2646}
+[2026-08-05 17:02:41] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:02:41] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.059}
+[2026-08-05 17:04:44] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:04:44] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1075}
+[2026-08-05 17:04:44] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:04:44] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.033}
+[2026-08-05 17:06:51] [INFO]: Successfully hard-deleted all Hub database records for client 2.
+[2026-08-05 17:06:52] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:06:52] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1532}
+[2026-08-05 17:06:52] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:06:52] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0406}
+[2026-08-05 17:09:16] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:09:17] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1114}
+[2026-08-05 17:09:17] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:09:17] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0335}
+[2026-08-05 17:09:19] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:09:19] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1145}
+[2026-08-05 17:09:19] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:09:19] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0323}
+[2026-08-05 17:09:24] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:09:24] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1221}
+[2026-08-05 17:09:24] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:09:24] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0446}
+[2026-08-05 17:09:28] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:09:28] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.081}
+[2026-08-05 17:09:28] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:09:28] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0265}
+[2026-08-05 17:09:36] [INFO]: Scheduler: Started execution.
+[2026-08-05 17:09:36] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1084}
+[2026-08-05 17:09:36] [INFO]: Queue Worker: Started execution.
+[2026-08-05 17:09:36] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0498}
+[2026-08-05 19:00:18] [INFO]: Scheduler: Started execution.
+[2026-08-05 19:00:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0907}
+[2026-08-05 19:00:18] [INFO]: Queue Worker: Started execution.
+[2026-08-05 19:00:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0255}

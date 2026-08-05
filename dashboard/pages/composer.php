@@ -29,9 +29,6 @@ $connectedPlatforms = array_unique($connectedPlatforms);
 <head>
     <title>New Post | Social Hub</title>
     <?php include __DIR__ . '/../includes/head_inc.php'; ?>
-    <!-- Cropper.js CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body class="bg-surface-bright text-on-surface font-body-md antialiased">
     <!-- Sidebar Navigation -->
@@ -70,7 +67,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                                 <input class="sr-only peer" type="radio" name="post_type" value="video" />
                                 <div class="flex items-center gap-xs px-md py-sm rounded-full border border-surface-variant bg-surface-container-low transition-all peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary">
                                     <span class="material-symbols-outlined text-[18px]">videocam</span>
-                                    <span class="font-body-md font-semibold">Video Post</span>
+                                    <span class="font-body-md font-semibold">Reel Posting</span>
                                 </div>
                             </label>
                         </div>
@@ -78,7 +75,12 @@ $connectedPlatforms = array_unique($connectedPlatforms);
 
                     <!-- Platform Selection -->
                     <div class="space-y-sm">
-                        <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block">Select Platforms</label>
+                        <div class="flex items-center justify-between mb-xs">
+                            <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block">Select Platforms</label>
+                            <?php if (!empty($connectedPlatforms)): ?>
+                                <button type="button" id="btn-select-all" class="text-xs text-primary font-bold hover:underline">Select All</button>
+                            <?php endif; ?>
+                        </div>
                         <?php if (empty($connectedPlatforms)): ?>
                             <div class="bg-error-container text-on-error-container p-md rounded-lg border border-error/20 text-body-sm">
                                 ⚠️ No active connections found. Please <a href="connections.php" class="underline font-bold">link your channels</a> first.
@@ -112,7 +114,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                                     }
                                 ?>
                                     <label class="platform-checkbox-label cursor-pointer" id="label-platform-<?php echo $plat; ?>" data-allowed-types="<?php echo htmlspecialchars($allowedTypes); ?>">
-                                        <input class="hidden peer" type="checkbox" name="platforms[]" value="<?php echo htmlspecialchars($plat); ?>" id="platform-<?php echo $plat === 'instagram' ? 'ig' : $plat; ?>" />
+                                        <input class="hidden peer" type="checkbox" name="platforms[]" value="<?php echo htmlspecialchars($plat); ?>" id="platform-<?php echo $plat === 'instagram' ? 'ig' : $plat; ?>" checked />
                                         <div class="flex items-center gap-sm px-md py-sm rounded-lg border border-surface-variant bg-surface-container-low transition-all <?php echo $platColor; ?>">
                                             <span class="material-symbols-outlined text-[20px]"><?php echo $platIcon; ?></span>
                                             <span class="font-body-md font-semibold capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Business Profile' : $plat); ?></span>
@@ -126,44 +128,47 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                         <?php endif; ?>
                     </div>
 
-                    <!-- Instagram Notice -->
-                    <div id="ig-warning" class="hidden animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div class="bg-error-container text-on-error-container p-md rounded-lg flex items-start gap-md border border-error/20">
-                            <span class="material-symbols-outlined text-xl">warning</span>
-                            <div>
-                                <p class="font-body-md font-semibold">Instagram Limitations</p>
-                                <p class="font-body-sm opacity-90">A photo or video media attachment is required for Instagram Business posts.</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- YouTube title group -->
                     <div id="youtube-title-group" class="hidden space-y-sm animate-in fade-in slide-in-from-top-2">
-                        <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="title">YouTube Video Title</label>
+                        <div class="flex justify-between items-center">
+                            <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="title">YouTube Video Title</label>
+                            <span id="title-char-count" class="text-[10px] text-on-surface-variant">0 / 100 characters</span>
+                        </div>
                         <input type="text" id="title" name="title" placeholder="Enter video title" 
-                               class="w-full bg-surface-container-low border border-surface-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary-container focus:border-primary focus:outline-none transition-all" value="New Dashboard Upload" />
+                               class="w-full bg-surface-container-low border border-surface-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary-container focus:border-primary focus:outline-none transition-all" value="New Dashboard Upload" maxlength="100" />
                         <div id="yt-info" class="text-xs text-on-surface-variant opacity-75">YouTube video dispatch requires an attachment and title.</div>
                     </div>
 
                     <!-- Content Textarea -->
                     <div class="space-y-sm">
-                        <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="content">Post Content</label>
+                        <div class="flex justify-between items-center">
+                            <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="content">Post Content</label>
+                            <span id="content-char-count" class="text-[10px] text-on-surface-variant">0 / 2200 characters</span>
+                        </div>
                         <div class="relative">
                             <textarea class="w-full bg-surface-container-low border border-surface-variant rounded-lg p-md font-body-md focus:ring-2 focus:ring-primary-container focus:border-primary focus:outline-none transition-all resize-none" 
                                       id="content" name="content" placeholder="What would you like to share? Use @mentions and #hashtags..." rows="6"></textarea>
                         </div>
                     </div>
 
+                    <!-- Keyword Entry -->
+                    <div class="space-y-sm">
+                        <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="keywords">Keywords</label>
+                        <input type="text" id="keywords" name="keywords" placeholder="Enter keywords separated by commas (e.g. fitness, diet, motivation)" 
+                               class="w-full bg-surface-container-low border border-surface-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary-container focus:border-primary focus:outline-none transition-all" />
+                        <p class="text-[10px] text-on-surface-variant/75">Keywords will be automatically formatted as hashtags at the end of the description.</p>
+                    </div>
+
                     <!-- Media Upload -->
                     <div class="space-y-sm">
                         <label class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider block" for="media">Media Assets</label>
                         <div class="border-2 border-dashed border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group relative">
-                            <input type="file" id="media" name="media" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" />
-                            <div class="w-12 h-12 bg-primary-container/10 rounded-full flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+                            <div class="w-12 h-12 bg-primary-container/10 rounded-full flex items-center justify-center mb-md group-hover:scale-110 transition-transform pointer-events-none">
                                 <span class="material-symbols-outlined text-primary">cloud_upload</span>
                             </div>
-                            <p class="font-body-lg font-bold">Click to browse or drag file here</p>
-                            <p class="font-body-sm text-on-surface-variant mt-xs">Images (Max 8MB) or Videos (Max 70MB)</p>
+                            <p class="font-body-lg font-bold pointer-events-none">Click to browse or drag file here</p>
+                            <p class="font-body-sm text-on-surface-variant mt-xs pointer-events-none">Images (Max 8MB) or Videos (Max 70MB)</p>
+                            <input type="file" id="media" name="media" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" />
                         </div>
                         <div id="file-error" class="hidden text-error text-body-sm font-semibold mt-xs"></div>
                     </div>
@@ -215,7 +220,6 @@ $connectedPlatforms = array_unique($connectedPlatforms);
 
                     <!-- Submit Buttons -->
                     <div class="flex items-center justify-end gap-md pt-lg border-t border-surface-variant">
-                        <span id="submit-loading" class="hidden text-xs text-on-surface-variant italic">Dispatching payloads...</span>
                         <a href="dashboard_home.php" class="px-lg py-md text-on-surface-variant font-semibold hover:bg-surface-container-high rounded-lg transition-colors">Cancel</a>
                         <button id="btn-publish" type="submit" class="px-xl py-md bg-primary text-on-primary font-bold rounded-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">
                             🚀 Publish Post
@@ -250,26 +254,13 @@ $connectedPlatforms = array_unique($connectedPlatforms);
             </div>
         </div>
     </main>
-
-    <!-- Cropper Modal -->
-    <div id="cropper-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[100] hidden">
-        <div class="bg-surface-container-lowest rounded-xl max-w-lg w-full p-md space-y-md border border-surface-variant shadow-2xl m-md">
-            <div class="flex justify-between items-center pb-xs border-b border-surface-variant">
-                <h3 class="font-headline-sm font-bold text-on-surface">Crop Media</h3>
-                <button type="button" onclick="closeCropperModal()" class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
-            </div>
-            <div class="max-h-[350px] overflow-hidden flex items-center justify-center bg-gray-900 rounded-lg">
-                <img id="cropper-image" class="max-w-full max-h-[350px]" src="" alt="To Crop" />
-            </div>
-            <div class="flex flex-wrap gap-xs justify-center py-xs">
-                <button type="button" onclick="setCropAspect(1)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">1:1 (Square)</button>
-                <button type="button" onclick="setCropAspect(0.8)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">4:5 (Portrait)</button>
-                <button type="button" onclick="setCropAspect(1.777)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">16:9 (Landscape)</button>
-                <button type="button" onclick="setCropAspect(NaN)" class="px-sm py-1 bg-surface-container hover:bg-surface-container-high rounded text-xs font-bold">Free</button>
-            </div>
-            <div class="flex justify-end gap-md pt-xs border-t border-surface-variant">
-                <button type="button" onclick="closeCropperModal()" class="px-md py-2 text-on-surface-variant font-bold hover:bg-surface-container-high rounded-lg text-xs">Cancel</button>
-                <button type="button" onclick="applyCrop()" class="px-lg py-2 bg-primary text-on-primary font-bold rounded-lg text-xs hover:brightness-110">Apply Crop</button>
+    <!-- Full-screen Loading Overlay -->
+    <div id="publishing-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center z-[200] hidden">
+        <div class="bg-surface-container-lowest rounded-2xl p-xl max-w-sm w-full mx-md flex flex-col items-center justify-center space-y-md border border-surface-variant shadow-2xl text-center">
+            <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div>
+                <h3 class="font-display-md text-display-md font-bold text-on-surface">Publishing Post</h3>
+                <p class="font-body-md text-on-surface-variant mt-xs">Connecting to social platforms. Please wait...</p>
             </div>
         </div>
     </div>

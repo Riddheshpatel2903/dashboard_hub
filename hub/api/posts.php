@@ -14,6 +14,8 @@ require_once __DIR__ . '/../utils/token_helper.php';
 require_once __DIR__ . '/../platforms/FacebookHandler.php';
 require_once __DIR__ . '/../platforms/InstagramHandler.php';
 require_once __DIR__ . '/../platforms/YouTubeHandler.php';
+require_once __DIR__ . '/../platforms/LinkedInHandler.php';
+require_once __DIR__ . '/../platforms/GoogleBusinessHandler.php';
 require_once __DIR__ . '/../storage/StorageService.php';
 
 function ensurePlatformPostsTable($pdo) {
@@ -702,8 +704,13 @@ function fetchLivePostsForPlatform(string $token, array $conn, string $platform,
             try {
                 $recentPostsRaw = LinkedInHandler::getRecentPosts($token, $conn['external_account_id'], $limit);
             } catch (Exception $e) {
-                $platformErrors[$platform] = $e->getMessage();
-                log_message('warning', 'LinkedIn fetch failed', ['error' => $e->getMessage()]);
+                $msg = $e->getMessage();
+                if (stripos($msg, '403') !== false || stripos($msg, 'permissions') !== false) {
+                    log_message('info', 'LinkedIn post fetching is restricted by API scope permissions.', ['error' => $msg]);
+                    return []; // Return empty instead of null to skip error banner
+                }
+                $platformErrors[$platform] = $msg;
+                log_message('warning', 'LinkedIn fetch failed', ['error' => $msg]);
                 return null;
             }
 
@@ -805,111 +812,6 @@ function performLiveSync(PDO $pdo, int $client_id, string $platformFilter, int $
         $activeConns[] = $conn;
     }
 
-    // Run concurrently via curl_multi if fetching all platforms and there are multiple connections
-    if (empty($platformFilter) && count($activeConns) > 1) {
-        $apiKeyStmt = $pdo->prepare("SELECT api_key FROM client_api_keys WHERE client_id = :client_id LIMIT 1");
-        $apiKeyStmt->execute(['client_id' => $client_id]);
-        $apiKey = $apiKeyStmt->fetchColumn();
-
-        if ($apiKey) {
-            $mh = curl_multi_init();
-            $handles = [];
-
-            $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $script = $_SERVER['SCRIPT_NAME'] ?? '/dashboard_hub/hub/api/posts.php';
-
-            foreach ($activeConns as $conn) {
-                $plat = strtolower($conn['platform']);
-                $subUrl = "{$scheme}://{$host}{$script}?force_sync=1&platform=" . urlencode($plat) . "&include_platform=1&limit=" . $limit;
-                
-                // Rewrite localhost/127.0.0.1 to [::1] matching executeCurl
-                $subUrl = preg_replace('/^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?\//i', '$1[::1]$3/', $subUrl);
-                
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $subUrl);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 90);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'X-API-Key: ' . $apiKey,
-                    'Content-Type: application/json'
-                ]);
-                
-                curl_multi_add_handle($mh, $ch);
-                $handles[$plat] = $ch;
-            }
-
-            // Execute in parallel
-            $active = null;
-            do {
-                $status = curl_multi_exec($mh, $active);
-                if ($active) {
-                    curl_multi_select($mh);
-                }
-            } while ($active && $status == CURLM_OK);
-
-            $allFresh = [];
-            $failedPlatforms = [];
-
-            foreach ($handles as $plat => $ch) {
-                $resBody = curl_multi_getcontent($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_multi_remove_handle($mh, $ch);
-                curl_close($ch);
-
-                $parsed = json_decode($resBody, true);
-                if ($httpCode === 200 && !empty($parsed['success'])) {
-                    if (!empty($parsed['posts']) && is_array($parsed['posts'])) {
-                        foreach ($parsed['posts'] as $post) {
-                            $allFresh[] = $post;
-                        }
-                    }
-                    if (!empty($parsed['platform_errors'])) {
-                        foreach ($parsed['platform_errors'] as $p => $err) {
-                            $platformErrors[$p] = $err;
-                        }
-                    }
-                } else {
-                    $failedPlatforms[] = $plat;
-                }
-            }
-            curl_multi_close($mh);
-
-            // If any concurrent requests failed, fallback to sequential sync for those
-            if (!empty($failedPlatforms)) {
-                foreach ($activeConns as $conn) {
-                    $platform = strtolower($conn['platform']);
-                    if (!in_array($platform, $failedPlatforms, true)) continue;
-
-                    $token = get_valid_platform_token($pdo, $client_id, $platform);
-                    if (empty($token)) continue;
-
-                    $freshForPlatform = fetchLivePostsForPlatform($token, $conn, $platform, $limit, $platformErrors);
-                    if ($freshForPlatform === null) {
-                        continue;
-                    }
-
-                    $deleteStmt = $pdo->prepare("DELETE FROM platform_posts WHERE client_id = :client_id AND platform = :platform");
-                    $deleteStmt->execute(['client_id' => $client_id, 'platform' => $platform]);
-
-                    foreach ($freshForPlatform as $entry) {
-                        upsertPlatformPost($pdo, $client_id, $platform, $entry['upsert_data']);
-                        $allFresh[] = $entry['formatted'];
-                    }
-
-                    try {
-                        $pdo->prepare("UPDATE platform_connections SET last_synced_at = NOW() WHERE client_id = :client_id AND platform = :platform")
-                            ->execute(['client_id' => $client_id, 'platform' => $platform]);
-                    } catch (Exception $e) {}
-                }
-            }
-
-            return $allFresh;
-        }
-    }
-
     // Normal sequential sync loop
     $allFresh = [];
     foreach ($activeConns as $conn) {
@@ -917,19 +819,80 @@ function performLiveSync(PDO $pdo, int $client_id, string $platformFilter, int $
         $token = get_valid_platform_token($pdo, $client_id, $platform);
         if (empty($token)) continue;
 
+        // Retrieve pending delete external post IDs for this platform and client
+        $pendingDeleteStmt = $pdo->prepare("
+            SELECT DISTINCT p.external_post_id 
+            FROM posts p
+            JOIN platform_connections pc ON p.platform_connection_id = pc.id
+            WHERE p.client_id = :client_id AND pc.platform = :platform AND p.status = 'pending_delete' AND p.external_post_id IS NOT NULL
+        ");
+        $pendingDeleteStmt->execute(['client_id' => $client_id, 'platform' => $platform]);
+        $pendingDeleteIds = $pendingDeleteStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
         $freshForPlatform = fetchLivePostsForPlatform($token, $conn, $platform, $limit, $platformErrors);
 
         if ($freshForPlatform === null) {
             log_message('info', 'Keeping existing platform cache due to fetch failure', ['platform' => $platform, 'client_id' => $client_id]);
+            
+            // Fetch cached posts for this platform and append to allFresh (filtering out pending deletes)
+            $cached = fetchCachedPlatformPosts($pdo, $client_id, $platform, $limit);
+            foreach ($cached as $cPost) {
+                if (!empty($cPost['external_post_id']) && in_array($cPost['external_post_id'], $pendingDeleteIds, true)) {
+                    continue;
+                }
+                $allFresh[] = $cPost;
+            }
             continue;
         }
 
         $deleteStmt = $pdo->prepare("DELETE FROM platform_posts WHERE client_id = :client_id AND platform = :platform");
         $deleteStmt->execute(['client_id' => $client_id, 'platform' => $platform]);
 
+        $fetchedExternalIds = [];
+        $fetchedTimestamps = [];
         foreach ($freshForPlatform as $entry) {
+            $extPostId = $entry['upsert_data']['platform_post_id'] ?? null;
+            if ($extPostId && in_array($extPostId, $pendingDeleteIds, true)) {
+                log_message('debug', 'Sync: Excluded pending delete post from sync results', ['external_id' => $extPostId]);
+                continue; // Skip pending delete posts
+            }
+
             upsertPlatformPost($pdo, $client_id, $platform, $entry['upsert_data']);
             $allFresh[] = $entry['formatted'];
+            if (!empty($entry['upsert_data']['platform_post_id'])) {
+                $fetchedExternalIds[] = $entry['upsert_data']['platform_post_id'];
+            }
+            if (!empty($entry['upsert_data']['published_at'])) {
+                $fetchedTimestamps[] = strtotime($entry['upsert_data']['published_at']);
+            }
+        }
+
+        // Auto-heal local posts table: if a local post is newer than the oldest fetched post
+        // but not in the fetched list, it was deleted on the platform.
+        if (!empty($fetchedExternalIds) && !empty($fetchedTimestamps)) {
+            $minDate = date('Y-m-d H:i:s', min($fetchedTimestamps));
+            $placeholders = implode(',', array_fill(0, count($fetchedExternalIds), '?'));
+            
+            $stmtFindOrphan = $pdo->prepare("
+                SELECT p.id 
+                FROM posts p
+                JOIN platform_connections pc ON p.platform_connection_id = pc.id
+                WHERE p.client_id = ? 
+                  AND pc.platform = ? 
+                  AND p.external_post_id IS NOT NULL 
+                  AND p.external_post_id != '' 
+                  AND p.published_at >= ?
+                  AND p.external_post_id NOT IN ($placeholders)
+            ");
+            $params = array_merge([$client_id, $platform, $minDate], $fetchedExternalIds);
+            $stmtFindOrphan->execute($params);
+            $orphanIds = $stmtFindOrphan->fetchAll(PDO::FETCH_COLUMN) ?: [];
+            
+            if (!empty($orphanIds)) {
+                $orphanPlaceholders = implode(',', array_fill(0, count($orphanIds), '?'));
+                $pdo->prepare("DELETE FROM posts WHERE id IN ($orphanPlaceholders)")->execute($orphanIds);
+                log_message('info', 'Auto-healed deleted platform posts from Hub posts table', ['platform' => $platform, 'deleted_count' => count($orphanIds)]);
+            }
         }
 
         try {
@@ -1011,7 +974,7 @@ try {
         SELECT p.id, p.content, p.status, p.media_temp_path as media_path, p.scheduled_at, p.published_at, p.created_at, pc.platform, p.external_post_id, pc.external_account_id as page_id
         FROM posts p
         JOIN platform_connections pc ON p.platform_connection_id = pc.id
-        WHERE p.client_id = :client_id
+        WHERE p.client_id = :client_id AND p.status != 'pending_delete'
         ORDER BY COALESCE(p.published_at, p.created_at) DESC, p.created_at DESC
     ";
     if ($limit > 0) {
@@ -1048,10 +1011,29 @@ try {
         $forceSync = isset($_GET['force_sync']) && in_array(strtolower($_GET['force_sync']), ['1', 'true', 'yes'], true);
 
         if ($forceSync) {
-            // Full replace-on-sync: fetch live first, delete old cache only on success.
-            $freshPosts = performLiveSync($pdo, $client_id, $platformFilter, $limit, $platformErrors);
-            foreach ($freshPosts as $post) {
-                $formatted[] = $post;
+            $lockName = 'sync_posts_' . $client_id;
+            $lockStmt = $pdo->prepare("SELECT GET_LOCK(:lock_name, 5)");
+            $lockStmt->execute(['lock_name' => $lockName]);
+            $lockAcquired = (int)$lockStmt->fetchColumn() === 1;
+
+            if ($lockAcquired) {
+                try {
+                    // Full replace-on-sync: fetch live first, delete old cache only on success.
+                    $freshPosts = performLiveSync($pdo, $client_id, $platformFilter, $limit, $platformErrors);
+                    foreach ($freshPosts as $post) {
+                        $formatted[] = $post;
+                    }
+                } finally {
+                    $unlockStmt = $pdo->prepare("SELECT RELEASE_LOCK(:lock_name)");
+                    $unlockStmt->execute(['lock_name' => $lockName]);
+                }
+            } else {
+                // Fallback to cache since another sync is already in progress
+                $cachedPosts = fetchCachedPlatformPosts($pdo, $client_id, $platformFilter, $limit);
+                foreach ($cachedPosts as $post) {
+                    $formatted[] = $post;
+                }
+                $platformErrors['sync'] = 'Another synchronization is already in progress. Showing cached data.';
             }
         } else {
             // Normal page load: read from cache only, no live API calls.
@@ -1116,7 +1098,7 @@ try {
         'platform_posts' => array_values(array_filter($formatted, function ($item) { return ($item['source'] ?? '') !== 'local'; })),
         'platform_errors' => $platformErrors
     ]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
     log_message('error', 'Posts fetch failure', ['error' => $e->getMessage()]);
     header('Content-Type: application/json', true, 500);
     echo json_encode([

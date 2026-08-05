@@ -130,16 +130,23 @@ try {
         $connectionId = $pdo->lastInsertId();
     }
 
-    // B. Store encrypted access token
+    // B. Store encrypted access token and refresh token (if available)
     $encryptedToken = encrypt($accessToken);
+    $refreshToken = $tokenData['refresh_token'] ?? null;
+    $encryptedRefreshToken = $refreshToken ? encrypt($refreshToken) : null;
+
     $stmt = $pdo->prepare("
-        INSERT INTO platform_tokens (platform_connection_id, access_token_encrypted, expires_at)
-        VALUES (:connection_id, :token, :expires_at)
-        ON DUPLICATE KEY UPDATE access_token_encrypted = VALUES(access_token_encrypted), expires_at = VALUES(expires_at)
+        INSERT INTO platform_tokens (platform_connection_id, access_token_encrypted, refresh_token_encrypted, expires_at)
+        VALUES (:connection_id, :token, :refresh_token, :expires_at)
+        ON DUPLICATE KEY UPDATE 
+            access_token_encrypted = VALUES(access_token_encrypted), 
+            refresh_token_encrypted = VALUES(refresh_token_encrypted),
+            expires_at = VALUES(expires_at)
     ");
     $stmt->execute([
         'connection_id' => $connectionId,
         'token'         => $encryptedToken,
+        'refresh_token' => $encryptedRefreshToken,
         'expires_at'    => $expiresAt
     ]);
 

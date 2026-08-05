@@ -109,6 +109,78 @@ function get_valid_platform_token(PDO $pdo, int $clientId, string $platform) {
         }
     }
 
+    if ($isExpired && $refreshToken && $platform === 'linkedin') {
+        // Refresh token for LinkedIn
+        try {
+            $platformsConfig = require __DIR__ . '/../config/platforms.php';
+            $liConfig = $platformsConfig['linkedin'] ?? null;
+            if (!$liConfig) {
+                throw new Exception("LinkedIn platform config not found.");
+            }
+
+            $tokenUrl = "https://www.linkedin.com/oauth/v2/accessToken";
+            $payload = [
+                'grant_type'    => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id'     => $liConfig['client_id'],
+                'client_secret' => $liConfig['client_secret']
+            ];
+
+            $ch = curl_init($tokenUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            $tokenData = json_decode($response, true);
+            if ($httpCode === 200 && !empty($tokenData['access_token'])) {
+                $newAccessToken = $tokenData['access_token'];
+                $expiresIn = (int)($tokenData['expires_in'] ?? 5184000);
+                $newExpiresAt = date('Y-m-d H:i:s', time() + $expiresIn);
+
+                $encryptedNewAccessToken = encrypt($newAccessToken);
+                $newRefreshToken = $tokenData['refresh_token'] ?? null;
+                $encryptedNewRefreshToken = $newRefreshToken ? encrypt($newRefreshToken) : null;
+
+                if ($encryptedNewRefreshToken) {
+                    $updateStmt = $pdo->prepare("
+                        UPDATE platform_tokens 
+                        SET access_token_encrypted = :access_token, refresh_token_encrypted = :refresh_token, expires_at = :expires_at
+                        WHERE id = :token_id
+                    ");
+                    $updateStmt->execute([
+                        'access_token'  => $encryptedNewAccessToken,
+                        'refresh_token' => $encryptedNewRefreshToken,
+                        'expires_at'     => $newExpiresAt,
+                        'token_id'       => $row['token_id']
+                    ]);
+                } else {
+                    $updateStmt = $pdo->prepare("
+                        UPDATE platform_tokens 
+                        SET access_token_encrypted = :access_token, expires_at = :expires_at
+                        WHERE id = :token_id
+                    ");
+                    $updateStmt->execute([
+                        'access_token' => $encryptedNewAccessToken,
+                        'expires_at'    => $newExpiresAt,
+                        'token_id'      => $row['token_id']
+                    ]);
+                }
+
+                log_message('info', "Successfully refreshed LinkedIn OAuth token for client {$clientId}.");
+                return $newAccessToken;
+            } else {
+                log_message('error', "Failed to refresh LinkedIn OAuth token for client {$clientId}. Response: " . $response);
+            }
+        } catch (Exception $e) {
+            log_message('error', "Exception during LinkedIn token refresh for client {$clientId}: " . $e->getMessage());
+        }
+    }
+
     return $accessToken;
 }
 

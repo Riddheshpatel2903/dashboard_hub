@@ -150,7 +150,7 @@ try {
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <path d="M0 35 Q 25 35 50 35 T 100 35" fill="none" stroke="#2031a9" stroke-width="2"></path>
+                            <path d="M0 35 Q 25 35 50 35 T 100 35" fill="none" stroke="#007a87" stroke-width="2"></path>
                         </svg>
                     </div>
                 </div>
@@ -167,7 +167,7 @@ try {
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <path d="M0 35 L 20 25 L 40 30 L 60 15 L 80 20 L 100 5" fill="none" stroke="#2031a9" stroke-width="2"></path>
+                            <path d="M0 35 L 20 25 L 40 30 L 60 15 L 80 20 L 100 5" fill="none" stroke="#007a87" stroke-width="2"></path>
                         </svg>
                     </div>
                 </div>
@@ -184,7 +184,7 @@ try {
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <path d="M0 38 L 10 30 L 20 35 L 30 25 L 40 30 L 50 15 L 60 20 L 70 10 L 80 15 L 90 5 L 100 12" fill="none" stroke="#2031a9" stroke-width="2"></path>
+                            <path d="M0 38 L 10 30 L 20 35 L 30 25 L 40 30 L 50 15 L 60 20 L 70 10 L 80 15 L 90 5 L 100 12" fill="none" stroke="#007a87" stroke-width="2"></path>
                         </svg>
                     </div>
                 </div>
@@ -201,8 +201,8 @@ try {
                     </div>
                     <div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
                         <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <circle cx="20" cy="20" fill="none" r="15" stroke="#2031a9" stroke-width="1"></circle>
-                            <circle cx="80" cy="20" fill="none" r="10" stroke="#2031a9" stroke-width="1"></circle>
+                            <circle cx="20" cy="20" fill="none" r="15" stroke="#007a87" stroke-width="1"></circle>
+                            <circle cx="80" cy="20" fill="none" r="10" stroke="#007a87" stroke-width="1"></circle>
                         </svg>
                     </div>
                 </div>

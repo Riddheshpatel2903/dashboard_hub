@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const scheduleContainer = document.getElementById('schedule-container');
     const scheduleType = document.getElementById('schedule-type');
     const btnPublish = document.getElementById('btn-publish');
-    const submitLoading = document.getElementById('submit-loading');
+    const titleCharCount = document.getElementById('title-char-count');
+    const contentCharCount = document.getElementById('content-char-count');
+    const publishingOverlay = document.getElementById('publishing-overlay');
 
     // Scheduler inputs
     const schedDate = document.getElementById('sched-date');
@@ -89,6 +91,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
     }
 
+    function updateSubmitButtonText() {
+        const isVideo = getSelectedPostType() === 'video';
+        const isScheduled = toggleSchedule.checked;
+        if (isScheduled) {
+            btnPublish.textContent = isVideo ? '📅 Schedule Reel' : '📅 Schedule Post';
+        } else {
+            btnPublish.textContent = isVideo ? '🚀 Publish Reel' : '🚀 Publish Post';
+        }
+    }
+
     function updatePostTypeRestrictions() {
         const selectedType = getSelectedPostType();
         if (mediaInput) {
@@ -122,10 +134,57 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         updatePlatformStates();
+        updateSubmitButtonText();
+    }
+
+    function updateCharacterCounts() {
+        const checked = getCheckedPlatforms();
+        const contentLen = textarea.value.length;
+        
+        let maxContentLen = 63206; // Default/Facebook
+        let limitingPlatform = 'Facebook';
+        
+        if (checked.includes('instagram')) {
+            maxContentLen = 2200;
+            limitingPlatform = 'Instagram';
+        }
+        if (checked.includes('linkedin') && maxContentLen > 3000) {
+            maxContentLen = 3000;
+            limitingPlatform = 'LinkedIn';
+        }
+        if (checked.includes('google_business') && maxContentLen > 1500) {
+            maxContentLen = 1500;
+            limitingPlatform = 'Google Business';
+        }
+        if (checked.includes('youtube') && maxContentLen > 5000) {
+            maxContentLen = 5000;
+            limitingPlatform = 'YouTube';
+        }
+        
+        if (contentCharCount) {
+            contentCharCount.textContent = `${contentLen} / ${maxContentLen} characters`;
+            if (contentLen > maxContentLen) {
+                contentCharCount.classList.add('text-error', 'font-bold');
+            } else {
+                contentCharCount.classList.remove('text-error', 'font-bold');
+            }
+        }
+        
+        if (ytTitleInput && titleCharCount) {
+            const titleLen = ytTitleInput.value.length;
+            titleCharCount.textContent = `${titleLen} / 100 characters`;
+            if (titleLen > 100) {
+                titleCharCount.classList.add('text-error', 'font-bold');
+            } else {
+                titleCharCount.classList.remove('text-error', 'font-bold');
+            }
+        }
     }
 
     // 1. Textarea live sync
     textarea.addEventListener('input', function() {
+        updateCharacterCounts();
+        validatePublishButton();
         if (activePreviewPlatform) {
             renderPreview(activePreviewPlatform);
         }
@@ -133,6 +192,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (ytTitleInput) {
         ytTitleInput.addEventListener('input', function() {
+            updateCharacterCounts();
+            validatePublishButton();
             if (activePreviewPlatform === 'youtube') {
                 renderPreview('youtube');
             }
@@ -173,22 +234,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (wasChecked) {
                     rebuildPreviewTabs();
                 }
-            } else if (isVideo) {
+            } else {
                 ytCheckbox.disabled = false;
                 if (ytLabel) {
                     ytLabel.classList.remove('opacity-40', 'cursor-not-allowed');
-                    ytLabel.title = 'YouTube Video Upload Supported';
-                }
-            } else {
-                const wasChecked = ytCheckbox.checked;
-                if (ytCheckbox.checked) ytCheckbox.checked = false;
-                ytCheckbox.disabled = true;
-                if (ytLabel) {
-                    ytLabel.classList.add('opacity-40', 'cursor-not-allowed');
-                    ytLabel.title = 'YouTube requires a video attachment';
-                }
-                if (wasChecked) {
-                    rebuildPreviewTabs();
+                    ytLabel.title = 'YouTube Video Upload';
                 }
             }
         }
@@ -207,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         updatePlatformNotices();
         rebuildPreviewTabs();
+        updateCharacterCounts();
         validatePublishButton();
     }
 
@@ -220,12 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updatePlatformNotices() {
         const checked = getCheckedPlatforms();
-        
-        if (checked.includes('instagram')) {
-            igWarning.classList.remove('hidden');
-        } else {
-            igWarning.classList.add('hidden');
-        }
 
         if (checked.includes('youtube')) {
             ytTitleGroup.classList.remove('hidden');
@@ -290,8 +335,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (checked.includes('youtube') && !isVideo) {
             blockReason = '📹 YouTube requires a video attachment.';
-        } else if (checked.includes('instagram') && !hasFile) {
-            blockReason = '📷 Instagram requires a photo or video attachment.';
+        }
+
+        // Check description character limitations
+        const contentLen = textarea.value.length;
+        let maxContentLen = 63206;
+        let limitingPlatform = '';
+        if (checked.includes('instagram')) { maxContentLen = 2200; limitingPlatform = 'Instagram'; }
+        if (checked.includes('linkedin') && maxContentLen > 3000) { maxContentLen = 3000; limitingPlatform = 'LinkedIn'; }
+        if (checked.includes('google_business') && maxContentLen > 1500) { maxContentLen = 1500; limitingPlatform = 'Google Business'; }
+        if (checked.includes('youtube') && maxContentLen > 5000) { maxContentLen = 5000; limitingPlatform = 'YouTube'; }
+        
+        if (contentLen > maxContentLen) {
+            blockReason = `📝 Post content exceeds the ${maxContentLen} character limit for ${limitingPlatform}.`;
+        }
+        
+        if (checked.includes('youtube') && ytTitleInput) {
+            if (ytTitleInput.value.length > 100) {
+                blockReason = '📹 YouTube Title exceeds 100 character limit.';
+            } else if (ytTitleInput.value.trim().length === 0) {
+                blockReason = '📹 YouTube Video Title is required.';
+            }
         }
 
         // Show/hide inline validation message
@@ -369,31 +433,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         originalFile = file;
 
-        if (isImage) {
-            // Open cropper modal
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('cropper-image').src = e.target.result;
-                document.getElementById('cropper-modal').classList.remove('hidden');
-                
-                // Initialize Cropper.js
-                if (cropperInstance) {
-                    cropperInstance.destroy();
-                }
-                setTimeout(() => {
-                    cropperInstance = new Cropper(document.getElementById('cropper-image'), {
-                        aspectRatio: 1, // default square
-                        viewMode: 1,
-                        autoCropArea: 0.9
-                    });
-                }, 100);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // For videos, directly update state
-            croppedBlob = null;
-            updatePlatformStates();
-        }
+        croppedBlob = null;
+        updatePlatformStates();
     });
 
     function showFileError(msg) {
@@ -401,54 +442,16 @@ document.addEventListener('DOMContentLoaded', function() {
         fileError.classList.remove('hidden');
     }
 
-    // Cropper functions
-    window.closeCropperModal = function() {
-        document.getElementById('cropper-modal').classList.add('hidden');
-        if (cropperInstance) {
-            cropperInstance.destroy();
-            cropperInstance = null;
-        }
-        // If they close without applying, we reset file unless we already had a croppedBlob
-        if (!croppedBlob) {
-            mediaInput.value = '';
-            originalFile = null;
-            updatePlatformStates();
-        }
-    };
-
-    window.setCropAspect = function(ratio) {
-        if (cropperInstance) {
-            cropperInstance.setAspectRatio(ratio);
-        }
-    };
-
-    window.applyCrop = function() {
-        if (!cropperInstance) return;
-        cropperInstance.getCroppedCanvas({
-            maxWidth: 1200,
-            maxHeight: 1200
-        }).toBlob(function(blob) {
-            croppedBlob = blob;
-            document.getElementById('cropper-modal').classList.add('hidden');
-            if (cropperInstance) {
-                cropperInstance.destroy();
-                cropperInstance = null;
-            }
-            updatePlatformStates();
-        }, 'image/jpeg', 0.9);
-    };
-
     // 4. Toggle Scheduling Date selection box
     toggleSchedule.addEventListener('change', function() {
         if (toggleSchedule.checked) {
             scheduleContainer.classList.remove('hidden');
             scheduleType.value = 'later';
-            btnPublish.textContent = '📅 Schedule Post';
         } else {
             scheduleContainer.classList.add('hidden');
             scheduleType.value = 'now';
-            btnPublish.textContent = '🚀 Publish Post';
         }
+        updateSubmitButtonText();
     });
 
     // 5. Submit form with cropped blob override
@@ -478,11 +481,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const file = mediaInput.files[0] || originalFile;
-        if (checked.includes('instagram') && !file && !croppedBlob) {
-            alert('Instagram requires a photo or video attachment to publish.');
-            return;
-        }
-        
         if (checked.includes('youtube')) {
             if (!file) {
                 alert('YouTube posting requires a video attachment.');
@@ -494,9 +492,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Disable UI
+        // Disable UI and show loading overlay
         btnPublish.disabled = true;
-        submitLoading.classList.remove('hidden');
+        if (publishingOverlay) {
+            publishingOverlay.classList.remove('hidden');
+        }
 
         const formData = new FormData(form);
         if (croppedBlob) {
@@ -521,14 +521,18 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 alert('Error: ' + data.error);
                 btnPublish.disabled = false;
-                submitLoading.classList.add('hidden');
+                if (publishingOverlay) {
+                    publishingOverlay.classList.add('hidden');
+                }
             }
         })
         .catch(err => {
             console.error(err);
             alert('Request Failed: ' + err.message);
             btnPublish.disabled = false;
-            submitLoading.classList.add('hidden');
+            if (publishingOverlay) {
+                publishingOverlay.classList.add('hidden');
+            }
         });
     });
 
@@ -554,9 +558,9 @@ document.addEventListener('DOMContentLoaded', function() {
         let mediaHtml = '';
         if (fileUrl) {
             if (isImage) {
-                mediaHtml = `<img src="${fileUrl}" class="w-full object-cover max-h-64 rounded-lg" alt="Preview" />`;
+                mediaHtml = `<img src="${fileUrl}" class="w-full h-auto object-contain max-h-[300px] rounded-lg bg-black/5" alt="Preview" />`;
             } else if (isVideo) {
-                mediaHtml = `<video src="${fileUrl}" controls class="w-full object-cover max-h-64 rounded-lg"></video>`;
+                mediaHtml = `<video src="${fileUrl}" controls class="w-full h-auto object-contain max-h-[300px] rounded-lg bg-black/5"></video>`;
             }
         } else {
             mediaHtml = `<div class="w-full h-40 bg-gray-100 flex flex-col items-center justify-center text-gray-400 rounded-lg border border-dashed border-gray-200">
@@ -606,8 +610,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <span class="material-symbols-outlined text-gray-500">more_horiz</span>
                 </div>
-                <div class="w-full aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
-                    ${fileUrl ? (isImage ? `<img src="${fileUrl}" class="w-full h-full object-cover" />` : `<video src="${fileUrl}" controls class="w-full h-full object-cover"></video>`) : `<div class="text-gray-400 flex flex-col items-center"><span class="material-symbols-outlined text-3xl">add_a_photo</span><span class="text-[10px] mt-1">No media attached</span></div>`}
+                <div class="w-full bg-gray-50 flex items-center justify-center overflow-hidden">
+                    ${fileUrl ? (isImage ? `<img src="${fileUrl}" class="w-full h-auto max-h-[340px] object-contain" />` : `<video src="${fileUrl}" controls class="w-full h-auto max-h-[340px] object-contain"></video>`) : `<div class="text-gray-400 flex flex-col items-center"><span class="material-symbols-outlined text-3xl">add_a_photo</span><span class="text-[10px] mt-1">No media attached</span></div>`}
                 </div>
                 <div class="p-3 space-y-2 text-xs">
                     <div class="flex justify-between items-center text-gray-800">
@@ -719,6 +723,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span class="mt-2">Select a platform to preview</span>
             `;
         }
+    }
+
+    // Select All Platforms
+    const btnSelectAll = document.getElementById('btn-select-all');
+    if (btnSelectAll) {
+        btnSelectAll.addEventListener('click', function() {
+            const visibleLabels = document.querySelectorAll('.platform-checkbox-label:not(.hidden)');
+            const allChecked = Array.from(visibleLabels).every(lbl => {
+                const chk = lbl.querySelector('input[type="checkbox"]');
+                return chk && chk.checked;
+            });
+            
+            visibleLabels.forEach(lbl => {
+                const chk = lbl.querySelector('input[type="checkbox"]');
+                if (chk) {
+                    chk.checked = !allChecked;
+                }
+            });
+            updatePlatformStates();
+            if (activePreviewPlatform) {
+                renderPreview(activePreviewPlatform);
+            }
+        });
     }
 
     // Run initial state setup

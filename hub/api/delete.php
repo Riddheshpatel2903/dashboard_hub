@@ -29,17 +29,26 @@ if ($postId <= 0 && (empty($platform) || empty($externalPostId))) {
 }
 
 try {
-    $mediaPath = '';
-    $token = '';
-    $dbPostFound = false;
+    $connectionId = 0;
+    if (!empty($platform)) {
+        $connStmt = $pdo->prepare("SELECT id FROM platform_connections WHERE client_id = :client_id AND platform = :platform LIMIT 1");
+        $connStmt->execute([
+            'client_id' => $client_id,
+            'platform'  => $platform
+        ]);
+        $connectionId = (int)$connStmt->fetchColumn();
+    }
 
-    // 1. Retrieve the post details, platform, media_path, and tokens
+    $targetPostId = 0;
+    $targetExternalPostId = $externalPostId;
+    $targetPlatform = $platform;
+
+    // Check if post exists in posts table by ID
     if ($postId > 0) {
         $stmt = $pdo->prepare("
-            SELECT p.id, p.external_post_id, p.media_temp_path, pc.platform, pc.external_account_id, pt.access_token_encrypted
+            SELECT p.id, p.external_post_id, pc.platform, p.platform_connection_id
             FROM posts p
             JOIN platform_connections pc ON p.platform_connection_id = pc.id
-            JOIN platform_tokens pt ON pc.id = pt.platform_connection_id
             WHERE p.id = :post_id AND p.client_id = :client_id
             LIMIT 1
         ");
@@ -49,153 +58,80 @@ try {
         ]);
         $post = $stmt->fetch();
         if ($post) {
-            $dbPostFound = true;
-            $platform = $post['platform'];
-            $externalPostId = $post['external_post_id'];
-            $mediaPath = $post['media_temp_path'] ?? '';
-            $token = get_valid_platform_token($pdo, $client_id, $platform);
+            $targetPostId = (int)$post['id'];
+            $targetExternalPostId = $post['external_post_id'];
+            $targetPlatform = $post['platform'];
+            if (!$connectionId) {
+                $connectionId = (int)$post['platform_connection_id'];
+            }
         }
     }
 
-    if (!$dbPostFound) {
-        if (empty($platform) || empty($externalPostId)) {
-            header('Content-Type: application/json', true, 404);
-            echo json_encode(['success' => false, 'error' => 'Post not found or unauthorized']);
-            exit();
-        }
-        
-        $token = get_valid_platform_token($pdo, $client_id, $platform);
-        if (!$token) {
-            header('Content-Type: application/json', true, 404);
-            echo json_encode(['success' => false, 'error' => 'Platform connection not found or unauthorized']);
-            exit();
+    // If not found by ID but we have external_post_id, check if exists by external_post_id
+    if (!$targetPostId && !empty($targetExternalPostId)) {
+        $stmt = $pdo->prepare("
+            SELECT p.id, pc.platform, p.platform_connection_id
+            FROM posts p
+            JOIN platform_connections pc ON p.platform_connection_id = pc.id
+            WHERE p.external_post_id = :external_post_id AND p.client_id = :client_id
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'external_post_id' => $targetExternalPostId,
+            'client_id'        => $client_id
+        ]);
+        $post = $stmt->fetch();
+        if ($post) {
+            $targetPostId = (int)$post['id'];
+            $targetPlatform = $post['platform'];
+            if (!$connectionId) {
+                $connectionId = (int)$post['platform_connection_id'];
+            }
         }
     }
 
-    $response = [];
-    $externalDeleteSucceeded = true;
-    
-    // 2. Dispatch Delete request if external ID is present
-    $platformError = null;
-    if (!empty($externalPostId)) {
-        try {
-            switch ($platform) {
-                case 'facebook':
-                    $fbPostId = ensureFacebookCompositeId($pdo, $client_id, $externalPostId);
-                    $response = FacebookHandler::deletePost($token, $fbPostId);
-                    break;
-                    
-                case 'instagram':
-                    if (empty($token)) {
-                        $token = get_valid_platform_token($pdo, $client_id, 'facebook');
-                    }
-                    $response = InstagramHandler::deletePost($token, $externalPostId);
-                    break;
-                    
-                case 'linkedin':
-                    $response = LinkedInHandler::deletePost($token, $externalPostId);
-                    break;
-                    
-                case 'google_business':
-                    $response = GoogleBusinessHandler::deletePost($token, $externalPostId);
-                    break;
-        
-                case 'youtube':
-                    $response = YouTubeHandler::deleteVideo($token, $externalPostId);
-                    break;
-        
-                default:
-                    $platformError = "Deletion is not supported for {$platform} posts.";
-            }
-        } catch (Exception $platEx) {
-            $err = $platEx->getMessage();
-            $alreadyDeleted = false;
-            $deletedPhrases = ['not found', 'does not exist', 'invalid object', 'unsupported get request', 'cannot be found'];
-            foreach ($deletedPhrases as $phrase) {
-                if (stripos($err, $phrase) !== false) {
-                    $alreadyDeleted = true;
-                    break;
-                }
-            }
-            if ($alreadyDeleted) {
-                $response = ['message' => 'Post already deleted on platform.'];
-            } elseif ($platform === 'instagram' && (stripos($err, 'permissions') !== false || stripos($err, 'Code 10') !== false || stripos($err, 'Code: 10') !== false)) {
-                $response = [
-                    'message' => 'Instagram does not support deleting published posts via the API. Please delete it manually on the Instagram app.',
-                    'warning' => 'Instagram does not support deleting published posts via the API. Please delete it manually on the Instagram app.'
-                ];
-            } else {
-                $platformError = $err;
-                $externalDeleteSucceeded = false;
-            }
-        }
+    // Queue the delete
+    if ($targetPostId > 0) {
+        // Post exists, set status to pending_delete
+        $upStmt = $pdo->prepare("UPDATE posts SET status = 'pending_delete' WHERE id = :post_id");
+        $upStmt->execute(['post_id' => $targetPostId]);
     } else {
-        $response = ['message' => 'Post cleared locally (no external post ID found).'];
-    }
-
-    // 3. Delete physical media file from disk only if external delete succeeded
-    if (!empty($mediaPath) && $externalDeleteSucceeded) {
-        require_once __DIR__ . '/../storage/StorageService.php';
-        StorageService::deletePostMedia($mediaPath, $client_id);
-    }
-
-    // 4. Hard delete post from Hub posts table only if external delete succeeded
-    if ($externalDeleteSucceeded) {
-        if ($dbPostFound) {
-            $stmt = $pdo->prepare("DELETE FROM posts WHERE id = :post_id");
-            $stmt->execute(['post_id' => $postId]);
-        } elseif (!empty($platform) && !empty($externalPostId)) {
-            $rawId = $externalPostId;
-            if ($platform === 'linkedin' && preg_match('/^urn:li:\w+:(.+)$/', $externalPostId, $matches)) {
-                $rawId = $matches[1];
-            }
-            $urnId1 = 'urn:li:share:' . $rawId;
-            $urnId2 = 'urn:li:ugcPost:' . $rawId;
-
-            $stmtDel = $pdo->prepare("
-                DELETE p FROM posts p
-                JOIN platform_connections pc ON p.platform_connection_id = pc.id
-                WHERE pc.platform = :platform
-                  AND (p.external_post_id = :ext_id OR p.external_post_id = :raw_id OR p.external_post_id = :urn1 OR p.external_post_id = :urn2)
-                  AND p.client_id = :client_id
+        // Post does not exist in posts table. If we have connection and external ID, create a placeholder post
+        if ($connectionId > 0 && !empty($targetExternalPostId)) {
+            $insStmt = $pdo->prepare("
+                INSERT INTO posts (client_id, platform_connection_id, external_post_id, status, content)
+                VALUES (:client_id, :connection_id, :external_post_id, 'pending_delete', 'Placeholder for queued deletion')
             ");
-            $stmtDel->execute([
-                'platform'  => $platform,
-                'ext_id'    => $externalPostId,
-                'raw_id'    => $rawId,
-                'urn1'      => $urnId1,
-                'urn2'      => $urnId2,
-                'client_id' => $client_id
+            $insStmt->execute([
+                'client_id'         => $client_id,
+                'connection_id'     => $connectionId,
+                'external_post_id' => $targetExternalPostId
             ]);
+            $targetPostId = (int)$pdo->lastInsertId();
         }
     }
 
-    if ($externalDeleteSucceeded) {
-        log_message('info', "Successfully deleted post ID {$postId} (External ID: {$externalPostId}) on platform {$platform}", ['response' => $response]);
-
-        header('Content-Type: application/json');
-        $ret = [
-            'success'  => true,
-            'message'  => 'Post deleted successfully',
-            'response' => $response
-        ];
-        if (!empty($response['warning'])) {
-            $ret['warning'] = $response['warning'];
-        }
-        echo json_encode($ret);
-    } else {
-        log_message('warning', "Failed to delete post externally", ['post_id' => $postId, 'platform' => $platform, 'error' => $platformError]);
-
-        header('Content-Type: application/json', true, 500);
-        echo json_encode([
-            'success' => false,
-            'error'   => $platformError,
-            'response'=> $response
+    // Clean up cache immediately from platform_posts so it disappears from cache fetches
+    if (!empty($targetPlatform) && !empty($targetExternalPostId)) {
+        $pdo->prepare("
+            DELETE FROM platform_posts 
+            WHERE platform = :platform AND platform_post_id = :external_post_id AND client_id = :client_id
+        ")->execute([
+            'platform'         => $targetPlatform,
+            'external_post_id' => $targetExternalPostId,
+            'client_id'        => $client_id
         ]);
     }
 
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'message' => 'Post deletion has been queued and will be processed in the background.'
+    ]);
+    exit();
+
 } catch (Exception $e) {
-    log_message('error', "Failed to delete post ID {$postId} on {$platform}", ['error' => $e->getMessage()]);
+    log_message('error', "Failed to queue post deletion on {$platform}", ['error' => $e->getMessage()]);
 
     header('Content-Type: application/json', true, 500);
     echo json_encode([
