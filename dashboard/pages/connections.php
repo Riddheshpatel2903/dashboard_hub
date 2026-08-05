@@ -1,8 +1,5 @@
 <?php
-/**
- * Manage Connections Page (Tailwind & Stitch Design System).
- */
-
+/** Manage Connections Page (Tailwind & Stitch Design System). */
 require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require_once __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
@@ -22,10 +19,10 @@ $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
         $connections[$conn['platform']] = [
-            'status'              => $conn['status'],
+            'status' => $conn['status'],
             'external_account_id' => $conn['external_account_id'],
-            'expires_at'          => $conn['expires_at'],
-            'expires_soon'        => $conn['expires_soon']
+            'expires_at' => $conn['expires_at'],
+            'expires_soon' => $conn['expires_soon']
         ];
     }
 }
@@ -47,7 +44,7 @@ $platformMetadata = [
     'instagram' => [
         'name' => 'Instagram',
         'desc' => 'Connect to share images and videos.',
-        'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=instagram&dashboard_url=' . urlencode($absoluteDashboardUrl), // Shared OAuth
+        'auth_url' => HUB_BASE_URL . '/auth/connect_facebook.php?client_id=' . $client_id . '&platform=instagram&dashboard_url=' . urlencode($absoluteDashboardUrl),  // Shared OAuth
         'icon' => 'photo_camera',
         'color' => '#E1306C'
     ],
@@ -129,16 +126,6 @@ foreach ($platformMetadata as $key => $meta) {
                     </div>
                 </div>
                 
-                <!-- Expiring / Expired -->
-                <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex items-center gap-md shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-amber-700">warning</span>
-                    </div>
-                    <div>
-                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Tokens Expiring</p>
-                        <p class="font-headline-sm text-headline-sm font-bold"><?php echo $expiringCount; ?></p>
-                    </div>
-                </div>
 
                 <!-- Disconnected -->
                 <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex items-center gap-md shadow-sm">
@@ -146,7 +133,7 @@ foreach ($platformMetadata as $key => $meta) {
                         <span class="material-symbols-outlined text-on-surface-variant">link_off</span>
                     </div>
                     <div>
-                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Not Configured</p>
+                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Not Connected</p>
                         <p class="font-headline-sm text-headline-sm font-bold"><?php echo $disconnectedCount; ?></p>
                     </div>
                 </div>
@@ -154,17 +141,18 @@ foreach ($platformMetadata as $key => $meta) {
 
             <!-- Connections Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-                <?php foreach ($platformMetadata as $key => $meta): 
+                <?php
+                foreach ($platformMetadata as $key => $meta):
                     $conn = $connections[$key] ?? null;
                     $status = $conn ? $conn['status'] : 'disconnected';
                     $isExpired = ($status === 'expired');
                     $expiresSoon = $conn ? $conn['expires_soon'] : false;
-                    
+
                     // Style attributes
                     $cardBg = 'bg-surface-container-lowest';
                     $statusBg = 'bg-surface-container text-on-surface-variant';
                     $statusText = strtoupper($status);
-                    
+
                     if ($status === 'connected') {
                         if ($expiresSoon) {
                             $cardBg = 'bg-amber-50/40 border-amber-200';
@@ -177,7 +165,7 @@ foreach ($platformMetadata as $key => $meta) {
                         $cardBg = 'bg-red-50/40 border-red-200';
                         $statusBg = 'bg-red-100 text-red-700';
                     }
-                ?>
+                    ?>
                     <div class="connection-card border border-surface-variant rounded-xl p-lg flex flex-col justify-between shadow-sm hover:border-primary transition-all duration-200 <?php echo $cardBg; ?>">
                         <div class="space-y-md">
                             <!-- Card Header -->

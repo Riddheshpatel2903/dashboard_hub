@@ -1,9 +1,6 @@
 <?php
-/**
- * Admin Clients Overview (Tailwind & Stitch Design System).
- */
-
-require_once __DIR__ . '/../includes/role_check.php'; // Ensures logged-in staff/admin
+/** Admin Clients Overview (Tailwind & Stitch Design System). */
+require_once __DIR__ . '/../includes/role_check.php';  // Ensures logged-in staff/admin
 require_once __DIR__ . '/../includes/hub_client.php';
 
 $error = '';
@@ -77,7 +74,7 @@ if (!empty($hubRes['success']) && is_array($hubRes['clients'])) {
                                 <?php foreach ($clients as $client): ?>
                                     <tr class="group hover:bg-secondary-container/10 transition-colors">
                                         <td class="px-lg py-md font-data-label text-data-label text-on-surface-variant">
-                                            #<?php echo (int)$client['id']; ?>
+                                            #<?php echo (int) $client['id']; ?>
                                         </td>
                                         <td class="px-lg py-md font-body-md text-on-surface font-bold">
                                             <?php echo htmlspecialchars($client['name']); ?>
@@ -89,7 +86,7 @@ if (!empty($hubRes['success']) && is_array($hubRes['clients'])) {
                                         </td>
                                         <td class="px-lg py-md">
                                             <span class="inline-flex items-center px-sm py-[2px] rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                                                <?php echo (int)$client['connection_count']; ?> platform(s)
+                                                <?php echo (int) $client['connection_count']; ?> platform(s)
                                             </span>
                                         </td>
                                         <td class="px-lg py-md font-data-label text-data-label text-on-surface-variant">
@@ -99,7 +96,7 @@ if (!empty($hubRes['success']) && is_array($hubRes['clients'])) {
                                             <a href="<?php echo DASHBOARD_BASE_URL; ?>/admin/client_detail.php?act_as_client_id=<?php echo $client['id']; ?>" 
                                                class="h-8 px-md bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm font-semibold rounded transition-all inline-flex items-center justify-center gap-xs">
                                                 <span class="material-symbols-outlined text-sm">support_agent</span>
-                                                <span>Act as Client</span>
+                                                <span>Manage</span>
                                             </a>
                                         </td>
                                     </tr>

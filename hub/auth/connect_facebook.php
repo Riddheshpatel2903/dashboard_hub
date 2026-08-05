@@ -41,7 +41,6 @@ $scopes = [
     'pages_manage_posts',
     'pages_manage_metadata',
     'instagram_basic',
-    'instagram_business_basic',
     'instagram_content_publish',
     'instagram_manage_insights',
     'business_management',
