@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
         }
 
-        return type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+        return type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name);
     }
 
     function updateSubmitButtonText() {
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const type = file.type || '';
             const name = file.name || '';
             isVideo = type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
-            isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+            isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name);
         }
 
         const ytCheckbox = document.getElementById('platform-youtube');
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const type = file.type || '';
             const name = file.name || '';
             isVideo = type.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(name);
-            isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(name);
+            isImage = type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name);
         }
 
         let mediaHtml = '';

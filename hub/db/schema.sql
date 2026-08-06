@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `title` VARCHAR(255) DEFAULT NULL,
   `media_temp_path` VARCHAR(512) DEFAULT NULL,
   `external_post_id` VARCHAR(255) DEFAULT NULL,
-  `status` ENUM('draft', 'scheduled', 'queued', 'published', 'failed', 'deleted') NOT NULL DEFAULT 'draft',
+  `status` ENUM('draft', 'scheduled', 'processing', 'queued', 'publishing', 'published', 'failed', 'deleted', 'pending_delete', 'delete_failed') NOT NULL DEFAULT 'draft',
   `scheduled_at` TIMESTAMP NULL DEFAULT NULL,
   `published_at` TIMESTAMP NULL DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

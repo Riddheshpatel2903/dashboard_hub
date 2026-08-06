@@ -25,27 +25,26 @@ class StorageService {
         $fileSize = filesize($localPath);
         $mimeType = mime_content_type($localPath);
 
-        // Fallback mime detection via extension if finfo / PHP returns application/octet-stream
-        if (empty($mimeType) || $mimeType === 'application/octet-stream') {
-            $ext = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
-            $extMap = [
-                'jpg'  => 'image/jpeg',
-                'jpeg' => 'image/jpeg',
-                'png'  => 'image/png',
-                'gif'  => 'image/gif',
-                'webp' => 'image/webp',
-                'bmp'  => 'image/bmp',
-                'mp4'  => 'video/mp4',
-                'mov'  => 'video/quicktime',
-                'avi'  => 'video/x-msvideo',
-                'mkv'  => 'video/x-matroska',
-                'webm' => 'video/webm',
-                'm4v'  => 'video/mp4',
-                '3gp'  => 'video/3gpp'
-            ];
-            if (isset($extMap[$ext])) {
-                $mimeType = $extMap[$ext];
-            }
+        // Map extension to correct mime types to override incorrect detection for SVG, WebP, etc.
+        $ext = strtolower(pathinfo($localPath, PATHINFO_EXTENSION));
+        $extMap = [
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',
+            'gif'  => 'image/gif',
+            'webp' => 'image/webp',
+            'svg'  => 'image/svg+xml',
+            'bmp'  => 'image/bmp',
+            'mp4'  => 'video/mp4',
+            'mov'  => 'video/quicktime',
+            'avi'  => 'video/x-msvideo',
+            'mkv'  => 'video/x-matroska',
+            'webm' => 'video/webm',
+            'm4v'  => 'video/mp4',
+            '3gp'  => 'video/3gpp'
+        ];
+        if (isset($extMap[$ext])) {
+            $mimeType = $extMap[$ext];
         }
 
         $isImage = strpos($mimeType, 'image/') === 0;
@@ -445,6 +444,25 @@ class StorageService {
                     $dirPath = $file->getPathname();
                     if (count(scandir($dirPath)) <= 2) {
                         @rmdir($dirPath);
+                    }
+                }
+            }
+        }
+
+        // 3. Scan and purge old files in the temporary directory (hub/storage/temp)
+        $tempDir = __DIR__ . '/../temp';
+        if (is_dir($tempDir)) {
+            $files = scandir($tempDir);
+            $expiryTime = time() - (3600 * 24); // 24 hours ago
+            foreach ($files as $file) {
+                if ($file === '.' || $file === '..') continue;
+                $filePath = $tempDir . '/' . $file;
+                if (is_file($filePath) && filemtime($filePath) < $expiryTime) {
+                    $fSize = filesize($filePath);
+                    if (@unlink($filePath)) {
+                        $deletedCount++;
+                        $bytesFreed += $fSize;
+                        log_message('info', "Storage cleanup: physically deleted old temporary file {$filePath} ({$fSize} bytes)");
                     }
                 }
             }

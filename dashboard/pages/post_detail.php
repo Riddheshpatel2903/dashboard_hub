@@ -40,10 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             
-            // Delete media file from all upload folders if exists
+            // Delete media file from all upload folders if exists (only if no other cached posts are using it)
             if (!empty($mediaPath) && !preg_match('/^https?:\/\//i', $mediaPath)) {
-                require_once __DIR__ . '/../../hub/storage/StorageService.php';
-                StorageService::deletePostMedia($mediaPath, $client_id);
+                // Check if any other cached posts are using this media path
+                $stmtCheckMedia = $pdo->prepare("SELECT COUNT(*) FROM posts_cache WHERE media_path = :media_path AND hub_post_id != :hub_post_id");
+                $stmtCheckMedia->execute(['media_path' => $mediaPath, 'hub_post_id' => $hubPostId]);
+                $isUsedByOther = ($stmtCheckMedia->fetchColumn() > 0);
+                
+                if (!$isUsedByOther) {
+                    require_once __DIR__ . '/../../hub/storage/StorageService.php';
+                    StorageService::deletePostMedia($mediaPath, $client_id);
+                }
             }
             
             // Verify database connection is alive before query execution (timeouts can happen during long API calls)

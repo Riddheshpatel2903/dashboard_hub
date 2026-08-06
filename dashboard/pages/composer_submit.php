@@ -67,7 +67,7 @@ if (!empty($_FILES['media']['name']) && $_FILES['media']['error'] === UPLOAD_ERR
     $fileName = strtolower($_FILES['media']['name']);
     $mimeType = strtolower($_FILES['media']['type'] ?? '');
     $isVideo = strpos($mimeType, 'video/') === 0 || preg_match('/\.(mp4|mov|avi|mkv|webm)$/i', $fileName);
-    $isImage = strpos($mimeType, 'image/') === 0 || preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileName);
+    $isImage = strpos($mimeType, 'image/') === 0 || preg_match('/\.(jpg|jpeg|png|webp|gif|svg)$/i', $fileName);
 
     if ($postType === 'video' && !$isVideo) {
         http_response_code(400);

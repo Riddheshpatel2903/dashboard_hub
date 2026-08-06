@@ -434,6 +434,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                         if (data.success) {
                             alert(data.message);
                             reloadPostsGrid();
+                            fetch('cron_trigger.php').catch(err => console.warn('Cron trigger failed:', err));
                         } else {
                             alert('Failed: ' + data.error);
                             btn.disabled = false;
@@ -526,6 +527,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                         }
                         btn.innerHTML = originalText;
                         reloadPostsGrid();
+                        fetch('cron_trigger.php').catch(err => console.warn('Cron trigger failed:', err));
                     });
                 }
             });
@@ -551,6 +553,7 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                                     modal.classList.add('hidden');
                                     modal.style.display = 'none';
                                     reloadPostsGrid();
+                                    fetch('cron_trigger.php').catch(err => console.warn('Cron trigger failed:', err));
                                 } else {
                                     alert('Failed: ' + data.error);
                                     deleteBtn.disabled = false;

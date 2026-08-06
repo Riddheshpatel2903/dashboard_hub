@@ -1,21 +1,20 @@
 <?php
-/**
- * Shared Sidebar Layout (Stitch Social Mission Control Design System).
- */
+/** Shared Sidebar Layout (Stitch Social Mission Control Design System). */
 require_once __DIR__ . '/session_check.php';
 
 $current_script = basename($_SERVER['SCRIPT_NAME']);
 $isAdminSection = strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
 
-function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmin = false) {
+function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmin = false)
+{
     $isActive = false;
     if ($checkAdmin && $isAdminSec && $currentScript === $pageName) {
         $isActive = true;
     } elseif (!$checkAdmin && !$isAdminSec && $currentScript === $pageName) {
         $isActive = true;
     }
-    return $isActive 
-        ? 'bg-secondary-container text-on-secondary-container font-bold scale-95 shadow-xs' 
+    return $isActive
+        ? 'bg-secondary-container text-on-secondary-container font-bold scale-95 shadow-xs'
         : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface';
 }
 ?>

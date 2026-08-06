@@ -119,6 +119,13 @@ try {
         $results[] = ['warn', 'hub_db: title: ' . $e->getMessage()];
     }
 
+    try {
+        $hubPdo->exec("ALTER TABLE `posts` MODIFY COLUMN `status` ENUM('draft', 'scheduled', 'processing', 'queued', 'publishing', 'published', 'failed', 'deleted', 'pending_delete', 'delete_failed') NOT NULL DEFAULT 'draft'");
+        $results[] = ['ok', 'hub_db: status ENUM updated to include pending_delete and delete_failed'];
+    } catch (Exception $e) {
+        $results[] = ['warn', 'hub_db: status ENUM update failed: ' . $e->getMessage()];
+    }
+
     $results[] = ['ok', '--- Hub DB migrations complete ---'];
 
 } catch (Exception $connEx) {

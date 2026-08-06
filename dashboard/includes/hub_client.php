@@ -127,7 +127,7 @@ function hubGetPlatformPosts($clientId, $limit = 100, $forceSync = false) {
     // A3: After a force_sync, write the fresh platform posts into the Dashboard's own
     // posts_cache using the Dashboard's already-working DB connection.
     // This eliminates the need for a separate cross-database cron job.
-    if ($forceSync && !empty($response['posts']) && is_array($response['posts'])) {
+    if ($forceSync && isset($response['posts']) && is_array($response['posts'])) {
         try {
             syncPostsCacheFromHubResponse($clientId, $response['posts']);
         } catch (Exception $cacheEx) {
@@ -147,8 +147,25 @@ function hubGetPlatformPosts($clientId, $limit = 100, $forceSync = false) {
 function syncPostsCacheFromHubResponse($clientId, array $platformPosts) {
     $dashPdo = require __DIR__ . '/../db/connection.php';
 
-    // Group posts by platform so we can DELETE the old cached rows platform-by-platform
-    $platforms = array_unique(array_filter(array_column($platformPosts, 'platform')));
+    // Get connected platforms for this client to ensure we clear the cache even if a platform has zero posts
+    $platforms = [];
+    try {
+        $connStatus = hubGetConnectionsStatus($clientId);
+        if (!empty($connStatus['connections']) && is_array($connStatus['connections'])) {
+            foreach ($connStatus['connections'] as $conn) {
+                if (!empty($conn['platform']) && strtolower($conn['status']) === 'connected') {
+                    $platforms[] = strtolower($conn['platform']);
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // Fallback
+    }
+
+    // Merge with any platforms present in the posts array just in case
+    $postPlatforms = array_unique(array_filter(array_column($platformPosts, 'platform')));
+    $platforms = array_unique(array_merge($platforms, $postPlatforms));
+
     foreach ($platforms as $platform) {
         if (empty($platform)) continue;
         

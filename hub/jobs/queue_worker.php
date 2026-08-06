@@ -142,7 +142,7 @@ try {
                             break;
                         }
                     }
-                    if (!$alreadyDeleted && !($platform === 'instagram' && (stripos($err, 'permissions') !== false || stripos($err, 'Code 10') !== false))) {
+                    if (!$alreadyDeleted) {
                         $externalDeleteSucceeded = false;
                         log_message('error', "Queue Worker Deletes: Platform API delete failed for Post ID {$postId}", ['error' => $err]);
                     }
@@ -150,9 +150,14 @@ try {
             }
 
             if ($externalDeleteSucceeded) {
-                // Delete media file
+                // Delete media file (only if no other posts are using it)
                 if (!empty($mediaPath)) {
-                    StorageService::deletePostMedia($mediaPath, $clientId);
+                    $stmtCheckMedia = $pdo->prepare("SELECT COUNT(*) FROM posts WHERE media_temp_path = :media_path AND id != :post_id");
+                    $stmtCheckMedia->execute(['media_path' => $mediaPath, 'post_id' => $postId]);
+                    $isUsedByOther = ($stmtCheckMedia->fetchColumn() > 0);
+                    if (!$isUsedByOther) {
+                        StorageService::deletePostMedia($mediaPath, $clientId);
+                    }
                 }
 
                 // Delete from posts table
@@ -551,10 +556,15 @@ try {
                         ');
                         $stmtDeleteFailed->execute(['post_id' => $postId]);
 
-                        // Delete media file from disk to save space
+                        // Delete media file from disk to save space (only if no other posts are using it)
                         if (!empty($mediaTempPath)) {
                             try {
-                                StorageService::deletePostMedia($mediaTempPath, $clientId);
+                                $stmtCheckMedia = $pdo->prepare("SELECT COUNT(*) FROM posts WHERE media_temp_path = :media_path AND id != :post_id");
+                                $stmtCheckMedia->execute(['media_path' => $mediaTempPath, 'post_id' => $postId]);
+                                $isUsedByOther = ($stmtCheckMedia->fetchColumn() > 0);
+                                if (!$isUsedByOther) {
+                                    StorageService::deletePostMedia($mediaTempPath, $clientId);
+                                }
                             } catch (Exception $delEx) {
                                 log_message('warning', "Queue Worker: Failed to delete media on failure for post ID {$postId}", ['error' => $delEx->getMessage()]);
                             }
