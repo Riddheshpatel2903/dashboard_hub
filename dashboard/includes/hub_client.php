@@ -597,8 +597,10 @@ function hubDisconnectConnection($clientId, $platform) {
  * Base Curl dispatcher.
  */
 function executeCurl($url, $method, array $data = [], array $headers = [], $jsonEncode = true) {
-    // Bypass local IPv4 port conflict with Herd/Nginx by rewriting localhost to [::1] for server-to-server requests
-    $url = preg_replace('/^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?\//i', '$1[::1]$3/', $url);
+    // Bypass local IPv4 port conflict with Herd/Nginx by rewriting localhost to [::1] for server-to-server requests (disabled on Windows)
+    if (PHP_OS_FAMILY !== 'Windows') {
+        $url = preg_replace('/^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?\//i', '$1[::1]$3/', $url);
+    }
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -689,4 +691,20 @@ function getOverallLastSyncedTime($connections) {
         }
     }
     return $maxTime ? date('Y-m-d H:i:s', $maxTime) : null;
+}
+
+function hubGetSearchAnalytics($clientId, $startDate = null, $endDate = null, $dimensions = 'date') {
+    $params = ['action' => 'search_analytics'];
+    if ($startDate) $params['start_date'] = $startDate;
+    if ($endDate) $params['end_date'] = $endDate;
+    $params['dimensions'] = $dimensions;
+    return hubRequest($clientId, '/api/seo.php?' . http_build_query($params), 'GET');
+}
+
+function hubGetPageSpeed($clientId, $url, $strategy = 'mobile') {
+    return hubRequest($clientId, '/api/seo.php?' . http_build_query([
+        'action' => 'pagespeed',
+        'url' => $url,
+        'strategy' => $strategy,
+    ]), 'GET');
 }

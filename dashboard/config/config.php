@@ -42,13 +42,23 @@ if (empty($dashboardBaseUrl)) {
 $dashboardBaseUrl = str_replace('\\', '/', $dashboardBaseUrl);
 $dashboardBaseUrl = rtrim($dashboardBaseUrl, '/');
 
+// Define custom override for the dashboard base URL path if dynamic resolution doesn't match your production subfolder setup.
+define('CUSTOM_DASHBOARD_BASE_URL', '/new-site/dashboard');
+
+if (defined('CUSTOM_DASHBOARD_BASE_URL') && CUSTOM_DASHBOARD_BASE_URL !== '') {
+    $dashboardBaseUrl = CUSTOM_DASHBOARD_BASE_URL;
+}
+
 define('DASHBOARD_BASE_URL', $dashboardBaseUrl);
+
+// Agency main dashboard host domain (change this to your production domain, e.g. 'rbfitness.in')
+define('AGENCY_DASHBOARD_DOMAIN', 'rbfitness.in');
 
 // Hub API Access Coordinates
 // Dashboard always targets the production hub regardless of dev/prod environment.
 // Run /dashboard/admin/sync_hub.php once to register local clients in the production hub DB.
 $isLocalhost = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1'], true) || (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] === '127.0.0.1');
-$defaultHubUrl = $isLocalhost ? 'http://localhost/dashboard_hub/hub' : 'https://rbfitness.in/new-site/hub';
+$defaultHubUrl = $isLocalhost ? 'https://rbfitness.in/new-site/hub' : 'https://rbfitness.in/new-site/hub';
 
 // Hub API URL — override via HUB_BASE_URL env var to use a local hub during development.
 define('HUB_BASE_URL', rtrim(getenv('HUB_BASE_URL') ?: $defaultHubUrl, '/'));
@@ -73,4 +83,27 @@ if (!headers_sent() && session_status() === PHP_SESSION_NONE) {
         'httponly' => true,
         'samesite' => 'Lax'
     ]);
+}
+
+/**
+ * Returns the URL to custom client brand SVG icons stored in assets.
+ */
+function getBrandIconUrl($platform) {
+    $baseUrl = DASHBOARD_BASE_URL . '/assets/icons/';
+    if ($platform === 'facebook') {
+        return $baseUrl . 'facebook.svg';
+    } elseif ($platform === 'instagram') {
+        return $baseUrl . 'instagram.svg';
+    } elseif ($platform === 'youtube') {
+        return $baseUrl . 'youtube.svg';
+    } elseif ($platform === 'google_business') {
+        return $baseUrl . 'google.svg';
+    } elseif ($platform === 'search_console') {
+        return $baseUrl . 'google_search.svg';
+    } elseif ($platform === 'linkedin') {
+        return $baseUrl . 'linkedin.svg';
+    } elseif ($platform === 'blog' || $platform === 'website') {
+        return $baseUrl . 'blog.svg';
+    }
+    return ''; // Returns empty string for custom fallback logic
 }

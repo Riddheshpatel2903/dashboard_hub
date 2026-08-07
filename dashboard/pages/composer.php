@@ -1,8 +1,5 @@
 <?php
-/**
- * Create Post Composer (Tailwind & Stitch Design System).
- */
-
+/** Create Post Composer (Tailwind & Stitch Design System). */
 require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require_once __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
@@ -16,8 +13,9 @@ if ($client_id === null) {
 $connectedPlatforms = [];
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
+    $allowedPostingPlatforms = ['facebook', 'instagram', 'youtube', 'linkedin', 'google_business'];
     foreach ($hubRes['connections'] as $conn) {
-        if ($conn['status'] === 'connected' && $conn['platform'] !== 'whatsapp') {
+        if ($conn['status'] === 'connected' && in_array($conn['platform'], $allowedPostingPlatforms, true)) {
             $connectedPlatforms[] = $conn['platform'];
         }
     }
@@ -87,7 +85,8 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                             </div>
                         <?php else: ?>
                             <div class="flex flex-wrap gap-sm">
-                                <?php foreach ($connectedPlatforms as $plat): 
+                                <?php
+                                foreach ($connectedPlatforms as $plat):
                                     $platIcon = 'face';
                                     $platColor = 'peer-checked:bg-[#EFF6FF] peer-checked:border-[#1D4ED8] peer-checked:text-[#1D4ED8]';
                                     $allowedTypes = 'image,video';
@@ -111,12 +110,25 @@ $connectedPlatforms = array_unique($connectedPlatforms);
                                     } elseif ($plat === 'google_business') {
                                         $platIcon = 'store';
                                         $platColor = 'peer-checked:bg-[#EEF2FF] peer-checked:border-[#4285F4] peer-checked:text-[#4285F4]';
+                                    } elseif ($plat === 'search_console') {
+                                        $platIcon = 'search';
+                                        $platColor = 'peer-checked:bg-[#EEF2FF] peer-checked:border-[#4285F4] peer-checked:text-[#4285F4]';
+                                    } elseif ($plat === 'blog' || $plat === 'website') {
+                                        $platIcon = 'rss_feed';
+                                        $platColor = 'peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary';
                                     }
-                                ?>
+                                    ?>
                                     <label class="platform-checkbox-label cursor-pointer" id="label-platform-<?php echo $plat; ?>" data-allowed-types="<?php echo htmlspecialchars($allowedTypes); ?>">
                                         <input class="hidden peer" type="checkbox" name="platforms[]" value="<?php echo htmlspecialchars($plat); ?>" id="platform-<?php echo $plat === 'instagram' ? 'ig' : $plat; ?>" checked />
                                         <div class="flex items-center gap-sm px-md py-sm rounded-lg border border-surface-variant bg-surface-container-low transition-all <?php echo $platColor; ?>">
-                                            <span class="material-symbols-outlined text-[20px]"><?php echo $platIcon; ?></span>
+                                            <?php
+                                            $customIcon = getBrandIconUrl($plat);
+                                            if ($customIcon !== ''):
+                                                ?>
+                                                <img src="<?php echo $customIcon; ?>" class="w-5 h-5 object-contain" alt="<?php echo htmlspecialchars($plat); ?>">
+                                            <?php else: ?>
+                                                <span class="material-symbols-outlined text-[20px]"><?php echo $platIcon; ?></span>
+                                            <?php endif; ?>
                                             <span class="font-body-md font-semibold capitalize"><?php echo htmlspecialchars($plat === 'google_business' ? 'Google Business Profile' : $plat); ?></span>
                                             <?php if ($plat === 'youtube'): ?>
                                                 <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded border border-red-200 uppercase ml-1 yt-tag">(Video Only)</span>

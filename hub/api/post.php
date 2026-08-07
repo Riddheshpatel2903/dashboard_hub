@@ -114,16 +114,15 @@ foreach ($platformsInput as $platform) {
         $stmt->execute($params);
         $postId = $pdo->lastInsertId();
 
-        // If scheduled for later, do not publish immediately
-        if ($scheduledAt) {
-            $results[$platform] = [
-                'success' => true,
-                'post_id' => (int)$postId,
-                'status'  => 'scheduled',
-                'scheduled_at' => $scheduledAt
-            ];
-            continue;
-        }
+        // All posts (scheduled and immediate) are processed asynchronously via the background queue worker.
+        // This prevents synchronous platform API connection delays and timeouts for the user.
+        $results[$platform] = [
+            'success'      => true,
+            'post_id'      => (int)$postId,
+            'status'       => $initialStatus,
+            'scheduled_at' => $scheduledAt
+        ];
+        continue;
 
         $externalPostId = null;
         $responseBody = '';

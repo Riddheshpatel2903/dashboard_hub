@@ -91,6 +91,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if (($client['status'] ?? 'active') === 'inactive') {
                                 $error = 'Your account subscription has expired or is inactive. Please contact the administrator.';
                                 $blockedBySub = true;
+                            } else {
+                                // Domain/Website restriction check helper
+                                if (!function_exists('getCleanDomain')) {
+                                    function getCleanDomain($url) {
+                                        if (empty($url)) return '';
+                                        if (strpos($url, 'http://') !== 0 && strpos($url, 'https://') !== 0) {
+                                            $url = 'http://' . $url;
+                                        }
+                                        $host = parse_url($url, PHP_URL_HOST);
+                                        if (!$host) {
+                                            $host = $url;
+                                        }
+                                        $host = strtolower(trim($host));
+                                        if (strpos($host, 'www.') === 0) {
+                                            $host = substr($host, 4);
+                                        }
+                                        return $host;
+                                    }
+                                }
+
+                                if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+                                    $refererHost = getCleanDomain($_SERVER['HTTP_REFERER']);
+                                    
+                                    // Use hardcoded AGENCY_DASHBOARD_DOMAIN constant, falling back to HTTP_HOST if undefined
+                                    $dashDomain = defined('AGENCY_DASHBOARD_DOMAIN') ? AGENCY_DASHBOARD_DOMAIN : ($_SERVER['HTTP_HOST'] ?? '');
+                                    $dashboardHost = getCleanDomain($dashDomain);
+                                    
+                                    // Only enforce domain restriction if request is not originating from the main dashboard site itself
+                                    if ($refererHost !== '' && $refererHost !== $dashboardHost) {
+                                        $clientHost = getCleanDomain($client['website_url']);
+                                        if ($clientHost !== '' && $refererHost !== $clientHost) {
+                                            $error = 'Access denied. You can only log in from your registered domain: ' . htmlspecialchars($clientHost);
+                                            $blockedBySub = true;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

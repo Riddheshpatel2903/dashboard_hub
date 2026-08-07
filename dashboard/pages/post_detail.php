@@ -203,7 +203,7 @@ if ($status === 'published' && !empty($externalPostId) && $platform !== 'google_
                     if (empty($map['views_type']) || $map['views_type'] !== 'views') {
                         $map['views'] = (int)$val;
                     }
-                } elseif (in_array($name, ['likes', 'like_count', 'post_reactions_by_type_total'])) {
+                } elseif (in_array($name, ['likes', 'like_count'])) {
                     $map['likes'] = is_numeric($val) ? (int)$val : $map['likes'] ?? 0;
                 }
             }

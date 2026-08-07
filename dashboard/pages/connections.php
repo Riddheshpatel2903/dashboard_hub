@@ -27,6 +27,8 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
+// Load Google Search Console (SEO) connection status is handled dynamically by Hub connections status call
+
 // Compute absolute Dashboard URL to pass to the Hub for OAuth callback redirection
 $httpScheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
 $httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
@@ -67,6 +69,13 @@ $platformMetadata = [
         'desc' => 'Connect to manage your local business profile.',
         'auth_url' => HUB_BASE_URL . '/auth/connect_google_business.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
         'icon' => 'store',
+        'color' => '#4285F4'
+    ],
+    'search_console' => [
+        'name' => 'Google Search Console (SEO)',
+        'desc' => 'Track your website organic search clicks, impressions, CTR, and search rankings.',
+        'auth_url' => HUB_BASE_URL . '/auth/connect_search_console.php?client_id=' . $client_id . '&dashboard_url=' . urlencode($absoluteDashboardUrl),
+        'icon' => 'search',
         'color' => '#4285F4'
     ]
 ];
@@ -113,31 +122,7 @@ foreach ($platformMetadata as $key => $meta) {
                 <p class="font-body-md text-on-surface-variant">Connect your social media accounts to start posting and viewing analytics.</p>
             </div>
 
-            <!-- Stats Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-                <!-- Active -->
-                <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex items-center gap-md shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-green-700">check_circle</span>
-                    </div>
-                    <div>
-                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Connected</p>
-                        <p class="font-headline-sm text-headline-sm font-bold"><?php echo $activeCount; ?></p>
-                    </div>
-                </div>
-                
 
-                <!-- Disconnected -->
-                <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex items-center gap-md shadow-sm">
-                    <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
-                        <span class="material-symbols-outlined text-on-surface-variant">link_off</span>
-                    </div>
-                    <div>
-                        <p class="font-data-label text-on-surface-variant uppercase text-xs">Not Connected</p>
-                        <p class="font-headline-sm text-headline-sm font-bold"><?php echo $disconnectedCount; ?></p>
-                    </div>
-                </div>
-            </div>
 
             <!-- Connections Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
@@ -145,8 +130,18 @@ foreach ($platformMetadata as $key => $meta) {
                 foreach ($platformMetadata as $key => $meta):
                     $conn = $connections[$key] ?? null;
                     $status = $conn ? $conn['status'] : 'disconnected';
-                    $isExpired = ($status === 'expired');
-                    $expiresSoon = $conn ? $conn['expires_soon'] : false;
+                    
+                    // Auto-refreshing tokens (YouTube and Search Console) don't show expiring alerts
+                    if ($key === 'youtube' || $key === 'search_console') {
+                        if ($status === 'expired') {
+                            $status = 'connected';
+                        }
+                        $isExpired = false;
+                        $expiresSoon = false;
+                    } else {
+                        $isExpired = ($status === 'expired');
+                        $expiresSoon = $conn ? $conn['expires_soon'] : false;
+                    }
 
                     // Style attributes
                     $cardBg = 'bg-surface-container-lowest';
@@ -169,14 +164,20 @@ foreach ($platformMetadata as $key => $meta) {
                     <div class="connection-card border border-surface-variant rounded-xl p-lg flex flex-col justify-between shadow-sm hover:border-primary transition-all duration-200 <?php echo $cardBg; ?>">
                         <div class="space-y-md">
                             <!-- Card Header -->
-                            <div class="flex justify-between items-start">
-                                <div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: <?php echo $meta['color']; ?>15; color: <?php echo $meta['color']; ?>;">
-                                    <span class="material-symbols-outlined text-[28px]"><?php echo $meta['icon']; ?></span>
-                                </div>
-                                <span class="px-sm py-1 rounded-full text-[10px] font-bold uppercase tracking-tight <?php echo $statusBg; ?>">
-                                    <?php echo $statusText; ?>
-                                </span>
-                            </div>
+                             <div class="flex justify-between items-start">
+                                 <div class="w-12 h-12 rounded-lg flex items-center justify-center p-xs bg-surface-container-low border border-surface-variant/30">
+                                     <?php 
+                                     $customIcon = getBrandIconUrl($key);
+                                     if ($customIcon !== ''): ?>
+                                         <img src="<?php echo $customIcon; ?>" class="w-8 h-8 object-contain" alt="<?php echo htmlspecialchars($meta['name']); ?>">
+                                     <?php else: ?>
+                                         <span class="material-symbols-outlined text-[28px]" style="color: <?php echo $meta['color']; ?>;"><?php echo $meta['icon']; ?></span>
+                                     <?php endif; ?>
+                                 </div>
+                                 <span class="px-sm py-1 rounded-full text-[10px] font-bold uppercase tracking-tight <?php echo $statusBg; ?>">
+                                     <?php echo $statusText; ?>
+                                 </span>
+                             </div>
                             
                             <!-- Brand & Description -->
                             <div>

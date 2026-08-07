@@ -210,6 +210,14 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                                 $platIcon = 'store';
                                 $platColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
                                 $platLabel = 'Google Business Profile';
+                            } elseif ($post['platform'] === 'search_console') {
+                                $platIcon = 'search';
+                                $platColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
+                                $platLabel = 'Google Search Console';
+                            } elseif ($post['platform'] === 'blog' || $post['platform'] === 'website') {
+                                $platIcon = 'rss_feed';
+                                $platColorClass = 'bg-primary/10 text-primary border border-primary-fixed';
+                                $platLabel = 'Blog / Website';
                             }
 
                             // Status style
@@ -250,8 +258,14 @@ $posts = array_slice($filteredPosts, $offset, $limit);
                                                    data-external-id="<?php echo htmlspecialchars($post['external_post_id'] ?? ''); ?>"
                                                    data-media-path="<?php echo htmlspecialchars($post['media_path'] ?? ''); ?>">
                                             <div class="flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none border <?php echo $platColorClass; ?>">
-                                                <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
-                                                <span class="capitalize"><?php echo htmlspecialchars($platLabel); ?></span>
+                                                <?php 
+                                                $customIcon = getBrandIconUrl($post['platform']);
+                                                if ($customIcon !== ''): ?>
+                                                    <img src="<?php echo $customIcon; ?>" class="w-3.5 h-3.5 object-contain" alt="<?php echo htmlspecialchars($platLabel); ?>">
+                                                <?php else: ?>
+                                                    <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
+                                                <?php endif; ?>
+                                                <span class="capitalize ml-[2px]"><?php echo htmlspecialchars($platLabel); ?></span>
                                             </div>
                                         </div>
                                         <span class="px-sm py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tight <?php echo $statusClass; ?>">

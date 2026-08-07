@@ -269,6 +269,12 @@ $monthName = date('F Y', $firstDayOfMonth);
                                     } elseif ($post['platform'] === 'google_business') {
                                         $platIcon = 'store';
                                         $platformColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
+                                    } elseif ($post['platform'] === 'search_console') {
+                                         $platIcon = 'search';
+                                         $platformColorClass = 'bg-[#EEF2FF] text-[#4285F4] border border-[#E0E7FF]';
+                                    } elseif ($post['platform'] === 'blog' || $post['platform'] === 'website') {
+                                         $platIcon = 'rss_feed';
+                                         $platformColorClass = 'bg-primary/10 text-primary border border-primary-fixed';
                                     }
 
                                     // Display status indicator inside pin text if not published
@@ -277,12 +283,18 @@ $monthName = date('F Y', $firstDayOfMonth);
                                         $summary = '⚠️ ' . $summary;
                                     }
                                     ?>
-                                    <div class="post-pin cursor-pointer flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none truncate hover:opacity-80 transition-opacity <?php echo $platformColorClass; ?>" 
-                                         data-id="<?php echo $post['id']; ?>" 
-                                         title="<?php echo htmlspecialchars($post['platform'] . ' (' . $post['status'] . '): ' . $post['content']); ?>">
-                                        <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
-                                        <span class="truncate"><?php echo $summary; ?></span>
-                                    </div>
+                                     <div class="post-pin cursor-pointer flex items-center gap-xs px-xs py-[2px] rounded text-[10px] font-bold select-none truncate hover:opacity-80 transition-opacity <?php echo $platformColorClass; ?>" 
+                                          data-id="<?php echo $post['id']; ?>" 
+                                          title="<?php echo htmlspecialchars($post['platform'] . ' (' . $post['status'] . '): ' . $post['content']); ?>">
+                                         <?php 
+                                         $customIcon = getBrandIconUrl($post['platform']);
+                                         if ($customIcon !== ''): ?>
+                                             <img src="<?php echo $customIcon; ?>" class="w-3 h-3 object-contain" alt="<?php echo htmlspecialchars($post['platform']); ?>">
+                                         <?php else: ?>
+                                             <span class="material-symbols-outlined !text-[12px]"><?php echo $platIcon; ?></span>
+                                         <?php endif; ?>
+                                         <span class="truncate"><?php echo $summary; ?></span>
+                                     </div>
                                 <?php
                                     $renderedCount++;
                                 endforeach;

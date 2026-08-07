@@ -235,7 +235,7 @@ foreach ($metrics as $m) {
     if (in_array($mName, ['impressions', 'page_views_total', 'page_media_view', 'post_media_view', 'view_count', 'views_search'])) {
         $sumImpressions += $val;
     }
-    if (in_array($mName, ['engagement', 'page_post_engagements', 'post_engaged_users', 'post_reactions_by_type_total', 'saved', 'comment_count', 'interactions', 'like_count'])) {
+    if (in_array($mName, ['engagement', 'page_post_engagements', 'post_engaged_users', 'saved', 'comment_count', 'interactions', 'like_count'])) {
         $sumEngagement += $val;
     }
     if (in_array($mName, ['subscriber_count', 'subscribercount', 'subscribers', 'profile_views', 'followers', 'followers_count', 'fan_count'])) {

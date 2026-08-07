@@ -27,6 +27,14 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
+// Fetch Google Search Console connection locally and add it to platforms
+$stmtSeo = $pdo->prepare("SELECT site_url FROM seo_connections WHERE client_id = :client_id AND status = 'connected' LIMIT 1");
+$stmtSeo->execute(['client_id' => $client_id]);
+$seoSiteUrl = $stmtSeo->fetchColumn();
+if ($seoSiteUrl) {
+    $connectedPlatforms[] = 'google_search_console';
+}
+
 if (empty($connectedPlatforms)) {
     echo '<div class="p-lg text-center space-y-sm text-on-surface-variant w-full">
         <span class="material-symbols-outlined text-4xl text-outline-variant">analytics</span>
@@ -42,14 +50,55 @@ $endDate = $_GET['end_date'] ?? date('Y-m-d');
 
 $activePlatform = !empty($platform) ? $platform : $connectedPlatforms[0];
 
-$analyticsRes = hubGetAnalytics($client_id, $activePlatform, 0, $startDate, $endDate);
 $metrics = [];
 $errorMsg = null;
+$seoData = null;
 
-if (!empty($analyticsRes['success']) && is_array($analyticsRes['metrics'])) {
-    $metrics = $analyticsRes['metrics'];
+if ($activePlatform === 'search_console') {
+    $res = hubGetSearchAnalytics($client_id, $startDate, $endDate);
+    $rows = [];
+    if (!empty($res['success']) && is_array($res['data'])) {
+        $rows = $res['data'];
+    }
+    
+    $sumClicks = 0;
+    $sumImpressions = 0;
+    $weightedPosSum = 0;
+    foreach ($rows as $r) {
+        $clicks = $r['clicks'] ?? 0;
+        $impressions = $r['impressions'] ?? 0;
+        $position = $r['position'] ?? 0.0;
+        
+        $sumClicks += $clicks;
+        $sumImpressions += $impressions;
+        $weightedPosSum += ($position * $impressions);
+    }
+    $avgCtr = ($sumImpressions > 0) ? round(($sumClicks / $sumImpressions) * 100, 2) : 0;
+    $avgPos = ($sumImpressions > 0) ? round($weightedPosSum / $sumImpressions, 1) : 0.0;
+
+    $seoData = [
+        'summary' => [
+            'clicks' => $sumClicks,
+            'impressions' => $sumImpressions,
+            'ctr' => $avgCtr,
+            'position' => $avgPos
+        ],
+        'rows' => $rows
+    ];
+    
+    $metrics = [
+        ['platform' => 'search_console', 'metric_name' => 'total_clicks',      'value' => $seoData['summary']['clicks'], 'period' => 'range'],
+        ['platform' => 'search_console', 'metric_name' => 'total_impressions', 'value' => $seoData['summary']['impressions'], 'period' => 'range'],
+        ['platform' => 'search_console', 'metric_name' => 'avg_ctr',           'value' => $seoData['summary']['ctr'] . '%', 'period' => 'range'],
+        ['platform' => 'search_console', 'metric_name' => 'avg_position',      'value' => $seoData['summary']['position'], 'period' => 'range']
+    ];
 } else {
-    $errorMsg = $analyticsRes['error'] ?? 'Unable to retrieve analytics from Hub proxy.';
+    $analyticsRes = hubGetAnalytics($client_id, $activePlatform, 0, $startDate, $endDate);
+    if (!empty($analyticsRes['success']) && is_array($analyticsRes['metrics'])) {
+        $metrics = $analyticsRes['metrics'];
+    } else {
+        $errorMsg = $analyticsRes['error'] ?? 'Unable to retrieve analytics from Hub proxy.';
+    }
 }
 
 // Compute dynamic chart date range and metric totals
@@ -58,7 +107,7 @@ $chartMetricName = 'Views / Reach';
 foreach ($metrics as $m) {
     $mName = strtolower($m['metric_name']);
     $val = is_numeric($m['value']) ? (float)$m['value'] : 0;
-    if (in_array($mName, ['view_count', 'views', 'reach', 'impressions', 'page_views_total', 'page_media_view', 'post_media_view', 'post_total_media_view_unique', 'views_search', 'subscriber_count'])) {
+    if (in_array($mName, ['view_count', 'views', 'reach', 'impressions', 'page_views_total', 'page_media_view', 'post_media_view', 'post_total_media_view_unique', 'views_search', 'subscriber_count', 'total_clicks'])) {
         $chartViews += $val;
         $chartMetricName = ucwords(str_replace('_', ' ', $m['metric_name']));
     }
@@ -98,45 +147,63 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
                 // Gracefully fallback
             }
 
-            // Filter posts in PHP to build trend
-            $postsTrend = [];
-            foreach ($allLivePosts as $p) {
-                if ($p['status'] !== 'published') {
-                    continue;
-                }
-                if (!empty($activePlatform) && $p['platform'] !== $activePlatform) {
-                    continue;
-                }
-                $pubDate = date('Y-m-d', strtotime($p['published_at']));
-                if ($pubDate < $startDate || $pubDate > $endDate) {
-                    continue;
-                }
-                $postsTrend[] = [
-                    'published_at' => $p['published_at'],
-                    'views_count' => $p['views_count']
-                ];
-            }
-
             // Initialize 6 data points
             $chartValues = array_fill(0, 6, 0);
-            $chartPostCounts = array_fill(0, 6, 0);
+            $chartImpressions = array_fill(0, 6, 0);
 
-            foreach ($postsTrend as $p) {
-                $pubTs = strtotime($p['published_at']);
-                if ($chartEndTs == $chartStartTs) {
-                    $bucketIdx = 0;
-                } else {
-                    $bucketIdx = (int)round(($pubTs - $chartStartTs) / $chartStep);
-                    $bucketIdx = max(0, min(5, $bucketIdx));
+            if ($activePlatform === 'search_console') {
+                if ($seoData && !empty($seoData['rows'])) {
+                    foreach ($seoData['rows'] as $row) {
+                        $dateStr = $row['keys'][0] ?? '';
+                        $rowTs = strtotime($dateStr);
+                        if ($chartEndTs == $chartStartTs) {
+                            $bucketIdx = 0;
+                        } else {
+                            $bucketIdx = (int)round(($rowTs - $chartStartTs) / $chartStep);
+                            $bucketIdx = max(0, min(5, $bucketIdx));
+                        }
+                        $chartValues[$bucketIdx] += (int)($row['clicks'] ?? 0);
+                        $chartImpressions[$bucketIdx] += (int)($row['impressions'] ?? 0);
+                    }
                 }
-                $chartValues[$bucketIdx] += (int)($p['views_count'] ?? 0);
-                $chartPostCounts[$bucketIdx]++;
-            }
+            } else {
+                // Filter posts in PHP to build trend
+                $postsTrend = [];
+                foreach ($allLivePosts as $p) {
+                    if ($p['status'] !== 'published') {
+                        continue;
+                    }
+                    if (!empty($activePlatform) && $p['platform'] !== $activePlatform) {
+                        continue;
+                    }
+                    $pubDate = date('Y-m-d', strtotime($p['published_at']));
+                    if ($pubDate < $startDate || $pubDate > $endDate) {
+                        continue;
+                    }
+                    $postsTrend[] = [
+                        'published_at' => $p['published_at'],
+                        'views_count' => $p['views_count']
+                    ];
+                }
 
-            $totalViewsInChart = array_sum($chartValues);
-            if ($totalViewsInChart === 0) {
-                // Fall back to post counts so the graph has activity if views are not loaded/present
-                $chartValues = $chartPostCounts;
+                $chartPostCounts = array_fill(0, 6, 0);
+                foreach ($postsTrend as $p) {
+                    $pubTs = strtotime($p['published_at']);
+                    if ($chartEndTs == $chartStartTs) {
+                        $bucketIdx = 0;
+                    } else {
+                        $bucketIdx = (int)round(($pubTs - $chartStartTs) / $chartStep);
+                        $bucketIdx = max(0, min(5, $bucketIdx));
+                    }
+                    $chartValues[$bucketIdx] += (int)($p['views_count'] ?? 0);
+                    $chartPostCounts[$bucketIdx]++;
+                }
+
+                $totalViewsInChart = array_sum($chartValues);
+                if ($totalViewsInChart === 0) {
+                    // Fall back to post counts so the graph has activity if views are not loaded/present
+                    $chartValues = $chartPostCounts;
+                }
             }
             ?>
             <div class="relative h-64 w-full rounded-xl border border-surface-variant/50 overflow-hidden bg-surface-container-lowest shadow-xs p-2">
@@ -156,7 +223,37 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
                     type: 'line',
                     data: {
                         labels: <?php echo json_encode($chartDateLabels); ?>,
-                        datasets: [{
+                        datasets: <?php if ($activePlatform === 'google_search_console'): ?>
+                        [
+                            {
+                                label: 'Total Clicks',
+                                data: <?php echo json_encode($chartValues); ?>,
+                                borderColor: '#4285F4',
+                                borderWidth: 3,
+                                backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#4285F4',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4
+                            },
+                            {
+                                label: 'Total Impressions',
+                                data: <?php echo json_encode($chartImpressions); ?>,
+                                borderColor: '#7C3AED',
+                                borderWidth: 3,
+                                backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#7C3AED',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4
+                            }
+                        ]
+                        <?php else: ?>
+                        [{
                             label: 'Reach / Views',
                             data: <?php echo json_encode($chartValues); ?>,
                             borderColor: '#007a87',
@@ -170,6 +267,7 @@ $chartTooltipValue = $chartMetricName . ': ' . (is_numeric($chartViews) && $char
                             pointRadius: 4,
                             pointHoverRadius: 7
                         }]
+                        <?php endif; ?>
                     },
                     options: {
                         responsive: true,

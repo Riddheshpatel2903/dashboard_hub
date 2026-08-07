@@ -64,14 +64,8 @@ function normalizePlatformMediaPath($mediaUrl, $client_id) {
         return $trimmed ?: $mediaUrl;
     }
 
-    $storedPath = StorageService::uploadFromUrl($mediaUrl, $client_id);
-    if (!$storedPath) {
-        log_message('warning', 'Media re-hosting failed — falling back to ephemeral platform URL which will expire', [
-            'client_id'    => $client_id,
-            'original_url' => $mediaUrl,
-        ]);
-    }
-    return $storedPath ?: $mediaUrl;
+    // Do not download/re-host remote platform CDN media files to save local server disk space
+    return $mediaUrl;
 }
 
 function upsertPlatformPost($pdo, $client_id, $platform, array $data) {
@@ -307,9 +301,7 @@ function normalizeFacebookMetrics(array $postItem, array $insights = [], array $
             if ($engagement === null) {
                 $engagement = (int)$value;
             }
-        } elseif ($name === 'post_video_views') {
-            $views = (int)$value;
-        } elseif ($name === 'post_reactions_by_type_total' || $name === 'post_engagement') {
+        } elseif ($name === 'post_engagement') {
             if ($engagement === null && is_numeric($value)) {
                 $engagement = (int)$value;
             }
@@ -1026,6 +1018,14 @@ try {
                 } finally {
                     $unlockStmt = $pdo->prepare("SELECT RELEASE_LOCK(:lock_name)");
                     $unlockStmt->execute(['lock_name' => $lockName]);
+                }
+
+                // Trigger storage garbage collector to clean up local media copies that are now hosted on platform CDNs
+                try {
+                    require_once __DIR__ . '/../storage/StorageService.php';
+                    StorageService::cleanOrphanUploads($pdo);
+                } catch (Exception $cleanEx) {
+                    log_message('warning', 'Automated storage cleanup after sync failed: ' . $cleanEx->getMessage());
                 }
             } else {
                 // Fallback to cache since another sync is already in progress

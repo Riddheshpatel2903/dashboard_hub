@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `client_api_keys` (
 CREATE TABLE IF NOT EXISTS `platform_connections` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `client_id` INT NOT NULL,
-  `platform` ENUM('facebook', 'instagram', 'whatsapp', 'youtube', 'linkedin', 'google_business') NOT NULL,
+  `platform` ENUM('facebook', 'instagram', 'whatsapp', 'youtube', 'linkedin', 'google_business', 'search_console') NOT NULL,
   `external_account_id` VARCHAR(255) NOT NULL,
   `status` ENUM('connected', 'disconnected', 'expired', 'expiring') NOT NULL DEFAULT 'connected',
   `connected_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

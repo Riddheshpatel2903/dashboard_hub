@@ -27,13 +27,15 @@ $endDate = $_GET['end_date'] ?? '';
 $connCount = 0;
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
+    $connectedPlats = [];
     foreach ($hubRes['connections'] as $conn) {
         if ($conn['status'] === 'connected' && $conn['platform'] !== 'whatsapp') {
             if (empty($platform) || $conn['platform'] === $platform) {
-                $connCount++;
+                $connectedPlats[] = $conn['platform'];
             }
         }
     }
+    $connCount = count(array_unique($connectedPlats));
 }
 
 // 2. Load posts dynamically from the dedicated posts endpoint

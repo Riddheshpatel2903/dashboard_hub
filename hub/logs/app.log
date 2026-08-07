@@ -6113,3 +6113,100 @@
 [2026-08-05 19:00:18] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0907}
 [2026-08-05 19:00:18] [INFO]: Queue Worker: Started execution.
 [2026-08-05 19:00:18] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0255}
+[2026-08-06 14:18:02] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:18:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.093}
+[2026-08-06 14:18:02] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:18:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.029}
+[2026-08-06 14:18:13] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:18:13] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0781}
+[2026-08-06 14:18:13] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:18:13] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0304}
+[2026-08-06 14:18:27] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:18:27] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0717}
+[2026-08-06 14:18:27] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:18:27] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0231}
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1784546714_1784546714_gps.png (15695 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1784547388_1784547388_c6ed503c-adde-4adf-8f18-82baef1acf95.png (2908361 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\1\1784547571_1784547571_web (1).png (19766 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem1CBB.tmp.jpg (287745 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem21DC.tmp.jpg (175772 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem28B3.tmp.jpg (191146 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem2FE8.tmp.jpg (632724 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem3577.tmp.jpg (125979 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem372.tmp.jpg (175772 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem6B52.tmp.jpg (287745 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem6EE.tmp.jpg (191146 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem717D.tmp.jpg (175772 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem775A.tmp.jpg (191146 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem7D18.tmp.jpg (632724 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem843D.tmp.jpg (125979 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem90B2.tmp.jpg (287745 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem948B.tmp.jpg (175772 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem98E2.tmp.jpg (191146 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\rem9D96.tmp.jpg (632724 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remA21B.tmp.jpg (125979 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remA2B.tmp.jpg (632724 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remBFC1.tmp.jpg (287745 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remC3AA.tmp.jpg (175772 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remC7E2.tmp.jpg (191146 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remCCC5.tmp.jpg (632724 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remD35D.tmp.jpg (125979 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remE0FA.tmp.jpg (287745 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remE560.tmp.jpg (175772 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remE8DC.tmp.jpg (191146 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remECF4.tmp.jpg (632724 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remF1F6.tmp.jpg (125979 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remFAA.tmp.jpg (125979 bytes)
+[2026-08-06 14:18:40] [INFO]: Storage cleanup: physically deleted orphan file D:\xampp\htdocs\dashboard_hub\hub\storage/../uploads\clients\3\remFF1C.tmp.jpg (287745 bytes)
+[2026-08-06 14:18:41] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:18:41] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0767}
+[2026-08-06 14:18:41] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:18:42] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.117}
+[2026-08-06 14:20:05] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:20:05] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0663}
+[2026-08-06 14:20:05] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:20:05] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0265}
+[2026-08-06 14:20:07] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:20:07] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0739}
+[2026-08-06 14:20:07] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:20:08] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.043}
+[2026-08-06 14:20:16] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:20:16] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0832}
+[2026-08-06 14:20:16] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:20:16] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.025}
+[2026-08-06 14:21:30] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:21:31] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.5511}
+[2026-08-06 14:21:31] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:21:31] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0224}
+[2026-08-06 14:22:02] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:02] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1601}
+[2026-08-06 14:22:02] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:02] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0224}
+[2026-08-06 14:22:43] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:43] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0742}
+[2026-08-06 14:22:43] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:43] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.1122}
+[2026-08-06 14:22:45] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:45] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0732}
+[2026-08-06 14:22:45] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:46] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0228}
+[2026-08-06 14:22:50] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:50] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0887}
+[2026-08-06 14:22:50] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:50] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0281}
+[2026-08-06 14:22:53] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:53] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0808}
+[2026-08-06 14:22:53] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:53] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0204}
+[2026-08-06 14:22:54] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:54] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.1071}
+[2026-08-06 14:22:54] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:54] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0423}
+[2026-08-06 14:22:56] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:56] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0937}
+[2026-08-06 14:22:56] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:56] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0549}
+[2026-08-06 14:22:58] [INFO]: Scheduler: Started execution.
+[2026-08-06 14:22:58] [INFO]: Scheduler: No scheduled posts due for release. Finished. {"execution_time_seconds":0.0698}
+[2026-08-06 14:22:58] [INFO]: Queue Worker: Started execution.
+[2026-08-06 14:22:58] [INFO]: Queue Worker: No queued posts found. Finished. {"execution_time_seconds":0.0204}

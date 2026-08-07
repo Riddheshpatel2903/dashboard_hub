@@ -41,6 +41,13 @@ function getLinkClass($pageName, $currentScript, $isAdminSec = false, $checkAdmi
             <span class="font-body-md text-body-md">Dashboard</span>
         </a>
 
+        <!-- SEO Analytics -->
+        <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('seo.php', $current_script); ?>" 
+           href="<?php echo DASHBOARD_BASE_URL; ?>/pages/seo.php">
+            <span class="material-symbols-outlined text-xl">search</span>
+            <span class="font-body-md text-body-md">SEO Analytics</span>
+        </a>
+
         <a class="flex items-center gap-3 px-sm py-2.5 rounded-lg transition-all duration-200 <?php echo getLinkClass('connections.php', $current_script); ?>" 
            href="<?php echo DASHBOARD_BASE_URL; ?>/pages/connections.php">
             <span class="material-symbols-outlined text-xl">sync_alt</span>

@@ -6,6 +6,8 @@
  */
 require_once __DIR__ . '/config.php';
 
+define('PAGESPEED_API_KEY', getenv('PAGESPEED_API_KEY') ?: 'AIzaSyA_placeholder_pagespeed_key');
+
 return [
     'facebook' => [
         'app_id' => getenv('HUB_FACEBOOK_APP_ID') ?: '2167118710745191',
@@ -19,6 +21,7 @@ return [
         'client_secret' => getenv('HUB_GOOGLE_CLIENT_SECRET') ?: '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',
         'redirect_uri_youtube' => 'https://rbfitness.in/new-site/hub/auth/callback_youtube.php',
         'redirect_uri_business' => 'https://rbfitness.in/new-site/hub/auth/callback_google_business.php',
+        'redirect_uri_search_console' => 'https://rbfitness.in/new-site/hub/auth/callback_search_console.php',
     ],
     'linkedin' => [
         'client_id' => getenv('HUB_LINKEDIN_CLIENT_ID') ?: '77gdy7vv3ll3py',

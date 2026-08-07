@@ -393,7 +393,7 @@ class StorageService {
         try {
             $hubPdo = require __DIR__ . '/../db/connection.php';
             if ($hubPdo instanceof PDO) {
-                $stmtPosts = $hubPdo->query("SELECT media_temp_path FROM posts WHERE media_temp_path IS NOT NULL AND media_temp_path != '' AND status != 'deleted'");
+                $stmtPosts = $hubPdo->query("SELECT media_temp_path FROM posts WHERE media_temp_path IS NOT NULL AND media_temp_path != '' AND status NOT IN ('deleted', 'published')");
                 while ($row = $stmtPosts->fetch(PDO::FETCH_ASSOC)) {
                     $bn = basename($row['media_temp_path']);
                     if ($bn) $activeFiles[strtolower($bn)] = true;

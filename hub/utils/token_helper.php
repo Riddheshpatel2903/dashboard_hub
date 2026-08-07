@@ -47,12 +47,12 @@ function get_valid_platform_token(PDO $pdo, int $clientId, string $platform) {
         }
     } else {
         // If expires_at is null, assume it doesn't expire (e.g. Facebook long-lived token) unless it's Google
-        if ($platform === 'youtube' || $platform === 'google_business') {
+        if ($platform === 'youtube' || $platform === 'google_business' || $platform === 'search_console') {
             $isExpired = true; // Google tokens always expire in 1 hour
         }
     }
 
-    if ($isExpired && $refreshToken && ($platform === 'youtube' || $platform === 'google_business')) {
+    if ($isExpired && $refreshToken && ($platform === 'youtube' || $platform === 'google_business' || $platform === 'search_console')) {
         // Refresh token
         try {
             $platformsConfig = require __DIR__ . '/../config/platforms.php';

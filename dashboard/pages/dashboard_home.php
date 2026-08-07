@@ -1,9 +1,9 @@
 <?php
+
 /**
  * Client Dashboard Home (Stitch Social Mission Control Design System).
  * Screen Reference: 478333b85abb4cb196404442b66f7964
  */
-
 require_once __DIR__ . '/../includes/session_check.php';
 $pdo = require_once __DIR__ . '/../db/connection.php';
 require_once __DIR__ . '/../includes/hub_client.php';
@@ -15,6 +15,10 @@ if ($client_id === null && ($user_role === 'staff' || $user_role === 'admin')) {
 }
 
 $connectedPlatforms = [];
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+unset($_SESSION['connections_status_' . $client_id]);
 $hubRes = hubGetConnectionsStatus($client_id);
 if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     foreach ($hubRes['connections'] as $conn) {
@@ -24,23 +28,56 @@ if (!empty($hubRes['success']) && is_array($hubRes['connections'])) {
     }
 }
 
-// Fetch 5 most recent posts directly from APIs
-$recentPosts = [];
-try {
-    $allLivePosts = loadPlatformPosts($client_id);
-    $filteredLivePosts = [];
-    if (is_array($allLivePosts)) {
-        foreach ($allLivePosts as $p) {
-            $pStatus = strtolower($p['status'] ?? '');
-            if ($pStatus === 'deleted' || $pStatus === 'failed') {
-                continue;
-            }
-            $filteredLivePosts[] = $p;
+// Check for Google Search Console connection status via Hub connections list
+$isSeoConnected = in_array('search_console', $connectedPlatforms);
+
+$seoSummary = [
+    'clicks' => 0,
+    'impressions' => 0,
+    'ctr' => 0.0,
+    'position' => 0.0,
+    'is_connected' => false,
+    'site_url' => ''
+];
+
+if ($isSeoConnected) {
+    $seoSummary['is_connected'] = true;
+
+    // Resolve the GSC verified property url
+    $siteUrl = '';
+    foreach ($hubRes['connections'] as $conn) {
+        if ($conn['platform'] === 'search_console') {
+            $siteUrl = $conn['external_account_id'];
+            break;
         }
     }
-    $recentPosts = array_slice($filteredLivePosts, 0, 5);
-} catch (Exception $e) {
-    $recentPostsError = $e->getMessage();
+    $seoSummary['site_url'] = $siteUrl;
+
+    $startDate = date('Y-m-d', strtotime('-30 days'));
+    $endDate = date('Y-m-d');
+
+    $res = hubGetSearchAnalytics($client_id, $startDate, $endDate);
+    $rows = [];
+    if (!empty($res['success']) && is_array($res['data'])) {
+        $rows = $res['data'];
+    }
+
+    $sumClicks = 0;
+    $sumImpressions = 0;
+    $weightedPosSum = 0;
+    foreach ($rows as $r) {
+        $clicks = $r['clicks'] ?? 0;
+        $impressions = $r['impressions'] ?? 0;
+        $position = $r['position'] ?? 0.0;
+
+        $sumClicks += $clicks;
+        $sumImpressions += $impressions;
+        $weightedPosSum += ($position * $impressions);
+    }
+    $seoSummary['clicks'] = $sumClicks;
+    $seoSummary['impressions'] = $sumImpressions;
+    $seoSummary['ctr'] = ($sumImpressions > 0) ? round(($sumClicks / $sumImpressions) * 100, 2) : 0;
+    $seoSummary['position'] = ($sumImpressions > 0) ? round($weightedPosSum / $sumImpressions, 1) : 0.0;
 }
 ?>
 <!DOCTYPE html>
@@ -70,12 +107,11 @@ try {
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
                 <div>
                     <h1 class="font-display-lg text-display-lg text-on-surface">Home</h1>
-                    <p class="font-body-md text-on-surface-variant">Here's a quick look at how your social media is doing today.</p>
                 </div>
                 <div class="flex items-center gap-md">
                     <?php
-                        $maxSynced = getOverallLastSyncedTime($hubRes['connections'] ?? []);
-                        $lastSyncedStr = getRelativeTimeString($maxSynced);
+                    $maxSynced = getOverallLastSyncedTime($hubRes['connections'] ?? []);
+                    $lastSyncedStr = getRelativeTimeString($maxSynced);
                     ?>
                     <span id="last-synced-label" class="text-xs text-on-surface-variant font-medium">Last synced: <?php echo $lastSyncedStr; ?></span>
                     
@@ -92,49 +128,7 @@ try {
                 </div>
             </div>
 
-            <!-- Filter Bar Card -->
-            <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md shadow-sm">
-                <form id="dashboard-filter-form" onsubmit="event.preventDefault(); reloadDashboardData();" class="flex flex-wrap items-end gap-md">
-                    <!-- Platform Selector -->
-                    <div class="flex-1 min-w-[200px] space-y-xs">
-                        <label class="font-data-label text-data-label text-on-surface-variant block uppercase" for="filter-platform">Platform</label>
-                        <select id="filter-platform" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary capitalize">
-                            <option value="">All Channels</option>
-                            <?php foreach ($connectedPlatforms as $p): ?>
-                                <option value="<?php echo htmlspecialchars($p); ?>">
-                                    <?php echo htmlspecialchars($p === 'google_business' ? 'Google Business Profile' : $p); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
 
-                    <!-- Date Pickers -->
-                    <div class="w-[180px] space-y-xs">
-                        <label class="font-data-label text-data-label text-on-surface-variant block uppercase" for="filter-start-date">START DATE</label>
-                        <input type="date" id="filter-start-date" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none" value="<?php echo date('Y-m-d', strtotime('-30 days')); ?>">
-                    </div>
-
-                    <div class="w-[180px] space-y-xs">
-                        <label class="font-data-label text-data-label text-on-surface-variant block uppercase" for="filter-end-date">END DATE</label>
-                        <input type="date" id="filter-end-date" class="w-full h-10 px-md bg-surface-container-low border border-surface-variant rounded-lg font-body-sm focus:outline-none" value="<?php echo date('Y-m-d'); ?>">
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex gap-sm">
-                        <button type="submit" class="h-10 px-lg bg-primary text-on-primary rounded-lg font-body-sm font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-xs">
-                            <span class="material-symbols-outlined text-sm">filter_list</span>
-                            <span>Filter</span>
-                        </button>
-                        <button type="button" onclick="reloadDashboardData(true);" class="h-10 px-md border border-primary/20 bg-primary/10 text-primary rounded-lg font-body-sm font-bold hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-xs group">
-                            <span class="material-symbols-outlined text-sm group-hover:animate-spin">sync</span>
-                            <span>Sync Now</span>
-                        </button>
-                        <button type="button" onclick="clearDashboardFilters();" class="h-10 px-lg bg-surface-container text-on-surface-variant rounded-lg font-body-sm font-bold hover:bg-surface-container-high transition-all flex items-center justify-center">
-                            Clear
-                        </button>
-                    </div>
-                </form>
-            </div>
 
             <!-- Stats Grid: 4 Stitch Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
@@ -148,44 +142,29 @@ try {
                         <h3 id="stat-connections" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
                         <p class="text-on-surface-variant text-body-sm">Connected Channels</p>
                     </div>
-                    <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
-                        <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <path d="M0 35 Q 25 35 50 35 T 100 35" fill="none" stroke="#007a87" stroke-width="2"></path>
-                        </svg>
-                    </div>
+                    
                 </div>
 
                 <!-- Card 2: Total Posts -->
                 <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary transition-colors">
                     <div class="flex justify-between items-start z-10">
                         <span class="text-on-surface-variant font-data-label text-data-label uppercase tracking-wider">Total Posts</span>
-                        <span class="text-[#1F9D6B] font-data-metric text-data-metric bg-green-100 px-xs rounded">+12%</span>
                     </div>
                     <div class="z-10">
-                        <h3 id="stat-total-posts" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
-                        <p class="text-on-surface-variant text-body-sm">All your posts</p>
+                        <h2 id="stat-total-posts" class="font-display-lg text-display-lg leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h2>
+                    
                     </div>
-                    <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
-                        <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <path d="M0 35 L 20 25 L 40 30 L 60 15 L 80 20 L 100 5" fill="none" stroke="#007a87" stroke-width="2"></path>
-                        </svg>
-                    </div>
+                    
                 </div>
 
                 <!-- Card 3: Published Posts -->
                 <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary transition-colors">
                     <div class="flex justify-between items-start z-10">
                         <span class="text-on-surface-variant font-data-label text-data-label uppercase tracking-wider">Published</span>
-                        <span class="text-[#1F9D6B] font-data-metric text-data-metric bg-green-100 px-xs rounded">Live</span>
                     </div>
                     <div class="z-10">
-                        <h3 id="stat-published-posts" class="font-display-md text-display-md leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
-                        <p class="text-on-surface-variant text-body-sm">Posts live on social</p>
-                    </div>
-                    <div class="absolute bottom-0 right-0 w-24 h-12 opacity-50">
-                        <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <path d="M0 38 L 10 30 L 20 35 L 30 25 L 40 30 L 50 15 L 60 20 L 70 10 L 80 15 L 90 5 L 100 12" fill="none" stroke="#007a87" stroke-width="2"></path>
-                        </svg>
+                        <h3 id="stat-published-posts" class="font-display-lg text-display-lg leading-none"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
+
                     </div>
                 </div>
 
@@ -193,133 +172,117 @@ try {
                 <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-md flex flex-col justify-between h-32 relative overflow-hidden group hover:border-primary transition-colors">
                     <div class="flex justify-between items-start z-10">
                         <span class="text-on-surface-variant font-data-label text-data-label uppercase tracking-wider">Scheduled</span>
-                        <span class="text-primary font-data-metric text-data-metric bg-primary-container/10 px-xs rounded">Queue</span>
+
                     </div>
                     <div class="z-10">
-                        <h3 id="stat-scheduled-posts" class="font-display-md text-display-md leading-none text-primary"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
-                        <p class="text-on-surface-variant text-body-sm">Ready to publish</p>
-                    </div>
-                    <div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
-                        <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
-                            <circle cx="20" cy="20" fill="none" r="15" stroke="#007a87" stroke-width="1"></circle>
-                            <circle cx="80" cy="20" fill="none" r="10" stroke="#007a87" stroke-width="1"></circle>
-                        </svg>
+                        <h3 id="stat-scheduled-posts" class="font-display-lg text-display-lg leading-none text-primary"><span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span></h3>
                     </div>
                 </div>
             </div>
+            <!-- Two Column Layout: SEO Analytics (Left) vs. Recent Activity (Right) -->
+            <div class="grid grid-cols-12 gap-gutter items-start">
+                <!-- Column 1: SEO Analytics Overview (Left, 6/12 width) -->
+                <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden p-lg flex flex-col justify-between">
+                    <div class="border-b border-surface-variant pb-sm mb-md flex justify-between items-center">
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">SEO Analytics</h3>
+                            <p class="text-on-surface-variant text-[11px] mt-xs"><span class="font-bold text-primary"><?php echo htmlspecialchars($seoSummary['site_url'] ?: 'No site linked'); ?></span></p>
+                        </div>
+                        <?php if ($seoSummary['is_connected']): ?>
+                            <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/seo.php" class="text-primary font-body-sm font-bold  cursor-pointer flex items-center gap-xs">
+                                <span>View More</span>
+                                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
 
-            <!-- Performance Timeline Chart Container Card -->
-            <div id="dashboard-analytics-card" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-lg shadow-sm space-y-md">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-surface-variant pb-sm gap-md">
-                    <div>
-                        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Performance Chart</h3>
-                        <p class="text-on-surface-variant text-xs mt-xs">How your posts are performing across your connected accounts.</p>
-                    </div>
-                    <div id="analytics-active-badge" class="px-sm py-[2px] rounded-full text-[10px] font-bold uppercase tracking-tight bg-primary-container/20 text-primary border border-primary-fixed capitalize">
-                        All Channels
-                    </div>
-                </div>
-                <div id="dashboard-analytics-content" class="min-h-[250px] flex items-center justify-center">
-                    <span class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
-                </div>
-            </div>
+                    <?php if (!$seoSummary['is_connected']): ?>
+                        <div class="flex-grow flex flex-col items-center justify-center py-xl text-center space-y-md text-on-surface-variant">
+                            <span class="material-symbols-outlined text-4xl text-outline-variant">search</span>
+                            <h4 class="font-bold text-sm text-on-surface">Google Search Console Not Connected</h4>
+                            <a href="connections.php" class="inline-flex items-center gap-xs px-md h-9 bg-primary text-on-primary rounded-lg font-bold text-xs hover:opacity-90 active:scale-95 transition-all">
+                                <span class="material-symbols-outlined text-sm">link</span>
+                                <span>Link Account</span>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <!-- GSC Metric Blocks Grid -->
+                        <div class="grid grid-cols-2 gap-md py-xs flex-grow">
+                            <!-- Clicks Card -->
+                            <div class="bg-surface-container-low border border-surface-variant p-md rounded-xl flex items-center gap-md shadow-xs">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <span class="material-symbols-outlined">ads_click</span>
+                                </div>
+                                <div>
+                                    <p class="font-data-label text-on-surface-variant uppercase text-[10px]">Total Clicks</p>
+                                    <p class="font-headline-sm text-headline-sm font-bold text-on-surface"><?php echo number_format($seoSummary['clicks']); ?></p>
+                                </div>
+                            </div>
 
-            <!-- Recent Activity Ledger Table (Stitch Design System) -->
-            <div class="grid grid-cols-12 gap-gutter">
-                <div class="col-span-12 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden">
-                    <div class="px-lg py-md border-b border-surface-variant flex justify-between items-center">
-                        <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Recent Activity</h3>
-                        <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php" class="text-primary font-body-sm font-bold hover:underline cursor-pointer">View History</a>
+                            <!-- Impressions Card -->
+                            <div class="bg-surface-container-low border border-surface-variant p-md rounded-xl flex items-center gap-md shadow-xs">
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </div>
+                                <div>
+                                    <p class="font-data-label text-on-surface-variant uppercase text-[10px]">Total Impressions</p>
+                                    <p class="font-headline-sm text-headline-sm font-bold text-on-surface"><?php echo number_format($seoSummary['impressions']); ?></p>
+                                </div>
+                            </div>
+
+                            <!-- CTR Card -->
+                            <div class="bg-surface-container-low border border-surface-variant p-md rounded-xl flex items-center gap-md shadow-xs">
+                                <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                                    <span class="material-symbols-outlined">percent</span>
+                                </div>
+                                <div>
+                                    <p class="font-data-label text-on-surface-variant uppercase text-[10px]">Average CTR</p>
+                                    <p class="font-headline-sm text-headline-sm font-bold text-on-surface"><?php echo number_format($seoSummary['ctr'], 2); ?>%</p>
+                                </div>
+                            </div>
+
+                            <!-- Avg Position Card -->
+                            <div class="bg-surface-container-low border border-surface-variant p-md rounded-xl flex items-center gap-md shadow-xs">
+                                <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                                    <span class="material-symbols-outlined">trending_up</span>
+                                </div>
+                                <div>
+                                    <p class="font-data-label text-on-surface-variant uppercase text-[10px]">Average Position</p>
+                                    <p class="font-headline-sm text-headline-sm font-bold text-on-surface"><?php echo number_format($seoSummary['position'], 1); ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Column 2: Recent Activity / Recent Posts (Right, 6/12 width) -->
+                <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest border border-surface-variant rounded-xl shadow-sm overflow-hidden p-lg flex flex-col justify-between">
+                    <div class="border-b border-surface-variant pb-sm mb-md flex justify-between items-center">
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Recent Posts</h3>
+                            <p class="text-on-surface-variant text-[11px] mt-xs">Recently Posted...</p>
+                        </div>
+                        <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php" class="text-primary font-body-sm font-bold hover:underline cursor-pointer flex items-center gap-xs">
+                            <span>View History</span>
+                            <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                        </a>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[800px]">
+
+                    <div class="overflow-x-auto flex-grow">
+                        <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-surface-container-low border-b border-surface-variant">
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Platform</th>
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Post Content</th>
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Date</th>
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase">Status</th>
-                                    <th class="px-lg py-sm font-data-label text-data-label text-on-surface-variant uppercase text-right">Action</th>
+                                <tr class="border-b border-surface-variant text-[10px] text-on-surface-variant uppercase tracking-wider font-bold">
+                                    <th class="py-sm px-xs text-left">Platform</th>
+                                    <th class="py-sm px-xs text-left">Title</th>
+                                    <th class="py-sm px-xs text-left">Date</th>
                                 </tr>
                             </thead>
-                            <tbody id="recent-activity-tbody" class="divide-y divide-surface-variant">
-                                <?php if (!empty($recentPostsError)): ?>
-                                    <tr>
-                                        <td colspan="5" class="px-lg py-md text-center text-error font-body-md">
-                                            ⚠️ Failed to load recent posts: <?php echo htmlspecialchars($recentPostsError); ?>
-                                        </td>
-                                    </tr>
-                                <?php elseif (empty($recentPosts)): ?>
-                                    <tr>
-                                        <td colspan="5" class="px-lg py-md text-center text-on-surface-variant font-body-md">
-                                            No posts yet. Start by creating your first post!
-                                        </td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($recentPosts as $post): 
-                                        $platformIcon = 'face';
-                                        $platformBg = 'bg-primary';
-                                        if ($post['platform'] === 'facebook') {
-                                            $platformIcon = 'public';
-                                            $platformBg = 'bg-[#1877F2]';
-                                        } elseif ($post['platform'] === 'instagram') {
-                                            $platformIcon = 'photo_camera';
-                                            $platformBg = 'bg-[#cc2366]';
-                                        } elseif ($post['platform'] === 'youtube') {
-                                            $platformIcon = 'play_circle';
-                                            $platformBg = 'bg-[#FF0000]';
-                                        } elseif ($post['platform'] === 'linkedin') {
-                                            $platformIcon = 'work';
-                                            $platformBg = 'bg-[#0077B5]';
-                                        } elseif ($post['platform'] === 'google_business') {
-                                            $platformIcon = 'store';
-                                            $platformBg = 'bg-[#4285F4]';
-                                        }
-                                        
-                                        $statusClass = 'bg-surface-container text-on-surface-variant';
-                                        if ($post['status'] === 'published') {
-                                            $statusClass = 'bg-[#E4F6EE] text-[#1F9D6B]';
-                                        } elseif ($post['status'] === 'scheduled') {
-                                            $statusClass = 'bg-primary-container/20 text-primary';
-                                        } elseif ($post['status'] === 'failed') {
-                                            $statusClass = 'bg-error-container text-error';
-                                        }
-                                        
-                                        $releaseTime = 'n/a';
-                                        if ($post['status'] === 'published' && $post['published_at']) {
-                                            $releaseTime = date('M d, H:i', strtotime($post['published_at']));
-                                        } elseif ($post['status'] === 'scheduled' && $post['scheduled_at']) {
-                                            $releaseTime = date('M d, H:i', strtotime($post['scheduled_at']));
-                                        } else {
-                                            $releaseTime = date('M d, H:i', strtotime($post['created_at']));
-                                        }
-                                    ?>
-                                        <tr class="hover:bg-secondary-container/10 transition-colors">
-                                            <td class="px-lg py-md">
-                                                <div class="flex items-center gap-xs">
-                                                    <div class="w-8 h-8 rounded-full <?php echo $platformBg; ?> flex items-center justify-center text-white shadow-xs">
-                                                        <span class="material-symbols-outlined text-sm"><?php echo $platformIcon; ?></span>
-                                                    </div>
-                                                    <span class="font-bold text-xs uppercase tracking-tight text-on-surface-variant ml-xs"><?php echo htmlspecialchars($post['platform']); ?></span>
-                                                </div>
-                                            </td>
-                                            <td class="px-lg py-md text-on-surface font-body-md truncate max-w-xs">
-                                                <?php echo htmlspecialchars($post['content']); ?>
-                                            </td>
-                                            <td class="px-lg py-md font-data-metric text-data-metric text-on-surface-variant">
-                                                <?php echo htmlspecialchars($releaseTime); ?>
-                                            </td>
-                                            <td class="px-lg py-md">
-                                                <span class="px-sm py-1 rounded-full text-xs font-bold uppercase tracking-tight <?php echo $statusClass; ?>">
-                                                    <?php echo htmlspecialchars($post['status']); ?>
-                                                </span>
-                                            </td>
-                                            <td class="px-lg py-md text-right">
-                                                <a href="<?php echo DASHBOARD_BASE_URL; ?>/pages/post_history.php" class="text-primary hover:underline font-bold text-xs">View</a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                            <tbody id="recent-activity-tbody" class="divide-y divide-surface-variant/30 text-xs">
+                                <tr>
+                                    <td colspan="3" class="py-xl text-center">
+                                        <span class="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -330,9 +293,15 @@ try {
 
     <script>
     function reloadDashboardData(force = false) {
-        const platform = document.getElementById('filter-platform').value;
-        const startDate = document.getElementById('filter-start-date').value;
-        const endDate = document.getElementById('filter-end-date').value;
+        const platform = "";
+        
+        // Default to last 30 days
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        
+        const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+        const endDate = today.toISOString().split('T')[0];
 
         // 1. Show spinners
         const spinner = '<span class="inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>';
@@ -341,13 +310,6 @@ try {
         document.getElementById('stat-published-posts').innerHTML = spinner;
         document.getElementById('stat-scheduled-posts').innerHTML = spinner;
         
-        document.getElementById('dashboard-analytics-content').innerHTML = 
-            '<span class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>';
-
-        // Update badge
-        const badge = document.getElementById('analytics-active-badge');
-        badge.textContent = platform ? platform.replace('_', ' ') : 'All Channels';
-
         // 2. Fetch statistics counts
         const params = {
             platform: platform,
@@ -363,7 +325,7 @@ try {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    const activeCountText = platform ? ' / 1 active' : ' / 6 active';
+                    const activeCountText = ' Active';
                     document.getElementById('stat-connections').innerHTML = 
                         data.connections_count + ` <span class="text-body-sm font-normal text-on-surface-variant">${activeCountText}</span>`;
                     document.getElementById('stat-total-posts').textContent = data.total_posts;
@@ -379,28 +341,7 @@ try {
             })
             .catch(err => console.error("Error loading stats:", err));
 
-        // 3. Fetch analytics timeline chart
-        const p2 = fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_analytics.php?${queryParams}`)
-            .then(res => res.text())
-            .then(html => {
-                const container = document.getElementById('dashboard-analytics-content');
-                container.innerHTML = html;
-                // Re-evaluate script elements inside AJAX response
-                const scripts = container.querySelectorAll('script');
-                scripts.forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                    oldScript.parentNode.replaceChild(newScript, oldScript);
-                });
-            })
-            .catch(err => {
-                console.error("Error loading analytics:", err);
-                document.getElementById('dashboard-analytics-content').innerHTML = 
-                    '<p class="text-error text-xs font-bold text-center">Failed to load live analytics metrics from Hub.</p>';
-            });
-
-        // 4. Fetch recent activity ledger
+        // 3. Fetch recent activity ledger
         const p3 = fetch(`<?php echo DASHBOARD_BASE_URL; ?>/pages/ajax_recent_posts.php`)
             .then(res => res.text())
             .then(html => {
@@ -408,7 +349,7 @@ try {
             })
             .catch(err => console.error("Error loading recent posts:", err));
 
-        return Promise.all([p1, p2, p3]);
+        return Promise.all([p1, p3]);
     }
 
     function triggerDashboardSync(btn) {
@@ -423,16 +364,6 @@ try {
             if (icon) icon.classList.remove('animate-spin');
             if (label) label.textContent = 'Refresh Data';
         });
-    }
-
-    function clearDashboardFilters() {
-        document.getElementById('filter-platform').value = '';
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        document.getElementById('filter-start-date').value = thirtyDaysAgo.toISOString().split('T')[0];
-        document.getElementById('filter-end-date').value = new Date().toISOString().split('T')[0];
-        
-        reloadDashboardData();
     }
 
     document.addEventListener("DOMContentLoaded", function() {
