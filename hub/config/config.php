@@ -70,3 +70,6 @@ define('WHATSAPP_VERIFY_TOKEN', getenv('HUB_WHATSAPP_VERIFY_TOKEN') ?: 'my_whats
 
 // Shared Admin Master Key for Dashboard Client-Management Integration
 define('HUB_ADMIN_MASTER_KEY', getenv('HUB_ADMIN_MASTER_KEY') ?: 'admin_master_secret_token_change_me');
+
+// Agency main dashboard host domain (change this to your production domain, e.g. 'rbfitness.in')
+define('AGENCY_DASHBOARD_DOMAIN', 'rbfitness.in');

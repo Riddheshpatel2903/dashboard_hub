@@ -48,6 +48,7 @@ $connectedPlatforms = array_unique($connectedPlatforms);
             <div class="grid grid-cols-12 gap-gutter">
                 <!-- Left Column: Form Inputs -->
                 <form id="composer-form" class="col-span-12 lg:col-span-7 bg-surface-container-lowest border border-surface-variant rounded-xl p-lg space-y-lg shadow-sm" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
                     <input type="hidden" id="schedule-type" name="schedule_type" value="now">
 
                     <!-- Post Type Selection -->

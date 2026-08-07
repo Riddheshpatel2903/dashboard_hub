@@ -67,16 +67,17 @@ define('CRON_SECRET', getenv('HUB_CRON_SECRET') ?: 'cron_secret_token_12345!');
 $cookiePath = empty($dashboardBaseUrl) ? '/' : $dashboardBaseUrl;
 
 // Session Settings
-define('SESSION_LIFETIME', 86400);  // 24 hours
+// Session Settings
+define('SESSION_LIFETIME', 1800);  // 30 minutes
 define('SECURE_SESSION_COOKIES', getenv('SECURE_SESSION_COOKIES') === 'true' || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'));
 
 // Set secure session parameters
 if (!headers_sent() && session_status() === PHP_SESSION_NONE) {
-    ini_set('session.cookie_lifetime', SESSION_LIFETIME);
+    ini_set('session.cookie_lifetime', 0); // Expire when browser is closed
     ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
 
     session_set_cookie_params([
-        'lifetime' => SESSION_LIFETIME,
+        'lifetime' => 0, // Expire when browser is closed
         'path' => $cookiePath,
         'domain' => '',
         'secure' => SECURE_SESSION_COOKIES,
@@ -106,4 +107,28 @@ function getBrandIconUrl($platform) {
         return $baseUrl . 'blog.svg';
     }
     return ''; // Returns empty string for custom fallback logic
+}
+
+/**
+ * CSRF Protection Helpers
+ */
+if (session_status() !== PHP_SESSION_NONE) {
+    if (empty($_SESSION['csrf_token'])) {
+        try {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        } catch (Exception $e) {
+            $_SESSION['csrf_token'] = md5(uniqid(rand(), true));
+        }
+    }
+}
+
+function getCsrfToken() {
+    return $_SESSION['csrf_token'] ?? '';
+}
+
+function verifyCsrfToken($token) {
+    if (empty($_SESSION['csrf_token']) || empty($token)) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
 }

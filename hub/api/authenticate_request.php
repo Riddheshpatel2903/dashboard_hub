@@ -63,4 +63,61 @@ if (!$client_id) {
     exit();
 }
 
+// Check if request origin is authorized (Registered Client Domain or Dashboard URL)
+$stmt = $pdo->prepare("SELECT website_url FROM clients WHERE id = :id LIMIT 1");
+$stmt->execute(['id' => $client_id]);
+$websiteUrl = $stmt->fetchColumn() ?: '';
+
+if (!function_exists('getCleanDomain')) {
+    function getCleanDomain($url) {
+        $url = trim($url);
+        if (empty($url)) return '';
+        if (strpos($url, 'http://') !== 0 && strpos($url, 'https://') !== 0) {
+            $url = 'https://' . $url;
+        }
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!$host) {
+            $host = $url;
+        }
+        $host = strtolower(trim($host));
+        if (strpos($host, 'www.') === 0) {
+            $host = substr($host, 4);
+        }
+        return $host;
+    }
+}
+
+$requestHost = getCleanDomain($_SERVER['HTTP_HOST'] ?? '');
+$refererHost = isset($_SERVER['HTTP_REFERER']) ? getCleanDomain($_SERVER['HTTP_REFERER']) : '';
+
+$dashboardHost = getCleanDomain(defined('AGENCY_DASHBOARD_DOMAIN') ? AGENCY_DASHBOARD_DOMAIN : '');
+$clientHost = getCleanDomain($websiteUrl);
+
+$isAuthorized = false;
+
+// Allow if request host or referer matches agency dashboard
+if (($requestHost !== '' && $requestHost === $dashboardHost) || ($refererHost !== '' && $refererHost === $dashboardHost)) {
+    $isAuthorized = true;
+}
+
+// Allow if request host or referer matches client's registered website url
+if ($clientHost !== '' && (($requestHost !== '' && $requestHost === $clientHost) || ($refererHost !== '' && $refererHost === $clientHost))) {
+    $isAuthorized = true;
+}
+
+// Allow local developer environments
+if (in_array($requestHost, ['localhost', '127.0.0.1', '::1'], true) || in_array($refererHost, ['localhost', '127.0.0.1', '::1'], true)) {
+    $isAuthorized = true;
+}
+
+if (!$isAuthorized) {
+    header('Content-Type: application/json', true, 403);
+    echo json_encode([
+        'success' => false,
+        'error'   => 'Access Denied: Request origin domain is unauthorized'
+    ]);
+    log_message('warning', "API request rejected: origin unauthorized. Client ID: {$client_id}, Host: {$requestHost}, Referer: {$refererHost}", ['ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
+    exit();
+}
+
 // $client_id is now defined and available to the script including this file.

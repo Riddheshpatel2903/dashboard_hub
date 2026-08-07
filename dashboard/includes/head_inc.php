@@ -6,6 +6,14 @@
  * and Material Symbols Outlined stylesheet.
  */
 ?>
+<script>
+// Force session expiration if browser window/tab was closed and reopened
+if (window.location.pathname.indexOf('/auth/login.php') === -1) {
+    if (!sessionStorage.getItem('session_active')) {
+        window.location.href = '<?php echo rtrim(DASHBOARD_BASE_URL, "/"); ?>/auth/logout.php';
+    }
+}
+</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 

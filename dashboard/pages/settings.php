@@ -29,54 +29,68 @@ if (!empty($hubRes['success']) && !empty($hubRes['client'])) {
 
 // 2. Handle Form Updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    
-    if ($action === 'profile') {
-        $newName = trim($_POST['name'] ?? '');
-        $newWebsite = trim($_POST['website_url'] ?? '');
+    $csrfToken = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfToken($csrfToken)) {
+        $error = 'Security check failed. Invalid CSRF token.';
+    } else {
+        $action = $_POST['action'] ?? '';
         
-        if (empty($newName) || empty($newWebsite)) {
-            $error = 'Business name and website URL cannot be empty.';
-        } else {
-            // Update profile on Hub
-            $updateRes = hubUpdateClient($client_id, $newName, $newWebsite);
-            if (!empty($updateRes['success'])) {
-                $clientName = $newName;
-                $clientWebsite = $newWebsite;
-                $success = 'Profile details updated successfully on the Hub!';
+        if ($action === 'profile') {
+            $newName = trim($_POST['name'] ?? '');
+            $newWebsite = trim($_POST['website_url'] ?? '');
+            
+            if (empty($newName) || empty($newWebsite)) {
+                $error = 'Business name and website URL cannot be empty.';
             } else {
-                $error = 'Failed to update Hub profile: ' . ($updateRes['error'] ?? 'Unknown Error');
-            }
-        }
-    } elseif ($action === 'password') {
-        $currentPass = $_POST['current_password'] ?? '';
-        $newPass = $_POST['new_password'] ?? '';
-        $confirmPass = $_POST['confirm_password'] ?? '';
-        
-        if (empty($currentPass) || empty($newPass) || empty($confirmPass)) {
-            $error = 'All password fields are required.';
-        } elseif (strlen($newPass) < 8) {
-            $error = 'New password must be at least 8 characters long.';
-        } elseif ($newPass !== $confirmPass) {
-            $error = 'New passwords do not match.';
-        } else {
-            try {
-                // Fetch user's current password
-                $stmt = $pdo->prepare("SELECT password FROM users WHERE id = :user_id LIMIT 1");
-                $stmt->execute(['user_id' => $user_id]);
-                $userPass = $stmt->fetchColumn();
-                
-                if ($userPass && $currentPass === $userPass) {
-                    // Update to new password
-                    $stmtUpdate = $pdo->prepare("UPDATE users SET password = :password WHERE id = :user_id");
-                    $stmtUpdate->execute(['password' => $newPass, 'user_id' => $user_id]);
-                    
-                    $success = 'Password changed successfully.';
+                // Update profile on Hub
+                $updateRes = hubUpdateClient($client_id, $newName, $newWebsite);
+                if (!empty($updateRes['success'])) {
+                    $clientName = $newName;
+                    $clientWebsite = $newWebsite;
+                    $success = 'Profile details updated successfully on the Hub!';
                 } else {
-                    $error = 'Current password is incorrect.';
+                    $error = 'Failed to update Hub profile: ' . ($updateRes['error'] ?? 'Unknown Error');
                 }
-            } catch (Exception $e) {
-                $error = 'Password update failed: ' . $e->getMessage();
+            }
+        } elseif ($action === 'password') {
+            $currentPass = $_POST['current_password'] ?? '';
+            $newPass = $_POST['new_password'] ?? '';
+            $confirmPass = $_POST['confirm_password'] ?? '';
+            
+            if (empty($currentPass) || empty($newPass) || empty($confirmPass)) {
+                $error = 'All password fields are required.';
+            } elseif (strlen($newPass) < 8) {
+                $error = 'New password must be at least 8 characters long.';
+            } elseif ($newPass !== $confirmPass) {
+                $error = 'New passwords do not match.';
+            } else {
+                try {
+                    // Fetch user's current password
+                    $stmt = $pdo->prepare("SELECT password FROM users WHERE id = :user_id LIMIT 1");
+                    $stmt->execute(['user_id' => $user_id]);
+                    $userPass = $stmt->fetchColumn();
+                    
+                    // Support both plain text and hashed passwords
+                    $currentPassValid = false;
+                    if ($userPass) {
+                        if ($currentPass === $userPass || password_verify($currentPass, $userPass)) {
+                            $currentPassValid = true;
+                        }
+                    }
+                    
+                    if ($userPass && $currentPassValid) {
+                        // Store the new password securely using bcrypt hashing
+                        $hashedPass = password_hash($newPass, PASSWORD_DEFAULT);
+                        $stmtUpdate = $pdo->prepare("UPDATE users SET password = :password WHERE id = :user_id");
+                        $stmtUpdate->execute(['password' => $hashedPass, 'user_id' => $user_id]);
+                        
+                        $success = 'Password changed successfully.';
+                    } else {
+                        $error = 'Current password is incorrect.';
+                    }
+                } catch (Exception $e) {
+                    $error = 'Password update failed: ' . $e->getMessage();
+                }
             }
         }
     }
@@ -129,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <form method="POST" action="" class="space-y-md">
+                        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
                         <input type="hidden" name="action" value="profile">
                         <div class="space-y-xs">
                             <label for="name" class="font-data-label text-data-label text-on-surface-variant block">COMPANY / BUSINESS NAME</label>
@@ -153,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <form method="POST" action="" class="space-y-md">
+                        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
                         <input type="hidden" name="action" value="password">
                         <div class="space-y-xs">
                             <label for="current_password" class="font-data-label text-data-label text-on-surface-variant block">CURRENT PASSWORD</label>

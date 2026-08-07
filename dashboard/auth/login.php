@@ -327,6 +327,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 card.style.transform = `translate(${xAxis}px, ${yAxis}px)`;
             });
 
+            // Clear winking session storage flags
+            sessionStorage.removeItem('session_active');
+
             // Prevent form submit cancellation & handle submission with dynamic status indicators
             const loginForm = document.getElementById('login-form');
             const submitBtn = document.getElementById('login-submit-btn');
@@ -365,6 +368,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     .then(async (response) => {
                         const data = await response.json().catch(() => ({}));
                         if (response.ok && data.success) {
+                            // Enable session storage indicator for closed window checks
+                            sessionStorage.setItem('session_active', 'true');
+
                             statusMessage.textContent = 'Success! Fetching dashboard session data...';
                             statusBanner.className = 'mb-lg p-md rounded-lg text-body-sm flex items-center gap-sm bg-emerald-50 border border-emerald-200 text-emerald-800 transition-all duration-300';
                             statusIcon.textContent = 'check_circle';
